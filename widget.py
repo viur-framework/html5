@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: latin-1 -*-
+
 import re
 from html5 import document
 
@@ -100,6 +103,7 @@ class StyleWrapper( dict ):
 
 class Widget( object ):
 	_baseClass = None
+	_namespace = None
 
 	def __init__(self, *args, **kwargs ):
 		if "_wrapElem" in kwargs.keys():
@@ -107,7 +111,7 @@ class Widget( object ):
 			del kwargs["_wrapElem"]
 		else:
 			assert self._baseClass is not None
-			self.element = document.createElement( self._baseClass )
+			self.element = document.createElement(self._baseClass, ns=self._namespace)
 		super( Widget, self ).__init__( *args, **kwargs )
 		self._children = []
 		self._catchedEvents = []

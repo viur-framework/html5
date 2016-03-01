@@ -26,6 +26,8 @@ from html5.link import Link
 from html5.map import Map
 from html5.meta import Meta
 
+from html5.svg import Svg, SvgCircle, SvgEllipse, SvgG, SvgImage, SvgLine, SvgPath, SvgPolygon, SvgPolyline, SvgRect, SvgText
+
 from html5.meter import Meter
 from html5.object import Object
 from html5.param import Param

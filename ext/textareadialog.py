@@ -2,18 +2,17 @@ import html5
 from html5.ext.popup import Popup
 from html5.ext.button import Button
 
-class InputDialog( Popup ):
+class TextareaDialog( Popup ):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel", *args, **kwargs ):
-		super( InputDialog, self ).__init__(*args, **kwargs)
-		self["class"].append("inputdialog")
+		super( TextareaDialog, self ).__init__(*args, **kwargs)
+		self["class"].append("textareadialog")
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler
 
 		span = html5.Span()
 		span.element.innerHTML = text
 		self.appendChild(span)
-		self.inputElem = html5.Input()
-		self.inputElem["type"] = "text"
+		self.inputElem = html5.Textarea()
 		self.inputElem["value"] = value
 		self.appendChild( self.inputElem )
 		okayBtn = Button(successLbl, self.onOkay)
@@ -32,10 +31,13 @@ class InputDialog( Popup ):
 				key = 'Escape'
 			else:
 				key = event.keyIdentifier
+		print("TextareaDialog:onKeyDown ", key)
+		# Some keys have special treatment
 		if 'Enter' == key:
-			event.stopPropagation()
-			event.preventDefault()
-			self.onOkay()
+			pass
+			# event.stopPropagation()
+			# event.preventDefault()
+			# self.onOkay()
 		elif 'Escape' == key:
 			event.stopPropagation()
 			event.preventDefault()
