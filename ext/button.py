@@ -8,6 +8,7 @@ class Button(fButton):
 		self["type"]="button"
 
 		if txt is not None:
+			self.element.innerHTML = txt
 			self.setText(txt)
 
 		self.callback = callback
