@@ -1,5 +1,5 @@
 from html5.form import Button as fButton
-from html5 import TextNode
+from html5.textnode import TextNode
 
 class Button(fButton):
 	def __init__(self, txt=None, callback=None, *args, **kwargs):
@@ -8,7 +8,6 @@ class Button(fButton):
 		self["type"]="button"
 
 		if txt is not None:
-			self.element.innerHTML = txt
 			self.setText(txt)
 
 		self.callback = callback
