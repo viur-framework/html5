@@ -512,6 +512,77 @@ class Widget( object ):
 
 		return False
 
+	def addClass(self, *args):
+		"""
+		Adds a class or a list of classes to the current widget.
+		If the widget already has the class, it is ignored.
+
+		:param args: A list of class names. This can also be a list.
+		:type args: list of str | list of list of str
+		"""
+
+		for item in args:
+			if isinstance(item, list):
+				self.addClass(item)
+
+			elif isinstance(item, str) or isinstance(item, unicode):
+				for sitem in item.split(" "):
+					if sitem not in self["class"]:
+						self["class"].append(sitem)
+			else:
+				raise TypeError()
+
+	def removeClass(self, *args):
+		"""
+		Removes a class or a list of classes from the current widget.
+
+		:param args: A list of class names. This can also be a list.
+		:type args: list of str | list of list of str
+		"""
+
+		for item in args:
+			if isinstance(item, list):
+				self.removeClass(item)
+
+			elif isinstance(item, str) or isinstance(item, unicode):
+				for sitem in item.split(" "):
+					if sitem in self["class"]:
+						self["class"].remove(sitem)
+			else:
+				raise TypeError()
+
+	def toggleClass(self, on, off = None):
+		"""
+		Toggles the class ``on``.
+
+		If the widget contains a class ``on``, it is toggled by ``off``.
+		``off`` can either be a class name that is substituted, or nothing.
+
+		:param on: Classname to test for. If ``on`` does not exist, but ``off``, ``off`` is replaced by ``on``.
+		:type on: str
+
+		:param off: Classname to replace if ``on`` existed.
+		:type off: str
+
+		:return: Returns True, if ``on`` was switched, else False.
+		:rtype: bool
+		"""
+		if on in self["class"]:
+			self["class"].remove(on)
+
+			if off and off not in self["class"]:
+				self["class"].append(off)
+
+			return False
+
+		if off and off in self["class"]:
+			self["class"].remove(off)
+
+		if on not in self["class"]:
+			self["class"].append(on)
+
+		return True
+
 	def onBlur(self, event):
 		pass
 	def onChange(self, event):
