@@ -578,9 +578,7 @@ class Widget( object ):
 		if off and off in self["class"]:
 			self["class"].remove(off)
 
-		if on not in self["class"]:
-			self["class"].append(on)
-
+		self["class"].append(on)
 		return True
 
 	def onBlur(self, event):
