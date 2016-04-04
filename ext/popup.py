@@ -28,15 +28,23 @@ class YesNoDialog( Popup ):
 	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args, **kwargs):
 		super( YesNoDialog, self ).__init__( title, *args, **kwargs )
 		self["class"].append("yesnodialog")
+
 		self.yesCallback = yesCallback
 		self.noCallback = noCallback
+
 		lbl = html5.Span()
 		lbl["class"].append("question")
-		lbl.appendChild( html5.TextNode( question ) )
-		self.appendChild( lbl )
+		self.appendChild(lbl)
+
+		if isinstance(question, html5.Widget):
+			lbl.appendChild(question)
+		else:
+			html5.utils.textToHtml(lbl, question)
+
 		btnYes = html5.ext.Button(yesLabel, callback=self.onYesClicked )
 		btnYes["class"].append("btn_yes")
 		self.appendChild(btnYes)
+
 		btnNo = html5.ext.Button(noLabel, callback=self.onNoClicked )
 		btnNo["class"].append("btn_no")
 		self.appendChild(btnNo)

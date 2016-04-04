@@ -1,5 +1,4 @@
 from html5.form import Button as fButton
-from html5.textnode import TextNode
 
 class Button(fButton):
 	def __init__(self, txt=None, callback=None, *args, **kwargs):
@@ -14,10 +13,10 @@ class Button(fButton):
 		self.sinkEvent("onClick")
 
 	def setText(self, txt):
-		self.removeAllChildren()
-
 		if txt is not None:
-			self.appendChild(TextNode(txt))
+			self.element.innerHTML = txt
+		else:
+			self.element.innerHTML = ""
 
 	def onClick(self, event):
 		event.stopPropagation()
