@@ -45,9 +45,31 @@ class YesNoDialog( Popup ):
 		btnYes["class"].append("btn_yes")
 		self.appendChild(btnYes)
 
-		btnNo = html5.ext.Button(noLabel, callback=self.onNoClicked )
-		btnNo["class"].append("btn_no")
-		self.appendChild(btnNo)
+		if len(noLabel):
+			btnNo = html5.ext.Button(noLabel, callback=self.onNoClicked )
+			btnNo["class"].append("btn_no")
+			self.appendChild(btnNo)
+
+		self.sinkEvent("onkeydown")
+		btnYes.focus()
+
+	def onkeydown(self, event):
+		if hasattr(event, 'key'):
+			key = event.key
+		elif hasattr(event, 'keyIdentifier'):
+			# Babelfish: Translate 'keyIdentifier' into 'key'
+			if event.keyIdentifier in ['Esc', 'U+001B']:
+				key = 'Escape'
+			else:
+				key = event.keyIdentifier
+		if 'Enter' == key:
+			event.stopPropagation()
+			event.preventDefault()
+			self.onYesClicked()
+		elif 'Escape' == key:
+			event.stopPropagation()
+			event.preventDefault()
+			self.onNoClicked()
 
 	def drop(self):
 		self.yesCallback = None
