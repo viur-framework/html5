@@ -1,7 +1,7 @@
 import html5
 
 class Popup( html5.Div ):
-	def __init__(self, title=None, *args, **kwargs ):
+	def __init__(self, title=None, id=None, *args, **kwargs ):
 		super( Popup, self ).__init__(*args, **kwargs)
 
 		self["class"] = "alertbox"
@@ -10,6 +10,9 @@ class Popup( html5.Div ):
 			lbl["class"].append("title")
 			lbl.appendChild( html5.TextNode( title ) )
 			self.appendChild( lbl )
+
+		# id can be used to pass information to callbacks
+		self.id = id
 
 		self.frameDiv = html5.Div()
 		self.frameDiv["class"] = "popup"
