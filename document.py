@@ -6,14 +6,14 @@ def createAttribute(tag, ns=None):
    """
     # print("createAttribute:", tag)
     if ns is None or ns not in ["SVG", "XBL", "XUL"]:
-        return(eval("window.top.document.createAttribute(\"%s\")" % tag))
+        return(eval("window.parent.document.createAttribute(\"%s\")" % tag))
     if ns=="SVG":
         uri = "http://www.w3.org/2000/svg"
     elif ns=="XBL":
         uri = "http://www.mozilla.org/xbl"
     elif ns=="XUL":
         uri = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    return(eval('''window.top.document.createAttributeNS("{}", "{}")'''.format(uri, tag)))
+    return(eval('''window.parent.document.createAttributeNS("{}", "{}")'''.format(uri, tag)))
 
 
 def createElement(element, ns=None):
@@ -23,21 +23,21 @@ def createElement(element, ns=None):
    """
     # print("createElement:", element)
     if ns is None or ns not in ["SVG", "XBL", "XUL"]:
-        return(eval("window.top.document.createElement(\"%s\")" % element))
+        return(eval("window.parent.document.createElement(\"%s\")" % element))
     if ns=="SVG":
         uri = "http://www.w3.org/2000/svg"
     elif ns=="XBL":
         uri = "http://www.mozilla.org/xbl"
     elif ns=="XUL":
         uri = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    return(eval('''window.top.document.createElementNS("{}", "{}")'''.format(uri, element)))
+    return(eval('''window.parent.document.createElementNS("{}", "{}")'''.format(uri, element)))
 
 
 def getElementById(idTag):
-    return(eval("window.top.document.getElementById(\"%s\")" % idTag))
+    return(eval("window.parent.document.getElementById(\"%s\")" % idTag))
 
 def getElementsByTagName( tagName ):
-    doc = eval("window.top.document");
+    doc = eval("window.parent.document");
     res = []
     htmlCol = doc.getElementsByTagName(tagName)
     for x in range( 0, htmlCol.length):
