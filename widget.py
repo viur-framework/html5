@@ -659,6 +659,9 @@ class Widget( object ):
 	def parent(self):
 		return self._parent
 
+	def children(self):
+		return self._children
+
 	def _getEventMap(self):
 		res = { "onblur": "onBlur",
 				"onchange":"onChange",
