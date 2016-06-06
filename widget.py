@@ -659,6 +659,27 @@ class Widget( object ):
 	def parent(self):
 		return self._parent
 
+	def children(self, n = None):
+		"""
+		Access children of widget.
+
+		If ``n`` is ommitted, it returns a list of all child-widgets;
+		Else, it returns the N'th child, or None if its out of bounds.
+
+		:param n: Optional offset of child widget to return.
+		:type n: int
+
+		:return: Returns all children or only the requested one.
+		:rtype: list | Widget | None
+		"""
+		if n is None:
+			return self._children
+
+		try:
+			return self._children[n]
+		except:
+			return None
+
 	def _getEventMap(self):
 		res = { "onblur": "onBlur",
 				"onchange":"onChange",
