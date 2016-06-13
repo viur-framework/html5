@@ -429,6 +429,19 @@ class Widget( object ):
 		for c in self._children[:]:
 			c.onDetach()
 
+	def insertBefore(self, insert, child):
+		assert child in self._children, "%s is not a child of %s" % (child, self)
+
+		if insert._parent:
+			insert._parent.removeChild(insert)
+
+		self.element.insertBefore(insert.element, child.element)
+		self._children.insert(self._children.index(child), insert)
+
+		insert._parent = self
+		if self._isAttached:
+			insert.onAttach()
+
 	def prependChild(self, child):
 		if child._parent:
 			child._parent._children.remove(child)
@@ -436,12 +449,7 @@ class Widget( object ):
 		if not self._children:
 			self.appendChild(child)
 		else:
-			self.element.insertBefore(child.element, self._children[0].element)
-			self._children.insert(0, child)
-
-			child._parent = self
-			if self._isAttached:
-				child.onAttach()
+			self.insertBefore(child, self.children(0))
 
 	def appendChild(self, child):
 		if child._parent:
@@ -455,8 +463,10 @@ class Widget( object ):
 
 	def removeChild(self, child):
 		assert child in self._children, "%s is not a child of %s" % (child, self)
+
 		if child._isAttached:
 			child.onDetach()
+
 		self.element.removeChild( child.element )
 		self._children.remove( child )
 		child._parent = None
