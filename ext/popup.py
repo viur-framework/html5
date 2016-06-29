@@ -39,7 +39,7 @@ class Alert(Popup):
 		self.appendChild(message)
 
 		if isinstance(msg, html5.Widget):
-			message.appendChild(question)
+			message.appendChild(msg)
 		else:
 			html5.utils.textToHtml(message, msg)
 

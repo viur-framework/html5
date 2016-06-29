@@ -61,7 +61,6 @@ def textToHtml(node, text):
 	"""
 
 	for (i, part) in enumerate(text.split("\n")):
-		print(node, i, part)
 		if i > 0:
 			node.appendChild(html5.Br())
 
