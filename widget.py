@@ -445,6 +445,7 @@ class Widget( object ):
 	def prependChild(self, child):
 		if child._parent:
 			child._parent._children.remove(child)
+			child._parent = None
 
 		if not self._children:
 			self.appendChild(child)
