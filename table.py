@@ -1,4 +1,5 @@
 from html5.widget import Widget
+from html5 import TextNode
 
 class Tr(Widget):
 	_baseClass = "tr"
@@ -68,7 +69,7 @@ class ColWrapper(object):
 		assert col is not None, "Cannot assign widget to invalid column"
 
 		col.removeAllChildren()
-		if isinstance(value, Widget):
+		if isinstance(value, Widget) or isinstance(value, TextNode):
 			col.appendChild(value)
 
 class RowWrapper(object):
