@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: latin-1 -*-
+
 import re
 from html5 import document
 
@@ -100,6 +103,7 @@ class StyleWrapper( dict ):
 
 class Widget( object ):
 	_baseClass = None
+	_namespace = None
 
 	def __init__(self, *args, **kwargs ):
 		if "_wrapElem" in kwargs.keys():
@@ -107,7 +111,7 @@ class Widget( object ):
 			del kwargs["_wrapElem"]
 		else:
 			assert self._baseClass is not None
-			self.element = document.createElement( self._baseClass )
+			self.element = document.createElement(self._baseClass, ns=self._namespace)
 		super( Widget, self ).__init__( *args, **kwargs )
 		self._children = []
 		self._catchedEvents = []
@@ -425,19 +429,28 @@ class Widget( object ):
 		for c in self._children[:]:
 			c.onDetach()
 
+	def insertBefore(self, insert, child):
+		assert child in self._children, "%s is not a child of %s" % (child, self)
+
+		if insert._parent:
+			insert._parent.removeChild(insert)
+
+		self.element.insertBefore(insert.element, child.element)
+		self._children.insert(self._children.index(child), insert)
+
+		insert._parent = self
+		if self._isAttached:
+			insert.onAttach()
+
 	def prependChild(self, child):
 		if child._parent:
 			child._parent._children.remove(child)
+			child._parent = None
 
 		if not self._children:
 			self.appendChild(child)
 		else:
-			self.element.insertBefore(child.element, self._children[0].element)
-			self._children.insert(0, child)
-
-			child._parent = self
-			if self._isAttached:
-				child.onAttach()
+			self.insertBefore(child, self.children(0))
 
 	def appendChild(self, child):
 		if child._parent:
@@ -451,8 +464,10 @@ class Widget( object ):
 
 	def removeChild(self, child):
 		assert child in self._children, "%s is not a child of %s" % (child, self)
+
 		if child._isAttached:
 			child.onDetach()
+
 		self.element.removeChild( child.element )
 		self._children.remove( child )
 		child._parent = None
@@ -507,6 +522,75 @@ class Widget( object ):
 			parent = widget.parent()
 
 		return False
+
+	def addClass(self, *args):
+		"""
+		Adds a class or a list of classes to the current widget.
+		If the widget already has the class, it is ignored.
+
+		:param args: A list of class names. This can also be a list.
+		:type args: list of str | list of list of str
+		"""
+
+		for item in args:
+			if isinstance(item, list):
+				self.addClass(item)
+
+			elif isinstance(item, str) or isinstance(item, unicode):
+				for sitem in item.split(" "):
+					if sitem not in self["class"]:
+						self["class"].append(sitem)
+			else:
+				raise TypeError()
+
+	def removeClass(self, *args):
+		"""
+		Removes a class or a list of classes from the current widget.
+
+		:param args: A list of class names. This can also be a list.
+		:type args: list of str | list of list of str
+		"""
+
+		for item in args:
+			if isinstance(item, list):
+				self.removeClass(item)
+
+			elif isinstance(item, str) or isinstance(item, unicode):
+				for sitem in item.split(" "):
+					if sitem in self["class"]:
+						self["class"].remove(sitem)
+			else:
+				raise TypeError()
+
+	def toggleClass(self, on, off = None):
+		"""
+		Toggles the class ``on``.
+
+		If the widget contains a class ``on``, it is toggled by ``off``.
+		``off`` can either be a class name that is substituted, or nothing.
+
+		:param on: Classname to test for. If ``on`` does not exist, but ``off``, ``off`` is replaced by ``on``.
+		:type on: str
+
+		:param off: Classname to replace if ``on`` existed.
+		:type off: str
+
+		:return: Returns True, if ``on`` was switched, else False.
+		:rtype: bool
+		"""
+		if on in self["class"]:
+			self["class"].remove(on)
+
+			if off and off not in self["class"]:
+				self["class"].append(off)
+
+			return False
+
+		if off and off in self["class"]:
+			self["class"].remove(off)
+
+		self["class"].append(on)
+		return True
 
 	def onBlur(self, event):
 		pass
@@ -585,6 +669,27 @@ class Widget( object ):
 
 	def parent(self):
 		return self._parent
+
+	def children(self, n = None):
+		"""
+		Access children of widget.
+
+		If ``n`` is ommitted, it returns a list of all child-widgets;
+		Else, it returns the N'th child, or None if its out of bounds.
+
+		:param n: Optional offset of child widget to return.
+		:type n: int
+
+		:return: Returns all children or only the requested one.
+		:rtype: list | Widget | None
+		"""
+		if n is None:
+			return self._children
+
+		try:
+			return self._children[n]
+		except:
+			return None
 
 	def _getEventMap(self):
 		res = { "onblur": "onBlur",
