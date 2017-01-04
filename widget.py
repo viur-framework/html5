@@ -1,8 +1,5 @@
-#!/usr/bin/python
-# -*- coding: latin-1 -*-
-
-import re
-from html5 import document
+# -*- coding: utf-8 -*-
+from html5 import document, textnode
 
 class ClassWrapper( list ):
 	def __init__( self, targetWidget ):
@@ -194,14 +191,14 @@ class Widget( object ):
 
 	def _getTranslate(self):
 		"""
-		Specifies whether an element’s attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
 		@return: True | False
 		"""
 		return True if self.element.translate=="yes" else False
 
 	def _setTranslate(self,val):
 		"""
-		Specifies whether an element’s attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
 		@param val: True | False
 		"""
 		self.element.translate="yes" if val==True else "no"
@@ -248,13 +245,13 @@ class Widget( object ):
 
 	def _getLang(self):
 		"""
-		Specifies the primary language for the contents of the element and for any of the element’s attributes that contain text.
+		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
 		@return: language tag e.g. de|en|fr|es|it|ru|
 		"""
 		return self.element.lang
 	def _setLang(self,val):
 		"""
-		Specifies the primary language for the contents of the element and for any of the element’s attributes that contain text.
+		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
 		@param val: language tag
 		"""
 		self.element.lang=val
@@ -303,13 +300,13 @@ class Widget( object ):
 
 	def _getDir(self):
 		"""
-		Specifies the element’s text directionality.
+		Specifies the elementâs text directionality.
 		@return: ltr | rtl | auto
 		"""
 		return self.element.dir
 	def _setDir(self,val):
 		"""
-		Specifies the element’s text directionality.
+		Specifies the elementâs text directionality.
 		@param val: ltr | rtl | auto
 		"""
 		self.element.dir=val
@@ -443,6 +440,9 @@ class Widget( object ):
 			insert.onAttach()
 
 	def prependChild(self, child):
+		if not isinstance(child, Widget):
+			child = textnode.TextNode(str(child))
+
 		if child._parent:
 			child._parent._children.remove(child)
 			child._parent = None
@@ -453,6 +453,9 @@ class Widget( object ):
 			self.insertBefore(child, self.children(0))
 
 	def appendChild(self, child):
+		if not isinstance(child, Widget):
+			child = textnode.TextNode(str(child))
+
 		if child._parent:
 			child._parent._children.remove(child)
 
@@ -686,10 +689,10 @@ class Widget( object ):
 		if n is None:
 			return self._children
 
-		try:
+		if n >= 0 and n < len(self._children):
 			return self._children[n]
-		except:
-			return None
+
+		return None
 
 	def _getEventMap(self):
 		res = { "onblur": "onBlur",
