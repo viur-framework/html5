@@ -687,7 +687,7 @@ class Widget( object ):
 		:rtype: list | Widget | None
 		"""
 		if n is None:
-			return self._children
+			return self._children[:]
 
 		if n >= 0 and n < len(self._children):
 			return self._children[n]
