@@ -1,8 +1,5 @@
-#!/usr/bin/python
-# -*- coding: latin-1 -*-
-
-import re
-from html5 import document
+# -*- coding: utf-8 -*-
+from html5 import document, textnode
 
 class ClassWrapper( list ):
 	def __init__( self, targetWidget ):
@@ -194,14 +191,14 @@ class Widget( object ):
 
 	def _getTranslate(self):
 		"""
-		Specifies whether an element’s attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
 		@return: True | False
 		"""
 		return True if self.element.translate=="yes" else False
 
 	def _setTranslate(self,val):
 		"""
-		Specifies whether an element’s attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
 		@param val: True | False
 		"""
 		self.element.translate="yes" if val==True else "no"
@@ -248,13 +245,13 @@ class Widget( object ):
 
 	def _getLang(self):
 		"""
-		Specifies the primary language for the contents of the element and for any of the element’s attributes that contain text.
+		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
 		@return: language tag e.g. de|en|fr|es|it|ru|
 		"""
 		return self.element.lang
 	def _setLang(self,val):
 		"""
-		Specifies the primary language for the contents of the element and for any of the element’s attributes that contain text.
+		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
 		@param val: language tag
 		"""
 		self.element.lang=val
@@ -303,13 +300,13 @@ class Widget( object ):
 
 	def _getDir(self):
 		"""
-		Specifies the element’s text directionality.
+		Specifies the elementâs text directionality.
 		@return: ltr | rtl | auto
 		"""
 		return self.element.dir
 	def _setDir(self,val):
 		"""
-		Specifies the element’s text directionality.
+		Specifies the elementâs text directionality.
 		@param val: ltr | rtl | auto
 		"""
 		self.element.dir=val
@@ -429,21 +426,36 @@ class Widget( object ):
 		for c in self._children[:]:
 			c.onDetach()
 
+	def insertBefore(self, insert, child):
+		assert child in self._children, "%s is not a child of %s" % (child, self)
+
+		if insert._parent:
+			insert._parent.removeChild(insert)
+
+		self.element.insertBefore(insert.element, child.element)
+		self._children.insert(self._children.index(child), insert)
+
+		insert._parent = self
+		if self._isAttached:
+			insert.onAttach()
+
 	def prependChild(self, child):
+		if not isinstance(child, Widget):
+			child = textnode.TextNode(str(child))
+
 		if child._parent:
 			child._parent._children.remove(child)
+			child._parent = None
 
 		if not self._children:
 			self.appendChild(child)
 		else:
-			self.element.insertBefore(child.element, self._children[0].element)
-			self._children.insert(0, child)
-
-			child._parent = self
-			if self._isAttached:
-				child.onAttach()
+			self.insertBefore(child, self.children(0))
 
 	def appendChild(self, child):
+		if not isinstance(child, Widget):
+			child = textnode.TextNode(str(child))
+
 		if child._parent:
 			child._parent._children.remove(child)
 
@@ -455,8 +467,10 @@ class Widget( object ):
 
 	def removeChild(self, child):
 		assert child in self._children, "%s is not a child of %s" % (child, self)
+
 		if child._isAttached:
 			child.onDetach()
+
 		self.element.removeChild( child.element )
 		self._children.remove( child )
 		child._parent = None
@@ -658,6 +672,27 @@ class Widget( object ):
 
 	def parent(self):
 		return self._parent
+
+	def children(self, n = None):
+		"""
+		Access children of widget.
+
+		If ``n`` is ommitted, it returns a list of all child-widgets;
+		Else, it returns the N'th child, or None if its out of bounds.
+
+		:param n: Optional offset of child widget to return.
+		:type n: int
+
+		:return: Returns all children or only the requested one.
+		:rtype: list | Widget | None
+		"""
+		if n is None:
+			return self._children
+
+		if n >= 0 and n < len(self._children):
+			return self._children[n]
+
+		return None
 
 	def _getEventMap(self):
 		res = { "onblur": "onBlur",

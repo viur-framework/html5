@@ -27,6 +27,55 @@ class Popup( html5.Div ):
 		html5.Body().removeChild( self.frameDiv )
 		self.frameDiv = None
 
+class Alert(Popup):
+	"""
+	Just displaying an alerting message box with OK-button.
+	"""
+	def __init__(self, msg, title=None, okCallback=None, okLabel="OK", *args, **kwargs):
+		super(Alert, self).__init__(title, *args, **kwargs)
+		self.addClass("alert")
+
+		self.okCallback = okCallback
+
+		message = html5.Span()
+		message.addClass("alert-msg")
+		self.appendChild(message)
+
+		if isinstance(msg, html5.Widget):
+			message.appendChild(msg)
+		else:
+			html5.utils.textToHtml(message, msg)
+
+		okBtn = html5.ext.Button(okLabel, callback=self.onOkBtnClick)
+		okBtn.addClass("alert-btn-ok")
+		self.appendChild(okBtn)
+
+		self.sinkEvent("onKeyDown")
+		okBtn.focus()
+
+	def drop(self):
+		self.okCallback = None
+		self.close()
+
+	def onOkBtnClick(self, sender=None):
+		if self.okCallback:
+			self.okCallback(self)
+
+		self.drop()
+
+	def onKeyDown(self, event):
+		if hasattr(event, "key"):
+			key = event.key
+		elif hasattr(event, "keyIdentifier"):
+			key = event.keyIdentifier
+		else:
+			key = None
+
+		if key == "Enter":
+			event.stopPropagation()
+			event.preventDefault()
+			self.onOkBtnClick()
+
 class YesNoDialog( Popup ):
 	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args, **kwargs):
 		super( YesNoDialog, self ).__init__( title, *args, **kwargs )
@@ -57,19 +106,22 @@ class YesNoDialog( Popup ):
 		btnYes.focus()
 
 	def onkeydown(self, event):
-		if hasattr(event, 'key'):
+		if hasattr(event, "key"):
 			key = event.key
-		elif hasattr(event, 'keyIdentifier'):
+		elif hasattr(event, "keyIdentifier"):
 			# Babelfish: Translate 'keyIdentifier' into 'key'
 			if event.keyIdentifier in ['Esc', 'U+001B']:
-				key = 'Escape'
+				key = "Escape"
 			else:
 				key = event.keyIdentifier
-		if 'Enter' == key:
+		else:
+			key = None
+
+		if "Enter" == key:
 			event.stopPropagation()
 			event.preventDefault()
 			self.onYesClicked()
-		elif 'Escape' == key:
+		elif "Escape" == key:
 			event.stopPropagation()
 			event.preventDefault()
 			self.onNoClicked()

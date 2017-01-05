@@ -148,11 +148,14 @@ class Optgroup( Disabled,Widget,_Label ):
 class Option( Disabled,Widget,_Label,Value ):
 	_baseClass = "option"
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, txt = "", *args, **kwargs):
 		Disabled.__init__( self, *args, **kwargs )
 		Widget.__init__( self, *args, **kwargs )
 		_Label.__init__( self, *args, **kwargs )
 		Value.__init__( self, *args, **kwargs )
+
+		if txt:
+			self.appendChild(TextNode(txt))
 
 	def _getSelected(self):
 		return( True if self.element.selected else False )
