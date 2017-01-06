@@ -227,7 +227,6 @@ class Widget( object ):
 		Specifies whether the element represents an element that is is focusable (that is, an element which is part of the sequence of focusable elements in the document), and the relative order of the element in the sequence of focusable elements in the document.
 		@param val:  number
 		"""
-		print("SETTING TABINDEX")
 		self.element.setAttribute("tabindex",val)
 
 	def _getSpellcheck(self):
