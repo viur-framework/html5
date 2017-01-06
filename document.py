@@ -36,6 +36,9 @@ def createElement(element, ns=None):
 def getElementById(idTag):
     return(eval("window.parent.document.getElementById(\"%s\")" % idTag))
 
+def elementFromPoint(x, y):
+    return(eval('''window.parent.document.elementFromPoint("{}", "{}")'''.format(x, y)))
+
 def getElementsByTagName( tagName ):
     doc = eval("window.parent.document");
     res = []

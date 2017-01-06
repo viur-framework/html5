@@ -1,10 +1,13 @@
 import html5
 
-class Popup(html5.Div):
-	def __init__(self, title=None, id=None, *args, **kwargs ):
-		super(Popup, self).__init__(*args, **kwargs)
+class Popup( html5.Div ):
+	def __init__(self, title=None, id=None, className=None, *args, **kwargs ):
+		super( Popup, self ).__init__(*args, **kwargs)
 
 		self["class"] = "alertbox"
+		if className is not None and len(className):
+			self["class"].append(className)
+
 		if title:
 			lbl = html5.Span()
 			lbl["class"].append("title")
