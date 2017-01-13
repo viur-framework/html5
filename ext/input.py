@@ -1,7 +1,7 @@
 from html5.form import Input as fInput
 
 class Input(fInput):
-	def __init__(self, type="text", placeholder=None, callback=None, id=None, *args, **kwargs):
+	def __init__(self, type="text", placeholder=None, callback=None, id=None, focusCallback=None, *args, **kwargs):
 		"""
 
 		:param type: Input type. Default: "text
@@ -21,11 +21,21 @@ class Input(fInput):
 			self["id"] = id
 		self.sinkEvent("onChange")
 
+		self.focusCallback = focusCallback
+		if focusCallback:
+			self.sinkEvent("onFocus")
+
 	def onChange(self, event):
 		event.stopPropagation()
 		event.preventDefault()
 		if self.callback is not None:
 			self.callback(self, self["id"], self["value"])
+
+	def onFocus(self, event):
+		event.stopPropagation()
+		event.preventDefault()
+		if self.focusCallback is not None:
+			self.focusCallback(self, self["id"], self["value"])
 
 	def onDetach(self):
 		super(Input,self)

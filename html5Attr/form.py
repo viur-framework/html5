@@ -22,7 +22,6 @@ class Autofocus(object):
 
 class Disabled(object):
 	def _setDisabled(self,val):
-		print(self._disabledState, val)
 		Widget._setDisabled( self, val )
 		if self._getDisabled():
 			self.element.disabled = True
@@ -32,13 +31,9 @@ class Disabled(object):
 class Checked(object):
 	def _getChecked(self):
 		return self.element.checked
-		#return( True if self.element.hasAttribute("checked") else False )
+
 	def _setChecked(self,val):
 		self.element.checked = val
-		#if val==True:
-		#	self.element.setAttribute("checked","")
-		#else:
-		#	self.element.removeAttribute("checked")
 
 class Indeterminate(object):
 	def _getIndeterminate(self):

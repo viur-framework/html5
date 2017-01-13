@@ -16,8 +16,10 @@ class TextareaDialog( Popup ):
 		self.inputElem["value"] = value
 		self.appendChild( self.inputElem )
 		okayBtn = Button(successLbl, self.onOkay)
+		okayBtn["class"].append("btn_okay")
 		self.appendChild(okayBtn)
 		cancelBtn = Button(abortLbl, self.onCancel)
+		cancelBtn["class"].append("btn_cancel")
 		self.appendChild(cancelBtn)
 		self.sinkEvent("onkeydown")
 		self.inputElem.focus()
