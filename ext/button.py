@@ -23,7 +23,3 @@ class Button(fButton):
 		event.preventDefault()
 		if self.callback is not None:
 			self.callback(self)
-
-	def onDetach(self):
-		super(Button,self)
-		self.callback = None
