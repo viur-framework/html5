@@ -20,6 +20,16 @@ class Th(Widget):
 		span = self.element.getAttribute("rowspan")
 		return span if span else 1
 
+	def _setColspan(self, span):
+		assert span >= 1, "span may not be negative"
+		self.element.setAttribute("colspan", span)
+		return self
+
+	def _setRowspan(self, span):
+		assert span >= 1, "span may not be negative"
+		self.element.setAttribute("rowspan", span)
+		return self
+
 	def _setRowspan(self, span):
 		assert span >= 1, "span may not be negative"
 		self.element.setAttribute("rowspan", span)
