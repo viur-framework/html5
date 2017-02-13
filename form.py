@@ -1,11 +1,9 @@
-from html5.widget import Widget
+from html5.widget import Widget, TextNode
 from html5.html5Attr._label import _Label
 from html5.html5Attr.media import Type,Dimensions
 from html5.html5Attr.form import _Form,Alt,Autofocus,Disabled,Name,Checked,Indeterminate,Value,Formhead,Autocomplete,Inputs,Required,Multiple,Size,__For
 from html5.html5Attr.href import Target
 from html5.html5Attr.src import Src
-from html5.textnode import TextNode
-
 
 class Button( Disabled,Widget,Type,_Form,Autofocus,Name,Value,Formhead):
 	_baseClass = "button"

@@ -1,5 +1,44 @@
 # -*- coding: utf-8 -*-
-from html5 import document, textnode
+from html5 import document
+
+class TextNode(object):
+	"""
+		Represents a piece of text inside the DOM.
+		This is the *only* object not deriving from "Widget", as it does
+		not support any of its properties.
+	"""
+
+	def __init__(self, txt=None, *args, **kwargs ):
+		super(TextNode, self).__init__()
+		self._parent = None
+		self._children = []
+		self.element = eval("document.createTextNode('')")
+		self._isAttached = False
+
+		if txt is not None:
+			self.element.data = txt
+
+	def _setText(self,txt):
+		self.element.data = txt
+
+	def _getText(self):
+		return self.element.data
+
+	def __str__(self):
+		return self.element.data
+
+	def onAttach(self):
+		self._isAttached = True
+
+	def onDetach(self):
+		self._isAttached = False
+
+	def _setDisabled(self, disabled):
+		return
+
+	def _getDisabled(self):
+		return False
+
 
 class ClassWrapper( list ):
 	def __init__( self, targetWidget ):
@@ -440,7 +479,7 @@ class Widget( object ):
 
 	def prependChild(self, child):
 		if not isinstance(child, Widget):
-			child = textnode.TextNode(str(child))
+			child = TextNode(str(child))
 
 		if child._parent:
 			child._parent._children.remove(child)
@@ -453,7 +492,7 @@ class Widget( object ):
 
 	def appendChild(self, child):
 		if not isinstance(child, Widget):
-			child = textnode.TextNode(str(child))
+			child = TextNode(str(child))
 
 		if child._parent:
 			child._parent._children.remove(child)
