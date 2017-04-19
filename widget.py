@@ -478,7 +478,13 @@ class Widget( object ):
 			insert.onAttach()
 
 	def prependChild(self, child):
-		if not isinstance(child, Widget):
+		if isinstance(child, list) or isinstance(child, tuple):
+			for item in child:
+				self.prependChild(item)
+
+			return
+
+		elif not isinstance(child, Widget):
 			child = TextNode(str(child))
 
 		if child._parent:
@@ -491,7 +497,13 @@ class Widget( object ):
 			self.insertBefore(child, self.children(0))
 
 	def appendChild(self, child):
-		if not isinstance(child, Widget):
+		if isinstance(child, list) or isinstance(child, tuple):
+			for item in child:
+				self.appendChild(item)
+
+			return
+
+		elif not isinstance(child, Widget):
 			child = TextNode(str(child))
 
 		if child._parent:

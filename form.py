@@ -153,7 +153,7 @@ class Option( Disabled,Widget,_Label,Value ):
 		Value.__init__( self, *args, **kwargs )
 
 		if txt:
-			self.appendChild(TextNode(txt))
+			self.appendChild(txt)
 
 	def _getSelected(self):
 		return( True if self.element.selected else False )
