@@ -170,8 +170,16 @@ class Widget( object ):
 			self._catchedEvents.remove( eventName )
 			setattr( self.element, eventName.lower(), None )
 
+	def disable(self):
+		if not self["disabled"]:
+			self["disabled"] = True
+
+	def enable(self):
+		if self["disabled"]:
+			self["disabled"] = False
+
 	def _getDisabled(self):
-		return( self._disabledState is not None )
+		return self._disabledState is not None
 
 	def _setDisabled(self, disable):
 		for child in self._children:
