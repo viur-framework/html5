@@ -79,7 +79,13 @@ class ColWrapper(object):
 		assert col is not None, "Cannot assign widget to invalid column"
 
 		col.removeAllChildren()
-		if isinstance(value, Widget) or isinstance(value, TextNode):
+
+		if isinstance(value, list) or isinstance(value, tuple):
+			for el in value:
+				if isinstance(el, Widget) or isinstance(el, TextNode):
+					col.appendChild(value)
+
+		elif isinstance(value, Widget) or isinstance(value, TextNode):
 			col.appendChild(value)
 
 class RowWrapper(object):
