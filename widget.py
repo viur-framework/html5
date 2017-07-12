@@ -155,6 +155,8 @@ class Widget( object ):
 		self._isAttached = False
 		self._parent = None
 
+		self._lastDisplayState = None
+
 	def sinkEvent(self, *args):
 		for eventName in args:
 			if eventName in self._catchedEvents or eventName.lower in ["onattach","ondetach"]:
@@ -451,16 +453,20 @@ class Widget( object ):
 		Hide element, if shown.
 		:return:
 		"""
-		if not self._getHidden():
-			self._setHidden( True )
+		state = self["style"].get("display", "")
+
+		if state != "none":
+			self._lastDisplayState = state
+			self["style"]["display"] = "none"
 
 	def show(self):
 		"""
 		Show element, if hidden.
 		:return:
 		"""
-		if self._getHidden():
-			self._setHidden( False )
+		if self._lastDisplayState is not None:
+			self["style"]["display"] = self._lastDisplayState
+			self._lastDisplayState = None
 
 	def onAttach(self):
 		self._isAttached = True
