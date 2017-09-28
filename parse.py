@@ -100,11 +100,19 @@ def fromHTML(html, root = None):
 	while html:
 		tag = None
 		text = ""
+
+		while stack and stack[-1][1] in ["br", "input", "img"]:
+			stack.pop()
+
+		if not stack:
+			break
+
 		parent = stack[-1][0]
 
 		while html:
-			print("html", html)
-			print(stack)
+			#print("html", html)
+			#print(stack)
+
 			ch = html.pop(0)
 
 			# Opening tag
