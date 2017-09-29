@@ -33,17 +33,17 @@ class game(html5.Div):
 
 		html5.parse.fromHTML(
 		"""
-			<div class="wrap">
-				<div class="left">
-					<label>
-						Your Name:
-						<input [name]="myInput" type="text" placeholder="Name" maxlength="20">
-					</label>
-				</div>
-				<div class="right">
-					<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
-				</div>
+		<div class="wrap">
+			<div class="left">
+				<label>
+					Your Name:
+					<input [name]="myInput" type="text" placeholder="Name">
+				</label>
 			</div>
+			<div class="right">
+				<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
+			</div>
+		</div>
 		""", self)
 
 	def onChange(self, event):
