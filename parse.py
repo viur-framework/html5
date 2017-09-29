@@ -69,7 +69,7 @@ def fromHTML(html, root = None):
 		"""
 
 		ret = ""
-		while l and l[0] in "\r\n\t ":
+		while l and l[0] in string.whitespace:
 			ret += l.pop(0)
 
 		return ret
@@ -80,7 +80,7 @@ def fromHTML(html, root = None):
 		"""
 
 		ret = ""
-		while l and l[0] not in "\r\n\t <>=\"'":
+		while l and l[0] not in string.whitespace + "<>=\"'":
 			ret += l.pop(0)
 
 		return ret
@@ -101,6 +101,7 @@ def fromHTML(html, root = None):
 		tag = None
 		text = ""
 
+		# ugly...
 		while stack and stack[-1][1] in ["br", "input", "img"]:
 			stack.pop()
 
@@ -146,10 +147,15 @@ def fromHTML(html, root = None):
 			else:
 				text += ch
 
-		if text:
+		# Append plain text (if not only whitespace)
+		if (text
+			and ((len(text) == 1 and text in ["\t "])
+		        or not all([ch in string.whitespace for ch in text]))):
+
 			print("text", text)
 			parent.appendChild(html5.TextNode(text))
 
+		# Create tag
 		if tag:
 			wdg = _tags[tag][0]()
 

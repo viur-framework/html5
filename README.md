@@ -1,53 +1,62 @@
-This software is a part of the ViUR® Information System.
-ViUR® is a free software development framework for the Google App Engine™.
-More about ViUR can be found at http://www.viur.is/.
-
-DESCRIPTION
-===========
+# html5
 
 **html5** is a HTML5-DOM library that has been written in Python.
 
-The library has been used as a replacement for the Python library shipped with
-the PyJS development framework enabling HTML5-client application development
-in Python.
+## About
 
-This library serves as a toolkit used for various PyJS-based apps having their
-origin at Mausbrand. The most prominent software using this library is the
-**vi**, the visual administration interface for ViUR-based applications.
+This library serves as a toolkit for writing DOM-oriented web-apps using the
+Python programming language.
 
-More about the vi reference implementation can be obtained from the official
-Bitbucket repository at https://bitbucket.org/viur/vi.
+The most prominent software completely established on this library is the
+[vi](https://github.com/viur-framework/vi/), the visual administration interface
+for ViUR-based applications.
 
-PREREQUISITES
-=============
+[ViUR](https://www.viur.is) is a free software development framework for the
+Google App Engine™ platform.
 
-The library has been used and tested so far using PyJS.
-For more information, see http://pyjs.org/.
+## Prerequisites
 
-WHO CREATES VIUR?
-=================
+Currently works with [PyJS](https://github.com/pyjs/pyjs), a Python-to-JavaScript transpiling framework.
 
-ViUR is developed and maintained by Mausbrand Informationssysteme GmbH,
-from Dortmund, Germany.
+## Quick Start
 
-We are a software company consisting of young, enthusiastic software
-developers, designers and social media experts, working on exciting
-projects for different kinds of customers. All of our newer projects are
-implemented with ViUR, from tiny web-pages to huge company intranets with
-hundreds of users.
+Let's create a simple game app!
 
-Help of any kind to extend and improve or enhance this project in any kind or
-way is always appreciated.
+```python
+import html5, pyjd
 
-LICENSING
-=========
+class game(html5.Div):
+	def __init__(self, *args, **kwargs):
+		super(game, self).__init__()
+		self.addClass("wrap")
+		self.sinkEvent("onChange")
 
-Copyright (C) 2012-2017 by Mausbrand Informationssysteme GmbH.
+		html5.parse.fromHTML(
+		"""
+			<div class="wrap">
+				<div class="left">
+					<label>
+						Your Name:
+						<input [name]="myInput" type="text" placeholder="Name" maxlength="20">
+					</label>
+				</div>
+				<div class="right">
+					<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
+				</div>
+			</div>
+		""", self)
 
-Mausbrand and ViUR are registered trademarks of
-Mausbrand Informationssysteme GmbH.
+	def onChange(self, event):
+		if html5.utils.doesEventHitWidgetOrChildren(event, self.myInput):
+			self.mySpan.removeAllChildren()
+			self.mySpan.appendChild(self.myInput["value"])
 
-You may use, modify and distribute this software under the terms and
-conditions of the GNU Lesser General Public License (LGPL).
+if __name__ == '__main__':
+	pyjd.setup()
+	html5.Body().appendChild(game())
+	pyjd.run()
+```
 
-See the file LICENSE provided in this package for more information.
+Just compile it with
+
+	pyjsbuild game.py
