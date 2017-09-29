@@ -37,10 +37,8 @@ class game(html5.Div):
 				Your Name:
 				<input [name]="myInput" type="text" placeholder="Name">
 			</label>
-			<div class="output">
-				<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
-			</div>
-		</div>
+			
+			<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
 		""", self)
 
 	def onChange(self, event):
