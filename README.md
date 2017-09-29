@@ -28,19 +28,16 @@ import html5, pyjd
 class game(html5.Div):
 	def __init__(self, *args, **kwargs):
 		super(game, self).__init__()
-		self.addClass("wrap")
+		self.addClass("game")
 		self.sinkEvent("onChange")
 
 		html5.parse.fromHTML(
 		"""
-		<div class="wrap">
-			<div class="left">
-				<label>
-					Your Name:
-					<input [name]="myInput" type="text" placeholder="Name">
-				</label>
-			</div>
-			<div class="right">
+			<label>
+				Your Name:
+				<input [name]="myInput" type="text" placeholder="Name">
+			</label>
+			<div class="output">
 				<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
 			</div>
 		</div>
@@ -59,4 +56,4 @@ if __name__ == '__main__':
 
 Just compile it with
 
-	pyjsbuild game.py
+	$ pyjsbuild game.py
