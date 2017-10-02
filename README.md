@@ -24,10 +24,9 @@ import html5, pyjd
 class game(html5.Div):
 	def __init__(self, *args, **kwargs):
 		super(game, self).__init__()
-		self.addClass("game")
 		self.sinkEvent("onChange")
 
-		html5.parse.fromHTML(
+		self.fromHTML(
 		"""
 			<label>
 				Your Name:
@@ -35,7 +34,7 @@ class game(html5.Div):
 			</label>
 
 			<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
-		""", self)
+		""")
 
 	def onChange(self, event):
 		if html5.utils.doesEventHitWidgetOrChildren(event, self.myInput):
