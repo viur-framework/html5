@@ -33,7 +33,7 @@ def _buildDescription():
 # Globally hold tag description, which is built once.
 _tags = None
 
-def fromHTML(html, root = None):
+def fromHTML(html, appendTo = None, bindTo = None):
 	"""
 	Parses the provided HTML code according to the objects defined in the html5-library.
 
@@ -88,15 +88,22 @@ def fromHTML(html, root = None):
 	global _tags
 	stack = []
 
+	# Obtain tag descriptions
 	if _tags is None:
 		_tags = _buildDescription()
 
-	if root is None:
-		root = html5.Body()
+	# Handle defaults
+	if appendTo is None:
+		appendTo = html5.Body()
 
-	stack.append((root, None))
+	if bindTo is None:
+		bindTo = appendTo
+
+	# Prepare stack and input
+	stack.append((appendTo, None))
 	html = [ch for ch in html]
 
+	# Parse
 	while html:
 		tag = None
 		text = ""
@@ -132,7 +139,7 @@ def fromHTML(html, root = None):
 				tag = scanWord(html)
 				junk += tag
 
-				print("/", tag.lower(), stack[-1][1].lower())
+				#print("/", tag.lower(), stack[-1][1].lower())
 				if stack[-1][1].lower() == tag.lower():
 					junk += scanWhite(html)
 					if html and html[0] == ">":
@@ -152,7 +159,7 @@ def fromHTML(html, root = None):
 			and ((len(text) == 1 and text in ["\t "])
 		        or not all([ch in string.whitespace for ch in text]))):
 
-			print("text", text)
+			#print("text", text)
 			parent.appendChild(html5.TextNode(text))
 
 		# Create tag
@@ -162,7 +169,7 @@ def fromHTML(html, root = None):
 			parent.appendChild(wdg)
 			stack.append((wdg, tag))
 
-			print("tag", tag)
+			#print("tag", tag)
 
 			while html:
 				scanWhite(html)
@@ -208,19 +215,19 @@ def fromHTML(html, root = None):
 							html.pop(0)
 
 					if att == "[name]":
-						if val in dir(root):
-							print("Cannot assign name '%s' because it already exists in %r" % (val, root))
+						if val in dir(appendTo):
+							print("Cannot assign name '%s' because it already exists in %r" % (val, appendTo))
 
 						elif not (any([val.startswith(x) for x in string.letters + "_"])
 									and all([x in string.letters + string.digits + "_" for x in val[1:]])):
 							print("Cannot assign name '%s' because it contains invalid characters" % val)
 
 						else:
-							setattr(root, val, wdg)
-							print("Name '%s' assigned to %r" % (val, root))
+							setattr(bindTo, val, wdg)
+							#print("Name '%s' assigned to %r" % (val, bindTo))
 
 					elif att == "class":
-						print(tag, att, val.split())
+						#print(tag, att, val.split())
 						stack[-1][0].addClass(*val.split())
 
 					elif att == "style":
@@ -230,11 +237,11 @@ def fromHTML(html, root = None):
 
 							att, val = dfn.split(":", 1)
 
-							print(tag, "style", att.strip(), val.strip())
+							#print(tag, "style", att.strip(), val.strip())
 							stack[-1][0]["style"][att.strip()] = val.strip()
 
 					else:
-						print(tag, att, val)
+						#print(tag, att, val)
 						stack[-1][0][att] = val
 
 				continue

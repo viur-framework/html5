@@ -858,17 +858,22 @@ class Widget(object):
 			self.element.removeChild(c.element)
 			self.element.insertBefore(c.element, self.element.children.item(0))
 
-	def fromHTML(self, html, root = None):
+	def fromHTML(self, html, appendTo = None, bindTo = None):
 		"""
 		Parses html and constructs its elements as part of self.
 
 		:param html: HTML code.
-		:param root: The root entity where the HTML code is constructed below.
+		:param appendTo: The entity where the HTML code is constructed below.
+						This defaults to self in usual case.
+		:param bindTo: The entity where the named objects are bound to.
 						This defaults to self in usual case.
 
 		:return:
 		"""
-		if root is None:
-			root = self
+		if appendTo is None:
+			appendTo = self
 
-		return parse.fromHTML(html, root)
+		if bindTo is None:
+			bindTo = self
+
+		return parse.fromHTML(html, appendTo, bindTo)
