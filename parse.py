@@ -123,8 +123,16 @@ def fromHTML(html, appendTo = None, bindTo = None):
 
 			ch = html.pop(0)
 
+			# Comment
+			if html and ch == "<" and "".join(html[:3]) == "!--":
+				html = html[3:]
+				while html and "".join(html[:3]) != "-->":
+					html.pop(0)
+
+				html = html[3:]
+
 			# Opening tag
-			if html and ch == "<" and html[0] != "/":
+			elif html and ch == "<" and html[0] != "/":
 				tag = scanWord(html)
 				if tag.lower() in _tags:
 					break
