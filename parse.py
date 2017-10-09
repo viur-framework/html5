@@ -223,6 +223,10 @@ def fromHTML(html, appendTo = None, bindTo = None):
 							html.pop(0)
 
 					if att == "[name]":
+						# Allow disable binding!
+						if bindTo == False:
+							continue
+
 						if val in dir(appendTo):
 							print("Cannot assign name '%s' because it already exists in %r" % (val, appendTo))
 
