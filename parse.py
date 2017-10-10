@@ -1,5 +1,31 @@
 #-*- coding: utf-8 -*-
+
 import html5, string
+
+# Global variables
+_tags = None
+_domParser = None
+
+def _convertEncodedText(txt):
+	"""
+	Convert HTML-encoded text into decoded string.
+
+	The reason for this function is the handling of HTML entities, which is not
+	properly supported by native JavaScript.
+
+	We use the browser's DOM parser to to this, according to
+	https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
+
+	:param txt: The encoded text.
+	:return: The decoded text.
+	"""
+	global _domParser
+
+	if _domParser is None:
+		_domParser = eval("new DOMParser")
+
+	dom = _domParser.parseFromString("<!doctype html><body>" + str(txt), "text/html")
+	return dom.body.textContent
 
 def _buildDescription():
 	"""
@@ -29,9 +55,6 @@ def _buildDescription():
 		print("%s: %s" % (tag, ", ".join(sorted(tags[tag][1]))))
 
 	return tags
-
-# Globally hold tag description, which is built once.
-_tags = None
 
 def fromHTML(html, appendTo = None, bindTo = None):
 	"""
@@ -168,7 +191,7 @@ def fromHTML(html, appendTo = None, bindTo = None):
 		        or not all([ch in string.whitespace for ch in text]))):
 
 			#print("text", text)
-			parent.appendChild(html5.TextNode(text))
+			parent.appendChild(html5.TextNode(_convertEncodedText(text)))
 
 		# Create tag
 		if tag:
