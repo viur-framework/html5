@@ -16,6 +16,10 @@ class Tr(Widget):
 class Th(Widget):
 	_baseClass = "th"
 
+	def __init__(self, *args, **kwargs):
+		super(Th, self).__init__(**kwargs)
+		self.appendChild(args)
+
 	def _getRowspan(self):
 		span = self.element.getAttribute("rowspan")
 		return span if span else 1
@@ -37,6 +41,10 @@ class Th(Widget):
 
 class Td(Widget):
 	_baseClass = "td"
+
+	def __init__(self, *args, **kwargs):
+		super(Td, self).__init__(**kwargs)
+		self.appendChild(args)
 
 	def _getColspan(self):
 		span = self.element.getAttribute("colspan")
