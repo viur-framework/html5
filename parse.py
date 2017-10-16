@@ -230,7 +230,7 @@ def fromHTML(html, appendTo = None, bindTo = None):
 					html.pop(0)
 					continue
 
-				if att in _tags[tag][1] or att in ["[name]", "style"]:
+				if att in _tags[tag][1] or att in ["[name]", "style", "disabled", "hidden"]:
 					scanWhite(html)
 					if html[0] == "=":
 						html.pop(0)
@@ -264,6 +264,16 @@ def fromHTML(html, appendTo = None, bindTo = None):
 					elif att == "class":
 						#print(tag, att, val.split())
 						stack[-1][0].addClass(*val.split())
+
+					elif att == "disabled":
+						#print(tag, att, val)
+						if val == "disabled":
+							stack[-1][0].disable()
+
+					elif att == "hidden":
+						#print(tag, att, val)
+						if val == "hidden":
+							stack[-1][0].hide()
 
 					elif att == "style":
 						for dfn in val.split(";"):
