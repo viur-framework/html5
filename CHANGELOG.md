@@ -8,7 +8,7 @@ Released: outstanding
 
 ### Major changes
 
-- html-parser (`Widget.fromHTML`) that is capable to compile HTML-code into DOM-objects of the html5 library, and an extra-feature to bind them to their root node for further access. This attempt makes it possible to create PyJS apps using the HTML5 library without creating every single element by hand.
+- html-parser (`Widget.fromHTML()`) that is capable to compile HTML-code into DOM-objects of the html5 library, and an extra-feature to bind them to their root node for further access. This attempt makes it possible to create PyJS apps using the HTML5 library without creating every single element by hand.
 - A more distinct way for `Widget.hide()` and `Widget.show()` that cannot be overridden by styling. (setting "hidden" does not work when another display value is set).
 - Utility functions `Widget.enable() and `Widget.disable()`.
 
@@ -24,7 +24,7 @@ Released: outstanding
 
 Released: Dec 22, 2016
 
-### v2.0.1
+### 2.0.1
 
 - Directly append text in construction of Option().
 - Anything added to Widget.appendChild() or Widget.prependChild() which is not a widget is handled as text (TextNode() is automatically created).
