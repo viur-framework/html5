@@ -46,3 +46,4 @@ from html5._script import _Script as Script
 
 import html5.ext
 import html5.utils
+import html5.parse
