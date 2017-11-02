@@ -36,20 +36,23 @@ def _buildDescription():
 
 	for cname in dir(html5):
 		cl = getattr(html5, cname)
-		try:
 
-			inst = cl()
-			if cname != "Body" and isinstance(inst, html5.Widget):
-				attr = []
+		isWidget = False
+		if cname not in ["Body", "Widget", "TextNode"]:
+			try:
+				isWidget = issubclass(cl, html5.Widget)
+			except:
+				# Not a class
+				pass
 
-				for fname in dir(inst):
-					if fname.startswith("_set"):
-						attr.append(fname[4:].lower())
+		if isWidget:
+			attr = []
 
-				tags[cname.lower()] = (cl, attr)
+			for fname in dir(cl()):
+				if fname.startswith("_set"):
+					attr.append(fname[4:].lower())
 
-		except:
-			pass
+			tags[cname.lower()] = (cl, attr)
 
 	for tag in sorted(tags.keys()):
 		print("%s: %s" % (tag, ", ".join(sorted(tags[tag][1]))))
