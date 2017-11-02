@@ -4,7 +4,7 @@ This file documents any relevant changes done to ViUR html5 since version 2.0.0.
 
 ## 2.1
 
-Released: outstanding
+Released: Nov 2, 2017
 
 ### Major changes
 
