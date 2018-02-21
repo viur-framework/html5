@@ -2,6 +2,12 @@
 
 This file documents any relevant changes done to ViUR html5 since version 2.0.0.
 
+## 2.2
+
+Released: Not released yet.
+
+- Implemented `html5.Head()` to access the document's head object within the library.
+
 ## 2.1
 
 Released: Nov 2, 2017
