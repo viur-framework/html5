@@ -6,7 +6,7 @@ class Meta( Widget,Name,Charset ):
 	_baseClass = "meta"
 
 	def __init__(self, *args, **kwargs):
-		super(Meta,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getContent(self):
 		return self.element.content

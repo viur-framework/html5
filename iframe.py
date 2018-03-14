@@ -6,7 +6,7 @@ class Iframe( Widget,Src,Name,Dimensions):
 	_baseClass = "iframe"
 
 	def __init__(self, *args, **kwargs):
-		super(Iframe,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getSandbox(self):
 		return self.element.sandbox

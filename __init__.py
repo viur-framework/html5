@@ -1,6 +1,9 @@
 from html5.widget import Widget, TextNode
+
 from html5.body import Body
 from html5.div import Div
+
+'''
 from html5.table import Table,Tbody,Thead,Td,Th,Tr
 from html5.list import Ol, Ul, Li, Dl, Dt, Dd
 from html5.form import Button,Fieldset,Form,Input,Label,Optgroup,Option,Select,Textarea,Output
@@ -45,5 +48,9 @@ from html5._del import _Del as Del
 from html5._script import _Script as Script
 
 import html5.ext
-import html5.utils
+'''
+from html5 import utils
+
+'''
 import html5.parse
+'''

@@ -5,7 +5,7 @@ class Video( Widget,Src,Dimensions,Multimedia ):
 	_baseClass = "video"
 
 	def __init__(self, *args, **kwargs):
-		super(Video,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getPoster(self):
 		return self.element.poster

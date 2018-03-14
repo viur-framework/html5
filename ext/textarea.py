@@ -9,7 +9,7 @@ class Input(fTextarea):
 		:param id: Optional id of the input element. Will be passed to callback
 		:return:
 		"""
-		super(Input,self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"] = "input"
 		if placeholder is not None:
 			self["placeholder"]=placeholder
@@ -26,5 +26,5 @@ class Input(fTextarea):
 			self.callback(self, self["id"], self["value"])
 
 	def onDetach(self):
-		super(Input,self)
+		super()
 		self.callback = None

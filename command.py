@@ -6,7 +6,7 @@ class Command( Widget, Label,Type,Disabled,Checked):
 	_baseClass = "command"
 
 	def __init__(self, *args, **kwargs):
-		super(Command,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getIcon(self):
 		return self.element.icon

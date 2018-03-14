@@ -4,4 +4,4 @@ class Dialog( Details):
 	_baseClass = "dialog"
 
 	def __init__(self, *args, **kwargs):
-		super(Dialog,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )

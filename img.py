@@ -6,7 +6,7 @@ class Img( Widget,Src,Dimensions,Usemap,Alt ):
 	_baseClass = "img"
 
 	def __init__(self, src=None, *args, **kwargs ):
-		super( Img, self ).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 		if src is not None:
 			self["src"] = src
 

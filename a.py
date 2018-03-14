@@ -8,7 +8,7 @@ class A( Base, Href, Media, Rel, Name ):
 	_baseClass = "a"
 
 	def __init__(self, *args, **kwargs):
-		super(A,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getDownload(self):
 		"""

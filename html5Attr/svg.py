@@ -1,15 +1,14 @@
-from html5.widget import Widget
 
 class ViewBox(object):
-    def _getViewBox(self):
-        return self.element.viewBox
-    def _setViewBox(self,val):
-        self.element.setAttribute("viewBox", val)
+	def _getViewBox(self):
+		return self.element.viewBox
+	def _setViewBox(self,val):
+		self.element.setAttribute("viewBox", val)
 
-    def _getPreserveAspectRatio(self):
-        return self.element.preserveAspectRatio
-    def _setPreserveAspectRatio(self,val):
-        self.element.setAttribute("preserveAspectRatio", val)
+	def _getPreserveAspectRatio(self):
+		return self.element.preserveAspectRatio
+	def _setPreserveAspectRatio(self,val):
+		self.element.setAttribute("preserveAspectRatio", val)
 
 
 class Dimensions(object):

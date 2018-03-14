@@ -6,7 +6,7 @@ class _Script( Widget,Src,Charset ):
 	_baseClass = "script"
 
 	def __init__(self, *args, **kwargs):
-		super(_Script,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getAsync(self):
 		return( True if self.element.hasAttribute("async") else False )

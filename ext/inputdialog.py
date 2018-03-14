@@ -4,7 +4,7 @@ from html5.ext.button import Button
 
 class InputDialog( Popup ):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel", *args, **kwargs ):
-		super( InputDialog, self ).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"].append("inputdialog")
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler

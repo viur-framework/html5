@@ -5,4 +5,4 @@ class Ins( Widget ,Cite,Datetime):
     _baseClass = "ins"
 
     def __init__(self, *args, **kwargs):
-        super(Ins,self).__init__( *args, **kwargs )
+        super().__init__( *args, **kwargs )

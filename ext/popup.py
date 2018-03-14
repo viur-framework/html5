@@ -2,7 +2,7 @@ import html5
 
 class Popup( html5.Div ):
 	def __init__(self, title=None, id=None, className=None, *args, **kwargs ):
-		super( Popup, self ).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self["class"] = "alertbox"
 		if className is not None and len(className):
@@ -32,7 +32,7 @@ class Alert(Popup):
 	Just displaying an alerting message box with OK-button.
 	"""
 	def __init__(self, msg, title=None, okCallback=None, okLabel="OK", *args, **kwargs):
-		super(Alert, self).__init__(title, *args, **kwargs)
+		super().__init__(title, *args, **kwargs)
 		self.addClass("alert")
 
 		self.okCallback = okCallback
@@ -78,7 +78,7 @@ class Alert(Popup):
 
 class YesNoDialog( Popup ):
 	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args, **kwargs):
-		super( YesNoDialog, self ).__init__( title, *args, **kwargs )
+		super().__init__(title, *args, **kwargs)
 		self["class"].append("yesnodialog")
 
 		self.yesCallback = yesCallback
@@ -146,7 +146,7 @@ class YesNoDialog( Popup ):
 class SelectDialog( Popup ):
 
 	def __init__( self, prompt, items=None, title=None, okBtn="OK", cancelBtn="Cancel", forceSelect=False, *args, **kwargs ):
-		super( SelectDialog, self ).__init__( title, *args, **kwargs )
+		super().__init__(title, *args, **kwargs)
 		self["class"].append("selectdialog")
 
 		# Prompt

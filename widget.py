@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
-from html5 import document
-from html5 import parse
+# -*- coding: utf-8 -*
 
+'''
+from html5 import parse
+'''
 
 class TextNode(object):
 	"""
@@ -11,10 +12,10 @@ class TextNode(object):
 	"""
 
 	def __init__(self, txt=None, *args, **kwargs):
-		super(TextNode, self).__init__()
+		super().__init__()
 		self._parent = None
 		self._children = []
-		self.element = eval("document.createTextNode('')")
+		self.element = document.createTextNode("")
 		self._isAttached = False
 
 		if txt is not None:
@@ -42,52 +43,54 @@ class TextNode(object):
 		return False
 
 
-class ClassWrapper(list):
+class ClassWrapper(object):
 	def __init__(self, targetWidget):
-		super(ClassWrapper, self).__init__()
+		super().__init__()
 		self.targetWidget = targetWidget
+		self.classList = []
+
 		clsStr = targetWidget.element.getAttribute("class")
 		if clsStr:
 			for c in clsStr.split(" "):
-				list.append(self, c)
+				self.classList.append(c)
 
 	def _updateElem(self):
 		if len(self) == 0:
 			self.targetWidget.element.removeAttribute("class")
 		else:
-			self.targetWidget.element.setAttribute("class", " ".join(self))
+			self.targetWidget.element.setAttribute("class", " ".join(self.classList))
 
 	def append(self, p_object):
-		list.append(self, p_object)
+		self.classList.append(p_object)
 		self._updateElem()
 
 	def clear(self):
-		list.clear(self)
+		self.classList.clear()
 		self._updateElem()
 
 	def remove(self, value):
 		try:
-			list.remove(self, value)
+			self.classList.remove(value)
+			self._updateElem()
 		except:
 			pass
-		self._updateElem()
 
 	def extend(self, iterable):
-		list.extend(self, iterable)
+		self.classList.extend(iterable)
 		self._updateElem()
 
 	def insert(self, index, p_object):
-		list.insert(self, index, p_object)
+		self.classList.insert(index, p_object)
 		self._updateElem()
 
 	def pop(self, index=None):
-		list.pop(self, index)
+		self.classList.pop(self, index)
 		self._updateElem()
 
-
+'''
 class DataWrapper(dict):
 	def __init__(self, targetWidget):
-		super(DataWrapper, self).__init__()
+		super().__init__()
 		self.targetWidget = targetWidget
 		alldata = targetWidget.element
 		for data in dir(alldata.dataset):
@@ -107,11 +110,11 @@ class DataWrapper(dict):
 				self.targetWidget.element.setAttribute(str("data-" + key), "data-" + val)
 		for key in F:
 			self.targetWidget.element.setAttribute(str("data-" + key), F["data-" + key])
-
-
+'''
+'''
 class StyleWrapper(dict):
 	def __init__(self, targetWidget):
-		super(StyleWrapper, self).__init__()
+		super().__init__()
 		self.targetWidget = targetWidget
 		style = targetWidget.element.style
 		for key in dir(style):
@@ -139,7 +142,7 @@ class StyleWrapper(dict):
 				self.targetWidget.element.style.setProperty(key, val)
 		for key in F:
 			self.targetWidget.element.style.setProperty(key, F[key])
-
+'''
 
 class Widget(object):
 	_baseClass = None
@@ -152,7 +155,9 @@ class Widget(object):
 		else:
 			assert self._baseClass is not None
 			self.element = document.createElement(self._baseClass, ns=self._namespace)
-		super(Widget, self).__init__(*args, **kwargs)
+
+		super().__init__()
+
 		self._children = []
 		self._catchedEvents = []
 		self._disabledState = None
@@ -165,7 +170,7 @@ class Widget(object):
 		for eventName in args:
 			if eventName in self._catchedEvents or eventName.lower in ["onattach", "ondetach"]:
 				continue
-			assert eventName in dir(self), "%s must provide a %s method" % (str(self), eventName)
+			assert eventName in dir(self), "{} must provide a {} method".format(str(self), eventName)
 			self._catchedEvents.append(eventName)
 			setattr(self.element, eventName.lower(), getattr(self, eventName))
 
@@ -217,12 +222,12 @@ class Widget(object):
 
 	def _getTargetFuncName(self, key, type):
 		assert type in ["get", "set"]
-		return ("_%s%s" % (type, (key[0].upper() + key[1:])))
+		return "_{}{}{}".format(type, key[0].upper(), key[1:])
 
 	def __getitem__(self, key):
 		funcName = self._getTargetFuncName(key, "get")
 		if funcName in dir(self):
-			# print( self._baseClass or str( self ), "get", key, getattr( self, funcName)() )
+			print( self._baseClass or str( self ), "get", key, getattr( self, funcName)() )
 			return (getattr(self, funcName)())
 		return (None)
 
@@ -231,7 +236,7 @@ class Widget(object):
 		if funcName in dir(self):
 			# print( self._baseClass or str( self ), "set", key, value )
 			return (getattr(self, funcName)(value))
-		raise ValueError("%s is no valid attribute for %s" % (key, (self._baseClass or str(self))))
+		raise ValueError("{} is no valid attribute for {}".format(key, (self._baseClass or str(self))))
 
 	def _getData(self):
 		"""
@@ -495,7 +500,7 @@ class Widget(object):
 			c.onDetach()
 
 	def insertBefore(self, insert, child):
-		assert child in self._children, "%s is not a child of %s" % (child, self)
+		assert child in self._children, "{} is not a child of {}".format(child, self)
 
 		if insert._parent:
 			insert._parent.removeChild(insert)
@@ -546,7 +551,7 @@ class Widget(object):
 			child.onAttach()
 
 	def removeChild(self, child):
-		assert child in self._children, "%s is not a child of %s" % (child, self)
+		assert child in self._children, "{} is not a child of {}".format(child, self)
 
 		if child._isAttached:
 			child.onDetach()
@@ -616,6 +621,8 @@ class Widget(object):
 		"""
 
 		for item in args:
+			print("addClass", item, self["class"])
+
 			if isinstance(item, list):
 				self.addClass(item)
 

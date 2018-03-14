@@ -5,4 +5,4 @@ class Embed( Widget,Src,Type,Dimensions):
 	_baseClass = "embed"
 
 	def __init__(self, *args, **kwargs):
-		super(Embed,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )

@@ -4,7 +4,7 @@ class Meter( Widget,Form ,Value):
 	_baseClass = "meter"
 
 	def __init__(self, *args, **kwargs):
-		super(Meter,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getHigh(self):
 		return self.element.high

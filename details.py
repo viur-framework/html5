@@ -4,7 +4,7 @@ class Details( Widget):
 	_baseClass = "details"
 
 	def __init__(self, *args, **kwargs):
-		super(Details,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 
 	def _getOpen(self):

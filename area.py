@@ -4,7 +4,7 @@ class Area( A,Alt ):
 	_baseClass = "area"
 
 	def __init__(self, *args, **kwargs):
-		super(Area,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getCoords(self):
 		return self.element.coords

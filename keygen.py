@@ -4,7 +4,7 @@ class Keygen( Widget,Form,Autofocus,Disabled):
 	_baseClass = "keygen"
 
 	def __init__(self, *args, **kwargs):
-		super(Keygen,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getChallenge(self):
 		return( True if self.element.hasAttribute("challenge") else False )

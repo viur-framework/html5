@@ -10,7 +10,7 @@ class Input(fInput):
 		:param id: Optional id of the input element. Will be passed to callback
 		:return:
 		"""
-		super(Input,self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"] = "input"
 		self["type"]=type
 		if placeholder is not None:
@@ -38,5 +38,5 @@ class Input(fInput):
 			self.focusCallback(self, self["id"], self["value"])
 
 	def onDetach(self):
-		super(Input,self)
+		super()
 		self.callback = None

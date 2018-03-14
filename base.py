@@ -5,5 +5,5 @@ class Base( Widget,Href ,Target):
 	_baseClass = "base"
 
 	def __init__(self, *args, **kwargs):
-		super(Base,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 

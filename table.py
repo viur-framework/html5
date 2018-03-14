@@ -17,7 +17,7 @@ class Th(Widget):
 	_baseClass = "th"
 
 	def __init__(self, *args, **kwargs):
-		super(Th, self).__init__(**kwargs)
+		super().__init__(**kwargs)
 		self.appendChild(args)
 
 	def _getRowspan(self):
@@ -34,16 +34,11 @@ class Th(Widget):
 		self.element.setAttribute("rowspan", span)
 		return self
 
-	def _setRowspan(self, span):
-		assert span >= 1, "span may not be negative"
-		self.element.setAttribute("rowspan", span)
-		return self
-
 class Td(Widget):
 	_baseClass = "td"
 
 	def __init__(self, *args, **kwargs):
-		super(Td, self).__init__(**kwargs)
+		super().__init__(**kwargs)
 		self.appendChild(args)
 
 	def _getColspan(self):
@@ -72,7 +67,7 @@ class Tbody(Widget):
 
 class ColWrapper(object):
 	def __init__(self, parentElem, *args, **kwargs):
-		super(ColWrapper, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.parentElem = parentElem
 
 	def __getitem__(self, item):
@@ -98,7 +93,7 @@ class ColWrapper(object):
 
 class RowWrapper(object):
 	def __init__(self, parentElem, *args, **kwargs):
-		super(RowWrapper, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.parentElem = parentElem
 
 	def __getitem__(self, item):
@@ -113,7 +108,7 @@ class Table(Widget):
 	_baseClass = "table"
 
 	def __init__(self, *args, **kwargs):
-		super(Table, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.head = Thead()
 		self.body = Tbody()
 		self.appendChild(self.head)

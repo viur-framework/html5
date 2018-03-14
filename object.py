@@ -5,7 +5,7 @@ class Object( Widget,Type,Form,Name,Dimensions,Usemap ):
     _baseClass = "object"
 
     def __init__(self, *args, **kwargs):
-        super(Object,self).__init__( *args, **kwargs )
+        super().__init__( *args, **kwargs )
 
 
 

@@ -4,4 +4,4 @@ class Bdo( Widget ):
     _baseClass = "bdo"
 
     def __init__(self, *args, **kwargs):
-        super(Bdo,self).__init__( *args, **kwargs )
+        super().__init__( *args, **kwargs )

@@ -4,4 +4,4 @@ class Time( Widget ,Datetime):
     _baseClass = "time"
 
     def __init__(self, *args, **kwargs):
-        super(Time,self).__init__( *args, **kwargs )
+        super().__init__( *args, **kwargs )

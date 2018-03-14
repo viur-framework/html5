@@ -5,4 +5,4 @@ class Map( Widget ,Label,Type):
     _baseClass = "map"
 
     def __init__(self, *args, **kwargs):
-        super(Map,self).__init__( *args, **kwargs )
+        super().__init__( *args, **kwargs )

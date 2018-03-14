@@ -4,7 +4,7 @@ class Blockquote( Widget):
 	_baseClass = "blockquote"
 
 	def __init__(self, *args, **kwargs):
-		super(Blockquote,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getBlockquote(self):
 		return self.element.blockquote

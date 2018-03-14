@@ -4,7 +4,7 @@ class Progress( Widget,Value ):
 	_baseClass = "progress"
 
 	def __init__(self, *args, **kwargs):
-		super(Progress,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getMax(self):
 		return self.element.max

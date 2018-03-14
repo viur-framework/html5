@@ -2,7 +2,7 @@ from html5.form import Button as fButton
 
 class Button(fButton):
 	def __init__(self, txt=None, callback=None, *args, **kwargs):
-		super(Button,self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"] = "button"
 		self["type"]="button"
 

@@ -5,7 +5,7 @@ class Track( Widget,Src,Label ):
 	_baseClass = "track"
 
 	def __init__(self, *args, **kwargs):
-		super(Track,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 	def _getKind(self):
 		return self.element.kind

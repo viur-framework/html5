@@ -17,7 +17,7 @@ class Button( Disabled,Widget,Type,_Form,Autofocus,Name,Value,Formhead):
 		Name.__init__( self, *args, **kwargs )
 		Value.__init__( self, *args, **kwargs )
 		Formhead.__init__( self, *args, **kwargs )
-		#super(Button,self).__init__( *args, **kwargs )
+		#super().__init__( *args, **kwargs )
 
 class Fieldset(Disabled,Widget,_Form,Name):
 	_baseClass = "fieldset"
@@ -87,7 +87,7 @@ class Input(Disabled,Widget,Type,_Form,Alt,Autofocus,Checked,Indeterminate,Name,
 		Multiple.__init__(self, *args, **kwargs)
 		Size.__init__(self, *args, **kwargs)
 		Src.__init__(self, *args, **kwargs)
-		#super(Input,self).__init__( *args, **kwargs )
+		#super().__init__( *args, **kwargs )
 
 	def _getAccept(self):
 		return self.element.accept
@@ -123,7 +123,7 @@ class Label( Widget,_Form,__For ):
 	_baseClass = "label"
 	autoIdCounter = 0
 	def __init__(self, txt="", forElem=None, *args, **kwargs):
-		super(Label,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 		if txt:
 			self.appendChild(TextNode(txt))
 		if forElem:
@@ -168,7 +168,7 @@ class Output( Widget,_Form,Name,__For ):
 	_baseClass = "output"
 
 	def __init__(self, *args, **kwargs):
-		super(Output,self).__init__( *args, **kwargs )
+		super().__init__( *args, **kwargs )
 
 
 
@@ -204,7 +204,7 @@ class Textarea( Disabled, Widget,_Form ,Autofocus,Name,Inputs,Value):
 		Inputs.__init__(self, *args, **kwargs )
 		Value.__init__(self, *args, **kwargs )
 
-		#super(Textarea,self).__init__( *args, **kwargs )
+		#super().__init__( *args, **kwargs )
 
 	def _getCols(self):
 		return self.element.cols
