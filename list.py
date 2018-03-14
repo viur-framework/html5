@@ -15,8 +15,11 @@ class Ol( Widget ):
 class Li( Widget ):
     _baseClass = "li"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, child = None, *args, **kwargs):
         super().__init__( *args, **kwargs )
+
+        if child:
+            self.appendChild(child)
 
 class Dl( Widget ):
     _baseClass = "dl"

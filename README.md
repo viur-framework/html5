@@ -1,4 +1,4 @@
-# html5
+# ViUR html5
 
 **html5** is a HTML5-DOM library that has been written in Python.
 
@@ -55,9 +55,8 @@ Just compile it with
 
 We take a great interest in your opinion about ViUR. We appreciate your feedback and are looking forward to hear about your ideas. Share your visions or questions with us and participate in ongoing discussions.
 
-- [ViUR on the web](https://www.viur.is)
-- [#ViUR on freenode IRC](https://webchat.freenode.net/?channels=viur)
-- [ViUR on Google Community](https://plus.google.com/communities/102034046048891029088)
+- [ViUR website](https://www.viur.is)
+- [ViUR on GitHub](https://github.com/viur-framework)
 - [ViUR on Twitter](https://twitter.com/weloveViUR)
 
 ## Credits
@@ -68,7 +67,7 @@ Help of any kind to extend and improve or enhance this project in any kind or wa
 
 ## License
 
-ViUR is Copyright (C) 2012-2017 by Mausbrand Informationssysteme GmbH.
+Copyright (C) 2012-2018 by Mausbrand Informationssysteme GmbH.
 
 Mausbrand and ViUR are registered trademarks of Mausbrand Informationssysteme GmbH.
 

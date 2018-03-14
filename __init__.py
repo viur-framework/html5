@@ -7,6 +7,7 @@ from html5.div import Div
 from html5.table import Table,Tbody,Thead,Td,Th,Tr
 from html5.list import Ol, Ul, Li, Dl, Dt, Dd
 from html5.form import Button,Fieldset,Form,Input,Label,Optgroup,Option,Select,Textarea,Output
+from html5.head import Head
 from html5.nav import Nav
 from html5.span import Span
 from html5.base import Base
