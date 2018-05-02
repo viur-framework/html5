@@ -2,6 +2,12 @@
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
+## develop
+
+Current development version.
+
+- Extended html parser to apply data-attributes
+
 ## 2.2 Etna
 
 Release date: Apr 23, 2018
