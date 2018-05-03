@@ -163,18 +163,36 @@ class Widget(object):
 
 	def sinkEvent(self, *args):
 		for eventName in args:
-			if eventName in self._catchedEvents or eventName.lower in ["onattach", "ondetach"]:
+			event = eventName.lower()
+
+			if eventName in self._catchedEvents or event in ["onattach", "ondetach"]:
 				continue
-			assert eventName in dir(self), "%s must provide a %s method" % (str(self), eventName)
+
+			eventFn = getattr(self, eventName, None)
+			assert eventFn and callable(eventFn), "%s must provide a %s method" % (str(self), eventName)
+
 			self._catchedEvents.append(eventName)
-			setattr(self.element, eventName.lower(), getattr(self, eventName))
+
+			if event.startswith("on"):
+				event = event[2:]
+
+			self.element.addEventListener(event, eventFn)
 
 	def unsinkEvent(self, *args):
 		for eventName in args:
 			if not eventName in self._catchedEvents:
 				continue
+
+			eventFn = getattr(self, eventName, None)
+			assert eventFn and callable(eventFn), "%s must provide a %s method" % (str(self), eventName)
+
 			self._catchedEvents.remove(eventName)
-			setattr(self.element, eventName.lower(), None)
+			event = eventName.lower()
+
+			if event.startswith("on"):
+				event = event[2:]
+
+			self.element.removeEventListener(event, eventFn)
 
 	def disable(self):
 		if not self["disabled"]:
@@ -687,6 +705,12 @@ class Widget(object):
 	def onFocus(self, event):
 		pass
 
+	def onFocusIn(self, event):
+		pass
+
+	def onFocusOut(self, event):
+		pass
+
 	def onFormChange(self, event):
 		pass
 
@@ -806,44 +830,6 @@ class Widget(object):
 			return self._children[n]
 
 		return None
-
-	def _getEventMap(self):
-		res = {"onblur": "onBlur",
-		       "onchange": "onChange",
-		       "oncontextmenu": "onContextMenu",
-		       "onfocus": "onFocus",
-		       "onformchange": "onFormChange",
-		       "onforminput": "onFormInput",
-		       "oninput": "onInput",
-		       "oninvalid": "onInvalid",
-		       "onreset": "onReset",
-		       "onselect": "onSelect",
-		       "onsubmit": "onSubmit",
-		       "onkeydown": "onKeyDown",
-		       "onkeypress": "onKeyPress",
-		       "onkeyup": "onKeyUp",
-		       "onclick": "onClick",
-		       "ondblclick": "onDblClick",
-		       "ondrag": "onDrag",
-		       "ondragend": "onDragEnd",
-		       "ondragenter": "onDragEnter",
-		       "ondragleave": "onDragLeave",
-		       "ondragover": "onDragOver",
-		       "ondragstart": "onDragStart",
-		       "ondrop": "onDrop",
-		       "onmousedown": "onMouseDown",
-		       "onmousemove": "onMouseMove",
-		       "onmouseout": "onMouseOut",
-		       "onmouseover": "onMouseOver",
-		       "onmouseup": "onMouseUp",
-		       "onmousewheel": "onMouseWheel",
-		       "onscroll": "onScroll",
-		       "ontouchstart": "onTouchStart",
-		       "ontouchend": "onTouchEnd",
-		       "ontouchmove": "onTouchMove",
-		       "ontouchcancel": "onTouchCancel"
-		       }
-		return (res)
 
 	def sortChildren(self, key):
 		"""

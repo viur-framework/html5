@@ -7,6 +7,8 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 Current development version.
 
 - Extended html parser to apply data-attributes
+- Switching event handling to newer JavaScript event listener API
+- Added `onFocusIn` and `onFocusOut` events
 
 ## 2.2 Etna
 
