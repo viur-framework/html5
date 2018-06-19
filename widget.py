@@ -154,7 +154,7 @@ class Widget(object):
 			self.element = document.createElement(self._baseClass, ns=self._namespace)
 		super(Widget, self).__init__(*args, **kwargs)
 		self._children = []
-		self._catchedEvents = []
+		self._catchedEvents = {}
 		self._disabledState = None
 		self._isAttached = False
 		self._parent = None
@@ -171,28 +171,29 @@ class Widget(object):
 			eventFn = getattr(self, eventName, None)
 			assert eventFn and callable(eventFn), "%s must provide a %s method" % (str(self), eventName)
 
-			self._catchedEvents.append(eventName)
+			self._catchedEvents[eventName] = eventFn
 
 			if event.startswith("on"):
 				event = event[2:]
 
-			self.element.addEventListener(event, eventFn)
+			self.element.addEventListener(event, eventFn, True)
+			#print("sink", eventFn)
 
 	def unsinkEvent(self, *args):
 		for eventName in args:
-			if not eventName in self._catchedEvents:
+			event = eventName.lower()
+
+			if eventName not in self._catchedEvents:
 				continue
 
-			eventFn = getattr(self, eventName, None)
-			assert eventFn and callable(eventFn), "%s must provide a %s method" % (str(self), eventName)
-
-			self._catchedEvents.remove(eventName)
-			event = eventName.lower()
+			eventFn = self._catchedEvents[eventName]
+			del self._catchedEvents[eventName]
 
 			if event.startswith("on"):
 				event = event[2:]
 
-			self.element.removeEventListener(event, eventFn)
+			self.element.removeEventListener(event, eventFn, True)
+			#print("unsink", ret, eventFn)
 
 	def disable(self):
 		if not self["disabled"]:
@@ -213,8 +214,8 @@ class Widget(object):
 			if self._disabledState is not None:
 				self._disabledState["recursionCounter"] += 1
 			else:
-				self._disabledState = {"events": self._catchedEvents[:], "recursionCounter": 1}
-				self.unsinkEvent(*self._catchedEvents[:])
+				self._disabledState = {"events": self._catchedEvents.keys(), "recursionCounter": 1}
+				self.unsinkEvent(*self._catchedEvents.keys())
 		else:
 
 			if self._disabledState is None:
