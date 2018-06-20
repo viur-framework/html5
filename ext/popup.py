@@ -226,7 +226,7 @@ class SelectDialog(Popup):
 
 	def onOkClick(self, sender=None):
 		assert self.select["selectedIndex"] >= 0
-		item = self.item[int(self.select.children(self.select["selectedIndex"])["value"])]
+		item = self.items[int(self.select.children(self.select["selectedIndex"])["value"])]
 
 		if isinstance(item, dict) and item.get("callback") and callable(item["callback"]):
 			item["callback"](item)
