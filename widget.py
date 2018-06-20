@@ -176,7 +176,7 @@ class Widget(object):
 			if event.startswith("on"):
 				event = event[2:]
 
-			self.element.addEventListener(event, eventFn, True)
+			self.element.addEventListener(event, eventFn)
 			#print("sink", eventFn)
 
 	def unsinkEvent(self, *args):
@@ -192,7 +192,7 @@ class Widget(object):
 			if event.startswith("on"):
 				event = event[2:]
 
-			self.element.removeEventListener(event, eventFn, True)
+			self.element.removeEventListener(event, eventFn)
 			#print("unsink", ret, eventFn)
 
 	def disable(self):
