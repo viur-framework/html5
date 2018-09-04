@@ -164,7 +164,12 @@ class SelectDialog(Popup):
 		if prompt:
 			lbl = html5.Span()
 			lbl["class"].append("prompt")
-			lbl.appendChild(html5.TextNode(prompt))
+
+			if isinstance(prompt, html5.Widget):
+				lbl.appendChild(prompt)
+			else:
+				html5.utils.textToHtml(lbl, prompt)
+
 			self.appendChild(lbl)
 
 		# Items
