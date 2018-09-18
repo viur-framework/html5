@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*
 
-#__pragma__("kwargs")
-#__pragma__("xglobs")
-#__pragma__("opov")
-#__pragma__("nojsmod")
+# __pragma__("kwargs")
+# __pragma__("xglobs")
+# __pragma__("opov")
+# __pragma__("nojsmod")
+# __pragma__("tconv")
 
 ########################################################################################################################
 # DOM-access functions
@@ -103,6 +104,7 @@ class TextNode(object):
 
 	def _getDisabled(self):
 		return False
+
 
 # ClassWrapper ---------------------------------------------------------------------------------------------------------
 
@@ -213,6 +215,7 @@ class StyleWrapper(dict):
 			self.targetWidget.element.style.setProperty(key, F[key])
 '''
 
+
 # Widget ---------------------------------------------------------------------------------------------------------------
 
 class Widget(object):
@@ -253,7 +256,7 @@ class Widget(object):
 				event = event[2:]
 
 			self.element.addEventListener(event, eventFn)
-			# print("sink", eventFn)
+		# print("sink", eventFn)
 
 	def unsinkEvent(self, *args):
 		for event_attrName in args:
@@ -953,6 +956,7 @@ class Widget(object):
 
 		return fromHTML(html, appendTo, bindTo)
 
+
 ########################################################################################################################
 # Attribute Collectors
 ########################################################################################################################
@@ -965,6 +969,7 @@ class _attrLabel(object):
 
 	def _setLabel(self, val):
 		self.element.setAttribute("label", val)
+
 
 # _attrCharset --------------------------------------------------------------------------------------------------------------
 
@@ -1437,9 +1442,10 @@ class _attrSvgStyles(object):
 	def _setStroke(self, val):
 		self.element.setAttribute("stroke", val)
 
+
 # _attrBase -----------------------------------------------------------------------------------------------------------------
 
-#fixme: Choose more generic name?
+# fixme: Choose more generic name?
 class _attrBase(Widget, _attrHref, _attrTarget):
 	_baseClass = "base"
 
@@ -1449,7 +1455,7 @@ class _attrBase(Widget, _attrHref, _attrTarget):
 
 # _attrDetails --------------------------------------------------------------------------------------------------------------
 
-#fixme: Choose more generic name?
+# fixme: Choose more generic name?
 class _attrDetails(Widget):
 	_baseClass = "details"
 
@@ -1531,6 +1537,7 @@ class Bdo(Widget):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+
 # Blockquote -----------------------------------------------------------------------------------------------------------
 
 class Blockquote(Widget):
@@ -1596,13 +1603,15 @@ class Command(Widget, _attrLabel, _attrType, _attrDisabled, _attrChecked):
 	def _setRadiogroup(self, val):
 		self.element.radiogroup = val
 
+
 # _Del -----------------------------------------------------------------------------------------------------------------
 
-class _Del( Widget,_attrCite,_attrDatetime):
+class _Del(Widget, _attrCite, _attrDatetime):
 	_baseClass = "_del"
 
 	def __init__(self, *args, **kwargs):
-		super().__init__( *args, **kwargs )
+		super().__init__(*args, **kwargs)
+
 
 # Dialog --------------------------------------------------------------------------------------------------------------
 
@@ -1957,6 +1966,8 @@ class Button(_attrDisabled, Widget, _attrType, _attrForm, _attrAutofocus, _attrN
 		_attrName.__init__(self, *args, **kwargs)
 		_attrValue.__init__(self, *args, **kwargs)
 		_attrFormhead.__init__(self, *args, **kwargs)
+
+
 # super().__init__( *args, **kwargs )
 
 
@@ -2014,7 +2025,8 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 		self.element.setAttribute("accept-_attrCharset", val)
 
 
-class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
+class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate,
+            _attrName, _attrDimensions, _attrValue, _attrFormhead,
             _attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
 	_baseClass = "input"
 
@@ -2169,6 +2181,7 @@ class HeadCls(Widget):
 		super().__init__(_wrapElem=document.getElementsByTagName("head")[0])
 		self._isAttached = True
 
+
 _head = None
 
 
@@ -2239,6 +2252,7 @@ class Ins(Widget, _attrCite, _attrDatetime):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+
 
 # Keygen ---------------------------------------------------------------------------------------------------------------
 
@@ -2458,27 +2472,30 @@ class Q(Widget, _attrCite):
 
 # Source ---------------------------------------------------------------------------------------------------------------
 
-class _Script( Widget,_attrSrc,_attrCharset ):
+class _Script(Widget, _attrSrc, _attrCharset):
 	_baseClass = "script"
 
 	def __init__(self, *args, **kwargs):
-		super().__init__( *args, **kwargs )
+		super().__init__(*args, **kwargs)
 
 	def _getAsync(self):
-		return( True if self.element.hasAttribute("async") else False )
-	def _setAsync(self,val):
-		if val==True:
-			self.element.setAttribute("async","")
+		return (True if self.element.hasAttribute("async") else False)
+
+	def _setAsync(self, val):
+		if val == True:
+			self.element.setAttribute("async", "")
 		else:
 			self.element.removeAttribute("async")
 
 	def _getDefer(self):
-		return( True if self.element.hasAttribute("defer") else False )
-	def _setDefer(self,val):
-		if val==True:
-			self.element.setAttribute("defer","")
+		return (True if self.element.hasAttribute("defer") else False)
+
+	def _setDefer(self, val):
+		if val == True:
+			self.element.setAttribute("defer", "")
 		else:
 			self.element.removeAttribute("defer")
+
 
 # Source ---------------------------------------------------------------------------------------------------------------
 
@@ -3024,6 +3041,7 @@ def isReturn(keyCode):
 __tags = None
 __domParser = None
 
+
 def __convertEncodedText(txt):
 	"""
 	Convert HTML-encoded text into decoded string.
@@ -3068,7 +3086,7 @@ def __buildDescription():
 				attr.append(fname[4:].lower())
 
 		tags[cname.lower()] = (cl, attr)
-		#print(cname, cl, attr)
+	# print(cname, cl, attr)
 
 	for tag in sorted(tags.keys()):
 		print("{}: {}".format(tag, ", ".join(sorted(tags[tag][1]))))
@@ -3112,7 +3130,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 		"""
 
 		ret = ""
-		while bool(l) and l[0] in " \t\r\n": #fixme: Transcrypt
+		while l and l[0] in " \t\r\n":
 			ret += l.pop(0)
 
 		return ret
@@ -3123,7 +3141,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 		"""
 
 		ret = ""
-		while bool(l) and l[0] not in " \t\r\n" + "<>=\"'": #fixme: Transcrypt
+		while l and l[0] not in " \t\r\n" + "<>=\"'":
 			ret += l.pop(0)
 
 		return ret
@@ -3147,7 +3165,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 	html = [ch for ch in html]
 
 	# Parse
-	while bool(html): #fixme: Transcrypt
+	while html:
 		tag = None
 		text = ""
 
@@ -3160,14 +3178,14 @@ def fromHTML(html, appendTo=None, bindTo=None):
 
 		parent = stack[-1][0]
 
-		while bool(html): #fixme: Transcrypt
-			#print("html", html)
-			#print(stack)
+		while html:
+			# print("html", html)
+			# print(stack)
 
 			ch = html.pop(0)
 
 			# Comment
-			if bool(html) and ch == "<" and "".join(html[:3]) == "!--": #fixme: Transcrypt
+			if html and ch == "<" and "".join(html[:3]) == "!--":
 				html = html[3:]
 				while html and "".join(html[:3]) != "-->":
 					html.pop(0)
@@ -3175,7 +3193,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 				html = html[3:]
 
 			# Opening tag
-			elif bool(html) and ch == "<" and html[0] != "/": #fixme: Transcrypt
+			elif html and ch == "<" and html[0] != "/":
 				tag = scanWord(html)
 				if tag.lower() in __tags:
 					break
@@ -3183,7 +3201,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 				text += ch + tag
 
 			# Closing tag
-			elif bool(html) and stack[-1][1] and ch == "<" and html[0] == "/": #fixme: Transcrypt
+			elif html and stack[-1][1] and ch == "<" and html[0] == "/":
 				junk = ch
 				junk += html.pop(0)
 
@@ -3207,15 +3225,15 @@ def fromHTML(html, appendTo=None, bindTo=None):
 
 		# Append plain text (if not only whitespace)
 		if (text and ((len(text) == 1 and text in ["\t "])
-				        or not all([ch in " \t\r\n" for ch in text]))):
+		              or not all([ch in " \t\r\n" for ch in text]))):
 			# print("text", text)
 			parent.appendChild(TextNode(__convertEncodedText(text)))
 
 		# Create tag
-		if bool(tag): #fixme: Transcrypt
+		if tag:
 			wdg = __tags[tag][0]()
 
-			#fixme: Debug
+			# fixme: Debug
 			if isinstance(wdg, Input):
 				wdg["value"] = "HAAAA"
 				print(wdg["value"])
@@ -3226,9 +3244,9 @@ def fromHTML(html, appendTo=None, bindTo=None):
 
 			# print("tag", tag)
 
-			while bool(html): #fixme: Transcrypt
+			while html:
 				scanWhite(html)
-				if not bool(html): #fixme: Transcrypt
+				if not html:
 					break
 
 				# End of tag >
@@ -3250,7 +3268,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 				att = att.lower()
 				val = att
 
-				if not bool(att):
+				if not att:
 					html.pop(0)
 					continue
 
@@ -3264,7 +3282,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 							ch = html.pop(0)
 
 							val = ""
-							while bool(html) and html[0] != ch: #fixme: Transcrypt
+							while html and html[0] != ch:
 								val += html.pop(0)
 
 							html.pop(0)
