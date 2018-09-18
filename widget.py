@@ -159,7 +159,7 @@ class Widget(object):
 		super().__init__()
 
 		self._children = []
-		self._catchedEvents = []
+		self._catchedEvents = {}
 		self._disabledState = None
 		self._isAttached = False
 		self._parent = None
@@ -168,18 +168,37 @@ class Widget(object):
 
 	def sinkEvent(self, *args):
 		for eventName in args:
-			if eventName in self._catchedEvents or eventName.lower in ["onattach", "ondetach"]:
+			event = eventName.lower()
+
+			if eventName in self._catchedEvents or event in ["onattach", "ondetach"]:
 				continue
-			assert eventName in dir(self), "{} must provide a {} method".format(str(self), eventName)
-			self._catchedEvents.append(eventName)
-			setattr(self.element, eventName.lower(), getattr(self, eventName))
+
+			eventFn = getattr(self, eventName, None)
+			assert eventFn and callable(eventFn), "{} must provide a {} method".format(str(self), eventName))
+
+			self._catchedEvents[eventName] = eventFn
+
+			if event.startswith("on"):
+				event = event[2:]
+
+			self.element.addEventListener(event, eventFn)
+			#print("sink", eventFn)
 
 	def unsinkEvent(self, *args):
 		for eventName in args:
-			if not eventName in self._catchedEvents:
+			event = eventName.lower()
+
+			if eventName not in self._catchedEvents:
 				continue
-			self._catchedEvents.remove(eventName)
-			setattr(self.element, eventName.lower(), None)
+
+			eventFn = self._catchedEvents[eventName]
+			del self._catchedEvents[eventName]
+
+			if event.startswith("on"):
+				event = event[2:]
+
+			self.element.removeEventListener(event, eventFn)
+			#print("unsink", ret, eventFn)
 
 	def disable(self):
 		if not self["disabled"]:
@@ -200,8 +219,8 @@ class Widget(object):
 			if self._disabledState is not None:
 				self._disabledState["recursionCounter"] += 1
 			else:
-				self._disabledState = {"events": self._catchedEvents[:], "recursionCounter": 1}
-				self.unsinkEvent(*self._catchedEvents[:])
+				self._disabledState = {"events": self._catchedEvents.keys(), "recursionCounter": 1}
+				self.unsinkEvent(*self._catchedEvents.keys())
 		else:
 
 			if self._disabledState is None:
@@ -694,6 +713,12 @@ class Widget(object):
 	def onFocus(self, event):
 		pass
 
+	def onFocusIn(self, event):
+		pass
+
+	def onFocusOut(self, event):
+		pass
+
 	def onFormChange(self, event):
 		pass
 
@@ -813,44 +838,6 @@ class Widget(object):
 			return self._children[n]
 
 		return None
-
-	def _getEventMap(self):
-		res = {"onblur": "onBlur",
-		       "onchange": "onChange",
-		       "oncontextmenu": "onContextMenu",
-		       "onfocus": "onFocus",
-		       "onformchange": "onFormChange",
-		       "onforminput": "onFormInput",
-		       "oninput": "onInput",
-		       "oninvalid": "onInvalid",
-		       "onreset": "onReset",
-		       "onselect": "onSelect",
-		       "onsubmit": "onSubmit",
-		       "onkeydown": "onKeyDown",
-		       "onkeypress": "onKeyPress",
-		       "onkeyup": "onKeyUp",
-		       "onclick": "onClick",
-		       "ondblclick": "onDblClick",
-		       "ondrag": "onDrag",
-		       "ondragend": "onDragEnd",
-		       "ondragenter": "onDragEnter",
-		       "ondragleave": "onDragLeave",
-		       "ondragover": "onDragOver",
-		       "ondragstart": "onDragStart",
-		       "ondrop": "onDrop",
-		       "onmousedown": "onMouseDown",
-		       "onmousemove": "onMouseMove",
-		       "onmouseout": "onMouseOut",
-		       "onmouseover": "onMouseOver",
-		       "onmouseup": "onMouseUp",
-		       "onmousewheel": "onMouseWheel",
-		       "onscroll": "onScroll",
-		       "ontouchstart": "onTouchStart",
-		       "ontouchend": "onTouchEnd",
-		       "ontouchmove": "onTouchMove",
-		       "ontouchcancel": "onTouchCancel"
-		       }
-		return (res)
 
 	def sortChildren(self, key):
 		"""

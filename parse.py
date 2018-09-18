@@ -233,7 +233,7 @@ def fromHTML(html, appendTo = None, bindTo = None):
 					html.pop(0)
 					continue
 
-				if att in _tags[tag][1] or att in ["[name]", "style", "disabled", "hidden"]:
+				if att in _tags[tag][1] or att in ["[name]", "style", "disabled", "hidden"] or att.startswith("data-"):
 					scanWhite(html)
 					if html[0] == "=":
 						html.pop(0)
@@ -288,6 +288,9 @@ def fromHTML(html, appendTo = None, bindTo = None):
 							#print(tag, "style", att.strip(), val.strip())
 							stack[-1][0]["style"][att.strip()] = val.strip()
 
+					elif att.startswith("data-"):
+						stack[-1][0]["data"][att[5:]] = val
+					
 					else:
 						#print(tag, att, val)
 						stack[-1][0][att] = val
