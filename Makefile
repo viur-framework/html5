@@ -1,11 +1,10 @@
-TRLANGOPTS = --kwargs --xglobs --opov --tconv
-TRCOMPOPTS = -n -a 
+TRLANGOPTS	= --kwargs --xglobs --opov --tconv
+TRCOMPOPTS	= -n -a --verbose
+TARGETDIR	= __target__
 
-SOURCE = html5.py
-
-TARGETDIR = __target__
-
-OUTPUT = $(patsubst %.py,$(TARGETDIR)/%.js,$(SOURCE))
+MAIN		= html5.py
+SOURCE		= $(MAIN)
+OUTPUT		= $(patsubst %.py,$(TARGETDIR)/%.js,$(SOURCE))
 
 all: $(OUTPUT)
 

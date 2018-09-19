@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*
 
-# __pragma__("kwargs")
 # __pragma__("xglobs")
-# __pragma__("opov")
-# __pragma__("nojsmod")
-# __pragma__("tconv")
 
 ########################################################################################################################
 # DOM-access functions
@@ -2886,6 +2882,7 @@ class Video(Widget, _attrSrc, _attrDimensions, _attrMultimedia):
 		self.element.poster = val
 
 
+
 ########################################################################################################################
 # Utilities
 ########################################################################################################################
@@ -3233,12 +3230,6 @@ def fromHTML(html, appendTo=None, bindTo=None):
 		if tag:
 			wdg = __tags[tag][0]()
 
-			# fixme: Debug
-			if isinstance(wdg, Input):
-				wdg["value"] = "HAAAA"
-				print(wdg["value"])
-				print(wdg.__getitem__)
-
 			parent.appendChild(wdg)
 			stack.append((wdg, tag))
 
@@ -3265,7 +3256,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 						break
 
 				att = scanWord(html)
-				att = att.lower()
+				att = att.lower() #fixme: Transcrypt bug when combined with line above?
 				val = att
 
 				if not att:
