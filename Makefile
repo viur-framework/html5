@@ -11,6 +11,9 @@ all: $(OUTPUT)
 clean:
 	rm -rf $(TARGETDIR) __pycache__
 
+serve:
+	python3 -m http.server
+
 $(OUTPUT): $(SOURCE)
 	transcrypt $(TRCOMPOPTS) $(TRLANGOPTS) $(patsubst %.py,%,$(SOURCE))
 

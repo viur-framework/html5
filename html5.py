@@ -3330,3 +3330,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 						stack[-1][0][att] = val
 
 				continue
+
+
+if __name__ == '__main__':
+    print(globals())
