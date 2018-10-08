@@ -1964,9 +1964,6 @@ class Button(_attrDisabled, Widget, _attrType, _attrForm, _attrAutofocus, _attrN
 		_attrFormhead.__init__(self, *args, **kwargs)
 
 
-# super().__init__( *args, **kwargs )
-
-
 class Fieldset(_attrDisabled, Widget, _attrForm, _attrName):
 	_baseClass = "fieldset"
 

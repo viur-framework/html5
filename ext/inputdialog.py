@@ -1,4 +1,4 @@
-import html5
+from html5 import html5
 from html5.ext.popup import Popup
 from html5.ext.button import Button
 

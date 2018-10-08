@@ -1,4 +1,4 @@
-import html5
+from html5 import html5
 
 class Popup(html5.Div):
 	def __init__(self, title=None, id=None, className=None, *args, **kwargs):
