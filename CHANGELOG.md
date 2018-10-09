@@ -6,6 +6,8 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 Current development version.
 
+- New function `Widget.isHidden()` to check if a widget is currently shown.
+
 ## [2.3] Kilauea
 
 Release date: Oct 2, 2018

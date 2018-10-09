@@ -486,7 +486,6 @@ class Widget(object):
 	def hide(self):
 		"""
 		Hide element, if shown.
-		:return:
 		"""
 		state = self["style"].get("display", "")
 
@@ -497,11 +496,17 @@ class Widget(object):
 	def show(self):
 		"""
 		Show element, if hidden.
-		:return:
 		"""
 		if self._lastDisplayState is not None:
 			self["style"]["display"] = self._lastDisplayState
 			self._lastDisplayState = None
+
+	def isHidden(self):
+		"""
+		Checks if a widget is flagged hidden.
+		:return: True if hidden, False otherwise.
+		"""
+		return self["style"].get("display", "") == "none"
 
 	def onAttach(self):
 		self._isAttached = True
