@@ -1,6 +1,5 @@
 import html5
 
-
 class Popup(html5.Div):
 	def __init__(self, title=None, id=None, className=None, *args, **kwargs):
 		super(Popup, self).__init__(*args, **kwargs)
@@ -79,7 +78,6 @@ class Alert(Popup):
 			event.preventDefault()
 			self.onOkBtnClick()
 
-
 class YesNoDialog(Popup):
 	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args,
 	             **kwargs):
@@ -147,7 +145,6 @@ class YesNoDialog(Popup):
 			self.noCallback(self)
 
 		self.drop()
-
 
 class SelectDialog(Popup):
 

@@ -1,4 +1,4 @@
-from html5.form import Input as fInput
+from html5 import Input as fInput
 
 class Input(fInput):
 	def __init__(self, type="text", placeholder=None, callback=None, id=None, focusCallback=None, *args, **kwargs):

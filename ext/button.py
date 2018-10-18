@@ -1,4 +1,4 @@
-from html5.form import Button as fButton
+from html5 import Button as fButton
 
 class Button(fButton):
 	def __init__(self, txt=None, callback=None, *args, **kwargs):
