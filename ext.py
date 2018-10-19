@@ -1,4 +1,72 @@
-import html5
+# -*- coding: utf-8 -*-
+import core as html5
+
+class Button(html5.Button):
+	def __init__(self, txt=None, callback=None, *args, **kwargs):
+		super(Button, self).__init__(*args, **kwargs)
+		self["class"] = "button"
+		self["type"] = "button"
+
+		if txt is not None:
+			self.setText(txt)
+
+		self.callback = callback
+		self.sinkEvent("onClick")
+
+	def setText(self, txt):
+		if txt is not None:
+			self.element.innerHTML = txt
+		else:
+			self.element.innerHTML = ""
+
+	def onClick(self, event):
+		event.stopPropagation()
+		event.preventDefault()
+		if self.callback is not None:
+			self.callback(self)
+
+
+class Input(html5.Input):
+	def __init__(self, type="text", placeholder=None, callback=None, id=None, focusCallback=None, *args, **kwargs):
+		"""
+
+		:param type: Input type. Default: "text
+		:param placeholder: Placeholder text. Default: None
+		:param callback: Function to be called onChanged: callback(id, value)
+		:param id: Optional id of the input element. Will be passed to callback
+		:return:
+		"""
+		super(Input, self).__init__(*args, **kwargs)
+		self["class"] = "input"
+		self["type"] = type
+		if placeholder is not None:
+			self["placeholder"] = placeholder
+
+		self.callback = callback
+		if id is not None:
+			self["id"] = id
+		self.sinkEvent("onChange")
+
+		self.focusCallback = focusCallback
+		if focusCallback:
+			self.sinkEvent("onFocus")
+
+	def onChange(self, event):
+		event.stopPropagation()
+		event.preventDefault()
+		if self.callback is not None:
+			self.callback(self, self["id"], self["value"])
+
+	def onFocus(self, event):
+		event.stopPropagation()
+		event.preventDefault()
+		if self.focusCallback is not None:
+			self.focusCallback(self, self["id"], self["value"])
+
+	def onDetach(self):
+		super(Input, self)
+		self.callback = None
+
 
 class Popup(html5.Div):
 	def __init__(self, title=None, id=None, className=None, *args, **kwargs):
@@ -26,6 +94,59 @@ class Popup(html5.Div):
 	def close(self, *args, **kwargs):
 		html5.Body().removeChild(self.frameDiv)
 		self.frameDiv = None
+
+
+class InputDialog(Popup):
+	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
+	             *args, **kwargs):
+		super(InputDialog, self).__init__(*args, **kwargs)
+		self["class"].append("inputdialog")
+		self.successHandler = successHandler
+		self.abortHandler = abortHandler
+
+		span = html5.Span()
+		span.element.innerHTML = text
+		self.appendChild(span)
+		self.inputElem = html5.Input()
+		self.inputElem["type"] = "text"
+		self.inputElem["value"] = value
+		self.appendChild(self.inputElem)
+		okayBtn = Button(successLbl, self.onOkay)
+		okayBtn["class"].append("btn_okay")
+		self.appendChild(okayBtn)
+		cancelBtn = Button(abortLbl, self.onCancel)
+		cancelBtn["class"].append("btn_cancel")
+		self.appendChild(cancelBtn)
+		self.sinkEvent("onkeydown")
+		self.inputElem.focus()
+
+	def onkeydown(self, event):
+		if hasattr(event, "key"):
+			key = event.key
+		elif hasattr(event, "keyIdentifier"):
+			# Babelfish: Translate "keyIdentifier" into "key"
+			if event.keyIdentifier in ["Esc", "U+001B"]:
+				key = "Escape"
+			else:
+				key = event.keyIdentifier
+		if "Enter" == key:
+			event.stopPropagation()
+			event.preventDefault()
+			self.onOkay()
+		elif "Escape" == key:
+			event.stopPropagation()
+			event.preventDefault()
+			self.onCancel()
+
+	def onOkay(self, *args, **kwargs):
+		if self.successHandler:
+			self.successHandler(self, self.inputElem["value"])
+		self.close()
+
+	def onCancel(self, *args, **kwargs):
+		if self.abortHandler:
+			self.abortHandler(self, self.inputElem["value"])
+		self.close()
 
 
 class Alert(Popup):
@@ -78,6 +199,7 @@ class Alert(Popup):
 			event.preventDefault()
 			self.onOkBtnClick()
 
+
 class YesNoDialog(Popup):
 	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args,
 	             **kwargs):
@@ -112,8 +234,8 @@ class YesNoDialog(Popup):
 		if hasattr(event, "key"):
 			key = event.key
 		elif hasattr(event, "keyIdentifier"):
-			# Babelfish: Translate 'keyIdentifier' into 'key'
-			if event.keyIdentifier in ['Esc', 'U+001B']:
+			# Babelfish: Translate "keyIdentifier" into "key"
+			if event.keyIdentifier in ["Esc", "U+001B"]:
 				key = "Escape"
 			else:
 				key = event.keyIdentifier
@@ -146,10 +268,11 @@ class YesNoDialog(Popup):
 
 		self.drop()
 
+
 class SelectDialog(Popup):
 
 	def __init__(self, prompt, items=None, title=None, okBtn="OK", cancelBtn="Cancel", forceSelect=False,
-	                callback=None, *args, **kwargs):
+	             callback=None, *args, **kwargs):
 		super(SelectDialog, self).__init__(title, *args, **kwargs)
 		self["class"].append("selectdialog")
 
@@ -238,4 +361,57 @@ class SelectDialog(Popup):
 
 		self.items = None
 		self.select = None
+		self.close()
+
+
+class TextareaDialog(Popup):
+	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
+	             *args, **kwargs):
+		super(TextareaDialog, self).__init__(*args, **kwargs)
+		self["class"].append("textareadialog")
+		self.successHandler = successHandler
+		self.abortHandler = abortHandler
+
+		span = html5.Span()
+		span.element.innerHTML = text
+		self.appendChild(span)
+		self.inputElem = html5.Textarea()
+		self.inputElem["value"] = value
+		self.appendChild(self.inputElem)
+		okayBtn = Button(successLbl, self.onOkay)
+		okayBtn["class"].append("btn_okay")
+		self.appendChild(okayBtn)
+		cancelBtn = Button(abortLbl, self.onCancel)
+		cancelBtn["class"].append("btn_cancel")
+		self.appendChild(cancelBtn)
+		self.sinkEvent("onkeydown")
+		self.inputElem.focus()
+
+	def onkeydown(self, event):
+		if hasattr(event, "key"):
+			key = event.key
+		elif hasattr(event, "keyIdentifier"):
+			# Babelfish: Translate "keyIdentifier" into "key"
+			if event.keyIdentifier in ["Esc", "U+001B"]:
+				key = "Escape"
+			else:
+				key = event.keyIdentifier
+
+		# Some keys have special treatment
+		if "Enter" == key:
+			pass
+
+		elif "Escape" == key:
+			event.stopPropagation()
+			event.preventDefault()
+			self.onCancel()
+
+	def onOkay(self, *args, **kwargs):
+		if self.successHandler:
+			self.successHandler(self, self.inputElem["value"])
+		self.close()
+
+	def onCancel(self, *args, **kwargs):
+		if self.abortHandler:
+			self.abortHandler(self, self.inputElem["value"])
 		self.close()
