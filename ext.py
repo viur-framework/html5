@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import core as html5
+import utils
 
 class Button(html5.Button):
 	def __init__(self, txt=None, callback=None, *args, **kwargs):
@@ -167,9 +168,9 @@ class Alert(Popup):
 		if isinstance(msg, html5.Widget):
 			message.appendChild(msg)
 		else:
-			html5.utils.textToHtml(message, msg)
+			utils.textToHtml(message, msg)
 
-		okBtn = html5.ext.Button(okLabel, callback=self.onOkBtnClick)
+		okBtn = Button(okLabel, callback=self.onOkBtnClick)
 		okBtn.addClass("alert-btn-ok")
 		self.appendChild(okBtn)
 
@@ -216,14 +217,14 @@ class YesNoDialog(Popup):
 		if isinstance(question, html5.Widget):
 			lbl.appendChild(question)
 		else:
-			html5.utils.textToHtml(lbl, question)
+			utils.textToHtml(lbl, question)
 
-		btnYes = html5.ext.Button(yesLabel, callback=self.onYesClicked)
+		btnYes = Button(yesLabel, callback=self.onYesClicked)
 		btnYes["class"].append("btn_yes")
 		self.appendChild(btnYes)
 
 		if len(noLabel):
-			btnNo = html5.ext.Button(noLabel, callback=self.onNoClicked)
+			btnNo = Button(noLabel, callback=self.onNoClicked)
 			btnNo["class"].append("btn_no")
 			self.appendChild(btnNo)
 
@@ -288,7 +289,7 @@ class SelectDialog(Popup):
 			if isinstance(prompt, html5.Widget):
 				lbl.appendChild(prompt)
 			else:
-				html5.utils.textToHtml(lbl, prompt)
+				utils.textToHtml(lbl, prompt)
 
 			self.appendChild(lbl)
 
@@ -304,7 +305,7 @@ class SelectDialog(Popup):
 				else:
 					title = item
 
-				btn = html5.ext.Button(title, callback=self.onAnyBtnClick)
+				btn = Button(title, callback=self.onAnyBtnClick)
 				btn.idx = idx
 
 				if cssc:
@@ -329,10 +330,10 @@ class SelectDialog(Popup):
 				self.select.appendChild(opt)
 
 			if okBtn:
-				self.appendChild(html5.ext.Button(okBtn, callback=self.onOkClick))
+				self.appendChild(Button(okBtn, callback=self.onOkClick))
 
 			if cancelBtn:
-				self.appendChild(html5.ext.Button(cancelBtn, callback=self.onCancelClick))
+				self.appendChild(Button(cancelBtn, callback=self.onCancelClick))
 
 	def onAnyBtnClick(self, sender):
 		item = self.items[sender.idx]
