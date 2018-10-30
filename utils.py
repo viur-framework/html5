@@ -45,7 +45,6 @@ def doesEventHitWidgetOrChildren(event, widget):
 	if event.target == widget.element:
 		return True
 
-	print(widget)
 	for child in widget.children():
 		if doesEventHitWidgetOrChildren(event, child):
 			return True
