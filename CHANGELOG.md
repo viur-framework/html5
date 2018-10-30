@@ -1,23 +1,31 @@
-# Changelog
+# Change Log
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
-## develop
+## [develop]
 
 Current development version.
 
+- Fully refactored the librarys source base into just two single files, to reduce number of required files to download and make the library easier to access.
+- New function `Widget.isHidden()` to check if a widget is currently shown.
+
+## [2.3] Kilauea
+
+Release date: Oct 2, 2018
+
+- Refactored `html5.ext.SelectDialog`
 - Extended html parser to apply data-attributes
 - Switching event handling to newer JavaScript event listener API
 - Added `onFocusIn` and `onFocusOut` events
 
-## 2.2 Etna
+## [2.2] Etna
 
 Release date: Apr 23, 2018
 
 - Implemented `html5.Head()` to access the document's head object within the library.
 - Directly append text in construction of Li().
 
-## 2.1
+## [2.1]
 
 Release date: Nov 2, 2017
 
@@ -34,10 +42,16 @@ Release date: Nov 2, 2017
 
 Release date: Dec 22, 2016
 
-- v2.0.1: Directly append text in construction of Option().
-- v2.0.1: Anything added to Widget.appendChild() or Widget.prependChild() which is not a widget is handled as text (TextNode() is automatically created).
+- v[2.0.1]: Directly append text in construction of Option().
+- v[2.0.1]: Anything added to Widget.appendChild() or Widget.prependChild() which is not a widget is handled as text (TextNode() is automatically created).
 - New functions `Widget.prependChild()`, `Widget.insertBefore()`, `Widget.children()`, `Widget.removeAllChildren()`,
  `Widget.addClass()`, `Widget.removeClass()`, `Widget.toggleClass()`
 - Utility functions `utils.doesEventHitWidgetOrParents()`, `utils.doesEventHitWidgetOrChildren()` taken from vi77
 - Insert text blocks easier with `utils.textToHtml()`
 - Several bugfixes
+
+[develop]: https://github.com/viur-framework/html5/compare/v2.3.0...develop
+[2.3]: https://github.com/viur-framework/html5/compare/v2.2.0...v2.3.0
+[2.2]: https://github.com/viur-framework/html5/compare/v2.1.0...v2.2.0
+[2.1]: https://github.com/viur-framework/html5/compare/v2.0.0...v2.1.0
+[2.0.1]: https://github.com/viur-framework/html5/compare/v2.0.0...v2.0.1
