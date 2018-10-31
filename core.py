@@ -1258,6 +1258,15 @@ class _attrMultimedia(object):
 		else:
 			self.element.removeAttribute("autoplay")
 
+	def _getPlaysinline(self):
+		return True if self.element.hasAttribute("playsinline") else False
+
+	def _setPlaysinline(self, val):
+		if val:
+			self.element.setAttribute("playsinline", "")
+		else:
+			self.element.removeAttribute("playsinline")
+
 	def _getControls(self):
 		return True if self.element.hasAttribute("controls") else False
 
