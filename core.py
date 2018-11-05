@@ -1,18 +1,28 @@
 # -*- coding: utf-8 -*
 
+# __pragma__("xglobs")
+
 ########################################################################################################################
 # DOM-access functions and variables
 ########################################################################################################################
 
-window = eval("window.top")
-document = window.document
+try:
+	document = window.document
+except NameError:
+	print("Emulation mode")
+	# __pragma__("skip")
+	from xml.dom.minidom import parseString
 
+	window = None
+	document = parseString('<html><head /><body /></html>')
+
+	# __pragma__("noskip")
 
 def domCreateAttribute(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... attribute
 		 :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-   """
+    """
 	uri = None
 
 	if ns == "SVG":
@@ -32,7 +42,7 @@ def domCreateElement(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... tag
 		  :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-   """
+    """
 	uri = None
 
 	if ns == "SVG":
@@ -110,52 +120,55 @@ class TextNode(object):
 		return []
 
 
-# _WidgetClassWrapper --------------------------------------------------------------------------------------------------
+# _WidgetClassWrapper -------------------------------------------------------------------------------------------------
 
-class _WidgetClassWrapper(list):
+class _WidgetClassWrapper(object):
 	def __init__(self, targetWidget):
 		super().__init__()
 		self.targetWidget = targetWidget
+		self.classList = []
+
 		clsStr = targetWidget.element.getAttribute("class")
 		if clsStr:
 			for c in clsStr.split(" "):
-				list.append(self, c)
+				self.classList.append(c)
 
 	def _updateElem(self):
-		if len(self) == 0:
+		if len(self.classList) == 0:
 			self.targetWidget.element.removeAttribute("class")
 		else:
-			self.targetWidget.element.setAttribute("class", " ".join(self))
+			self.targetWidget.element.setAttribute("class", " ".join(self.classList))
 
 	def append(self, p_object):
-		list.append(self, p_object)
+		self.classList.append(p_object)
 		self._updateElem()
 
 	def clear(self):
-		list.clear(self)
+		self.classList.clear()
 		self._updateElem()
 
 	def remove(self, value):
 		try:
-			list.remove(self, value)
+			self.classList.remove(value)
+			self._updateElem()
 		except:
 			pass
-		self._updateElem()
 
 	def extend(self, iterable):
-		list.extend(self, iterable)
+		self.classList.extend(iterable)
 		self._updateElem()
 
 	def insert(self, index, p_object):
-		list.insert(self, index, p_object)
+		self.classList.insert(index, p_object)
 		self._updateElem()
 
 	def pop(self, index=None):
-		list.pop(self, index)
+		self.classList.pop(self, index)
 		self._updateElem()
 
 
-# _WidgetDataWrapper ---------------------------------------------------------------------------------------------------
+'''
+# _WidgetDataWrapper --------------------------------------------------------------------------------------------------
 
 class _WidgetDataWrapper(dict):
 	def __init__(self, targetWidget):
@@ -164,11 +177,9 @@ class _WidgetDataWrapper(dict):
 		alldata = targetWidget.element
 		for data in dir(alldata.dataset):
 			dict.__setitem__(self, data, getattr(alldata.dataset, data))
-
 	def __setitem__(self, key, value):
 		dict.__setitem__(self, key, value)
 		self.targetWidget.element.setAttribute(str("data-" + key), value)
-
 	def update(self, E=None, **F):
 		dict.update(self, E, **F)
 		if E is not None and "keys" in dir(E):
@@ -179,7 +190,8 @@ class _WidgetDataWrapper(dict):
 				self.targetWidget.element.setAttribute(str("data-" + key), "data-" + val)
 		for key in F:
 			self.targetWidget.element.setAttribute(str("data-" + key), F["data-" + key])
-
+'''
+'''
 
 # _WidgetStyleWrapper --------------------------------------------------------------------------------------------------
 
@@ -214,6 +226,7 @@ class _WidgetStyleWrapper(dict):
 		for key in F:
 			self.targetWidget.element.style.setProperty(key, F[key])
 
+'''
 
 # Widget ---------------------------------------------------------------------------------------------------------------
 
@@ -3092,7 +3105,7 @@ def fromHTML(html, appendTo=None, bindTo=None):
 	import html5
 
 	div = html5.Div()
-	html5.parse.fromHTML('''
+	html5.fromHTML('''
 		<div>Yeah!
 			<a href="hello world" [name]="myLink" class="trullman bernd" disabled>
 			hah ala malla" bababtschga"
