@@ -3050,7 +3050,7 @@ def __convertEncodedText(txt):
 	return dom.body.textContent
 
 
-def __buildDescription():
+def __buildDescription(debug = False):
 	"""
 	Generates a dictionary of all to the html5-library
 	known tags and their associated objects and attributes.
@@ -3078,13 +3078,14 @@ def __buildDescription():
 		tags[cname.lower()] = (cl, attr)
 	# print(cname, cl, attr)
 
-	for tag in sorted(tags.keys()):
-		print("{}: {}".format(tag, ", ".join(sorted(tags[tag][1]))))
+	if debug:
+		for tag in sorted(tags.keys()):
+			print("{}: {}".format(tag, ", ".join(sorted(tags[tag][1]))))
 
 	return tags
 
 
-def fromHTML(html, appendTo=None, bindTo=None):
+def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 	"""
 	Parses the provided HTML code according to the objects defined in the html5-library.
 
@@ -3289,7 +3290,8 @@ def fromHTML(html, appendTo=None, bindTo=None):
 						else:
 							setattr(bindTo, val, wdg)
 
-						print("name '{}' assigned to {}".format(val, bindTo))
+						if debug:
+							print("name '{}' assigned to {}".format(val, bindTo))
 
 					elif att == "class":
 						# print(tag, att, val.split())
