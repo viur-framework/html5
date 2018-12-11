@@ -570,6 +570,22 @@ class Widget(object):
 		"""
 		return _WidgetStyleWrapper(self)
 
+	def _getRole(self):
+		"""
+		Specifies a role for an element
+		@param self:
+		@return:
+		"""
+		return self.element.getAttribute("role")
+
+	def _setRole(self, val):
+		"""
+		Specifies a role for an element
+		@param self:
+		@param val:
+		"""
+		self.element.setAttribute("role", val)
+
 	def hide(self):
 		"""
 		Hide element, if shown.
