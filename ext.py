@@ -130,13 +130,19 @@ class InputDialog(Popup):
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler
 
-		span = html5.Span()
-		span.element.innerHTML = text
-		self.popupBody.appendChild(span)
+		self.inputGroup = html5.Div()
+		self.inputGroup.addClass("input-group")
+		self.popupBody.appendChild(self.inputGroup)
+
+		inputLabel = html5.Label()
+		inputLabel.addClass("label")
+		inputLabel.element.innerHTML = text
+		self.inputGroup.appendChild(inputLabel)
 		self.inputElem = html5.Input()
+		self.inputElem.addClass("input")
 		self.inputElem["type"] = "text"
 		self.inputElem["value"] = value
-		self.popupBody.appendChild(self.inputElem)
+		self.inputGroup.appendChild(self.inputElem)
 		cancelBtn = Button(abortLbl, self.onCancel, className="btn--cancel btn--danger")
 		cancelBtn["class"].append()
 		self.popupFoot.appendChild(cancelBtn)

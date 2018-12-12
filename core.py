@@ -596,6 +596,7 @@ class Widget(object):
 		if state != "none":
 			self._lastDisplayState = state
 			self["style"]["display"] = "none"
+			self.addClass("is-hidden")
 
 	def show(self):
 		"""
@@ -2035,9 +2036,6 @@ class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocu
             _attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
 	_baseClass = "input"
 
-	def __init__(self, *args, **kwargs):
-		super(Input, self).__init__(*args, **kwargs)
-
 	def _getAccept(self):
 		return self.element.accept
 
@@ -2152,9 +2150,6 @@ class Select(_attrDisabled, Widget, _attrForm, _attrAutofocus, _attrName, _attrR
 
 class Textarea(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrInputs, _attrValue):
 	_baseClass = "textarea"
-
-	def __init__(self, *args, **kwargs):
-		super(Textarea, self).__init__(*args, **kwargs)
 
 	def _getCols(self):
 		return self.element.cols
