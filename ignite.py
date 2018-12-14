@@ -48,3 +48,8 @@ class Textarea(html5.Textarea):
 	def __init__(self, *args, **kwargs):
 		super(Textarea, self).__init__(*args, **kwargs)
 		self.addClass("textarea ignt-textarea")
+
+class Progress(html5.Progress):
+	def __init__(self, *args, **kwargs):
+		super(Progress, self).__init__(*args, **kwargs)
+		self.addClass("progress ignt-progress")

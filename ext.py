@@ -122,6 +122,7 @@ class Popup(html5.Div):
 		self.popupOverlay = None
 
 
+
 class InputDialog(Popup):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
 	             *args, **kwargs):

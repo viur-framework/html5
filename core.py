@@ -606,6 +606,7 @@ class Widget(object):
 		if self._lastDisplayState is not None:
 			self["style"]["display"] = self._lastDisplayState
 			self._lastDisplayState = None
+			self.removeClass("is-hidden")
 
 	def isHidden(self):
 		"""
