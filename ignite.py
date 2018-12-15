@@ -11,6 +11,20 @@ class Input(html5.Input):
 		super(Input, self).__init__(*args, **kwargs)
 		self.addClass("input ignt-input")
 
+class Switch(html5.Div):
+	def __init__(self, *args, **kwargs):
+		super(Switch, self).__init__(*args, **kwargs)
+		self.addClass("switch ignt-switch")
+
+		switchInput = html5.Input()
+		switchInput.addClass("switch-input")
+		switchInput["type"] = "checkbox"
+		self.appendChild(switchInput)
+
+		switchLabel = html5.Label(forElem=switchInput)
+		switchLabel.addClass("switch-label")
+		self.appendChild(switchLabel)
+
 class Check(html5.Div):
 	def __init__(self, *args, **kwargs):
 		super(Check, self).__init__(*args, **kwargs)
@@ -53,3 +67,28 @@ class Progress(html5.Progress):
 	def __init__(self, *args, **kwargs):
 		super(Progress, self).__init__(*args, **kwargs)
 		self.addClass("progress ignt-progress")
+
+class Item(html5.Div):
+	def __init__(self, title=None, descr=None, className=None, *args, **kwargs):
+		super(Item, self).__init__(*args, **kwargs)
+		self.addClass("item ignt-item")
+		if className:
+			self.addClass(className)
+
+		self.fromHTML("""
+			<div class="item-image ignt-item-image" [name]="itemImage">
+			</div>
+			<div class="item-content ignt-item-content" [name]="itemContent">
+				<div class="item-headline ignt-item-headline" [name]="itemHeadline">
+				</div>
+			</div>
+		""")
+
+		if title:
+			self.itemHeadline.appendChild(html5.TextNode(title))
+
+		if descr:
+			self.itemSubline = html5.Div()
+			self.addClass("item-subline ignt-item-subline")
+			self.itemSubline.appendChild(html5.TextNode(descr))
+			self.appendChild(self.itemSubline)

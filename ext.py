@@ -85,7 +85,7 @@ class Popup(html5.Div):
 				<div class="box-head" [name]="popupHead">
 					<div class="item" [name]="popupHeadItem">
 						<div class="item-image">
-							<i class="i--small" [name]="popupIcon"></i>
+							<i class="i i--small" [name]="popupIcon"></i>
 						</div>
 						<div class="item-content">
 							<div class="item-headline" [name]="popupHeadline"></div>
