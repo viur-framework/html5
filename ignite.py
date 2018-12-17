@@ -11,21 +11,14 @@ class Input(html5.Input):
 		super(Input, self).__init__(*args, **kwargs)
 		self.addClass("input ignt-input")
 
-class Switch(html5.Div):
+class Switch(html5.Input):
 	def __init__(self, *args, **kwargs):
 		super(Switch, self).__init__(*args, **kwargs)
-		self.addClass("switch ignt-switch")
 
-		switchInput = html5.Input()
-		switchInput.addClass("switch-input")
-		switchInput["type"] = "checkbox"
-		self.appendChild(switchInput)
+		self.addClass("switch-input")
+		self["type"] = "checkbox"
 
-		switchLabel = html5.Label(forElem=switchInput)
-		switchLabel.addClass("switch-label")
-		self.appendChild(switchLabel)
-
-class Check(html5.Div):
+class Check(html5.Input):
 	def __init__(self, *args, **kwargs):
 		super(Check, self).__init__(*args, **kwargs)
 		self.addClass("check ignt-check")
