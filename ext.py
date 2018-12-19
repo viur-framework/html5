@@ -90,7 +90,6 @@ class Popup(html5.Div):
 						<div class="item-content">
 							<div class="item-headline" [name]="popupHeadline"></div>
 						</div>
-						<button class="item-action" [name]="popupCloseBtn">&times;</button>
 					</div>
 				</div>
 				<div class="box-body box--content" [name]="popupBody"></div>
@@ -98,13 +97,19 @@ class Popup(html5.Div):
 			</div>
 		""")
 
+		closeBtn = Button("&times;", self.close, className="item-action")
+		closeBtn.removeClass("btn")
+		self.popupHeadItem.appendChild(closeBtn)
+
 		if title:
 			self.popupHeadline.appendChild(html5.TextNode(title))
 
 		if icon:
 			self.popupIcon.appendChild(html5.TextNode(icon[0]))
-		else:
+		elif title:
 			self.popupIcon.appendChild(html5.TextNode(title[0]))
+		else:
+			self.popupIcon.appendChild(html5.TextNode("Vi"))
 
 		# id can be used to pass information to callbacks
 		self.id = id
@@ -126,7 +131,7 @@ class Popup(html5.Div):
 class InputDialog(Popup):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
 	             *args, **kwargs):
-		super(InputDialog, self).__init__(*args, **kwargs)
+		super(InputDialog, self).__init__(title=text, *args, **kwargs)
 		self["class"].append("popup--inputdialog")
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler
