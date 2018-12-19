@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import core as html5
+from i18n import translate
 
 class Label(html5.Label):
 	def __init__(self, *args, **kwargs):
@@ -57,6 +58,12 @@ class Select(html5.Select):
 	def __init__(self, *args, **kwargs):
 		super(Select, self).__init__(*args, **kwargs)
 		self.addClass("select ignt-select")
+
+		defaultOpt = html5.Option()
+		defaultOpt["selected"] = True
+		defaultOpt["disabled"] = True
+		defaultOpt.element.innerHTML = translate("vi.select.default-option")
+		self.appendChild(defaultOpt)
 
 class Textarea(html5.Textarea):
 	def __init__(self, *args, **kwargs):
