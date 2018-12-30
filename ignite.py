@@ -92,3 +92,44 @@ class Item(html5.Div):
 			self.addClass("item-subline ignt-item-subline")
 			self.itemSubline.appendChild(html5.TextNode(descr))
 			self.appendChild(self.itemSubline)
+
+class Table(html5.Table):
+	def __init__(self, *args, **kwargs):
+		super(Table, self).__init__(*args, **kwargs)
+		self.head.addClass("ignt-table-head")
+		self.body.addClass("ignt-table-body")
+
+	def prepareRow(self, row):
+		assert row >= 0, "Cannot create rows with negative index"
+
+		for child in self.body._children:
+			row -= child["rowspan"]
+			if row < 0:
+				return
+
+		while row >= 0:
+			tableRow = html5.Tr()
+			tableRow.addClass("ignt-table-row")
+			self.body.appendChild(tableRow)
+			row -= 1
+
+	def prepareCol(self, row, col):
+		assert col >= 0, "Cannot create cols with negative index"
+		self.prepareRow(row)
+
+		for rowChild in self.body._children:
+			row -= rowChild["rowspan"]
+
+			if row < 0:
+				for colChild in rowChild._children:
+					col -= colChild["colspan"]
+					if col < 0:
+						return
+
+				while col >= 0:
+					tableCell = html5.Td()
+					tableCell.addClass("ignt-table-cell")
+					rowChild.appendChild(tableCell)
+					col -= 1
+
+				return
