@@ -109,7 +109,7 @@ class Table(html5.Table):
 
 		while row >= 0:
 			tableRow = html5.Tr()
-			tableRow.addClass("ignt-table-row")
+			tableRow.addClass("ignt-table-body-row")
 			self.body.appendChild(tableRow)
 			row -= 1
 
@@ -128,7 +128,7 @@ class Table(html5.Table):
 
 				while col >= 0:
 					tableCell = html5.Td()
-					tableCell.addClass("ignt-table-cell")
+					tableCell.addClass("ignt-table-body-cell")
 					rowChild.appendChild(tableCell)
 					col -= 1
 
