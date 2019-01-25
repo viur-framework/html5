@@ -254,8 +254,6 @@ class Widget(object):
 
 			self.element.addEventListener(event, eventFn)
 
-	# print("sink", eventFn)
-
 	def unsinkEvent(self, *args):
 		for event_attrName in args:
 			event = event_attrName.lower()
@@ -270,8 +268,6 @@ class Widget(object):
 				event = event[2:]
 
 			self.element.removeEventListener(event, eventFn)
-
-	# print("unsink", ret, eventFn)
 
 	def disable(self):
 		if not self["disabled"]:
@@ -316,20 +312,16 @@ class Widget(object):
 
 	def __getitem__(self, key):
 		funcName = self._getTargetfuncName(key, "get")
-		# print("GET", funcName, key)
 
 		if funcName in dir(self):
-			# print(self._baseClass or str(self), "get", key, getattr(self, funcName)())
 			return getattr(self, funcName)()
 
 		return None
 
 	def __setitem__(self, key, value):
 		funcName = self._getTargetfuncName(key, "set")
-		# print("SET", funcName, key, value)
 
 		if funcName in dir(self):
-			# print( self._baseClass or str( self ), "set", key, value )
 			return getattr(self, funcName)(value)
 
 		raise ValueError("{} is no valid attribute for {}".format(key, (self._baseClass or str(self))))
@@ -3095,7 +3087,6 @@ def __buildDescription(debug = False):
 				attr.append(fname[4:].lower())
 
 		tags[cname.lower()] = (cl, attr)
-	# print(cname, cl, attr)
 
 	if debug:
 		for tag in sorted(tags.keys()):
@@ -3189,9 +3180,6 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 		parent = stack[-1][0]
 
 		while html:
-			# print("html", html)
-			# print(stack)
-
 			ch = html.pop(0)
 
 			# Comment
@@ -3218,7 +3206,6 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 				tag = scanWord(html)
 				junk += tag
 
-				# print("/", tag.lower(), stack[-1][1].lower())
 				if stack[-1][1].lower() == tag.lower():
 					junk += scanWhite(html)
 					if html and html[0] == ">":
@@ -3236,7 +3223,6 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 		# Append plain text (if not only whitespace)
 		if (text and ((len(text) == 1 and text in ["\t "])
 		              or not all([ch in " \t\r\n" for ch in text]))):
-			# print("text", text)
 			parent.appendChild(TextNode(__convertEncodedText(text)))
 
 		# Create tag
@@ -3245,8 +3231,6 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 			parent.appendChild(wdg)
 			stack.append((wdg, tag))
-
-			# print("tag", tag)
 
 			while html:
 				scanWhite(html)
@@ -3313,16 +3297,13 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 							print("name '{}' assigned to {}".format(val, bindTo))
 
 					elif att == "class":
-						# print(tag, att, val.split())
 						stack[-1][0].addClass(*val.split())
 
 					elif att == "disabled":
-						# print(tag, att, val)
 						if val == "disabled":
 							stack[-1][0].disable()
 
 					elif att == "hidden":
-						# print(tag, att, val)
 						if val == "hidden":
 							stack[-1][0].hide()
 
@@ -3333,14 +3314,12 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 							att, val = dfn.split(":", 1)
 
-							# print(tag, "style", att.strip(), val.strip())
 							stack[-1][0]["style"][att.strip()] = val.strip()
 
 					elif att.startswith("data-"):
 						stack[-1][0]["data"][att[5:]] = val
 
 					else:
-						# print(tag, att, val)
 						stack[-1][0][att] = val
 
 				continue
