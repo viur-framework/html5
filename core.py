@@ -300,10 +300,10 @@ class Widget(object):
 					self._disabledState = None
 
 		if self._getDisabled():
-			if not "is-disabled" in self["class"]:
+			if not self.hasClass("is-disabled"):
 				self.addClass("is-disabled")
 		else:
-			if "is-disabled" in self["class"]:
+			if self.hasClass("is-disabled"):
 				self.removeClass("is-disabled")
 
 	def _getTargetfuncName(self, key, type):
@@ -747,7 +747,7 @@ class Widget(object):
 
 			elif isinstance(item, str) or isinstance(item, unicode):
 				for sitem in item.split(" "):
-					if sitem not in self["class"]:
+					if not self.hasClass(sitem):
 						self["class"].append(sitem)
 			else:
 				raise TypeError()
@@ -766,7 +766,7 @@ class Widget(object):
 
 			elif isinstance(item, str) or isinstance(item, unicode):
 				for sitem in item.split(" "):
-					if sitem in self["class"]:
+					if self.hasClass(sitem):
 						self["class"].remove(sitem)
 			else:
 				raise TypeError()
@@ -787,18 +787,18 @@ class Widget(object):
 		:return: Returns True, if ``on`` was switched, else False.
 		:rtype: bool
 		"""
-		if on in self["class"]:
-			self["class"].remove(on)
+		if self.hasClass(on):
+			self.removeClass(on)
 
-			if off and off not in self["class"]:
-				self["class"].append(off)
+			if off and not self.hasClass(off):
+				self.addClass(off)
 
 			return False
 
-		if off and off in self["class"]:
-			self["class"].remove(off)
+		if off and self.hasClass(off):
+			self.removeClass(off)
 
-		self["class"].append(on)
+		self.addClass(on)
 		return True
 
 	def onBlur(self, event):
