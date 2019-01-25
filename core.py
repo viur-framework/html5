@@ -237,8 +237,6 @@ class Widget(object):
 		self._isAttached = False
 		self._parent = None
 
-		self._lastDisplayState = None
-
 	def sinkEvent(self, *args):
 		for event_attrName in args:
 			event = event_attrName.lower()
@@ -591,29 +589,21 @@ class Widget(object):
 		Hide element, if shown.
 		:return:
 		"""
-		state = self["style"].get("display", "")
-
-		if state != "none":
-			self._lastDisplayState = state
-			self["style"]["display"] = "none"
-			self.addClass("is-hidden")
+		self.addClass("is-hidden")
 
 	def show(self):
 		"""
 		Show element, if hidden.
 		:return:
 		"""
-		if self._lastDisplayState is not None:
-			self["style"]["display"] = self._lastDisplayState
-			self._lastDisplayState = None
-			self.removeClass("is-hidden")
+		self.removeClass("is-hidden")
 
 	def isHidden(self):
 		"""
 		Checks if a widget is flagged hidden.
 		:return: True if hidden, False otherwise.
 		"""
-		return self["style"].get("display", "") == "none"
+		return self.hasClass("is-hidden")
 
 	def onAttach(self):
 		self._isAttached = True
@@ -736,6 +726,19 @@ class Widget(object):
 			parent = widget.parent()
 
 		return False
+
+	def hasClass(self, className):
+		"""
+		Determine whether the current widget is assigned the given class
+
+		:param className: The class name to search for.
+		:type className: str
+		"""
+
+		if isinstance(className, str) or isinstance(className, unicode):
+			return className in self["class"]
+		else:
+			raise TypeError()
 
 	def addClass(self, *args):
 		"""
