@@ -2014,13 +2014,29 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 		self.element.setAttribute("accept-_attrCharset", val)
 
 
-class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate,
+class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate,
             _attrName, _attrDimensions, _attrValue, _attrFormhead,
             _attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
 	_baseClass = "input"
 
 	def __init__(self, *args, **kwargs):
-		super(Input, self).__init__(*args, **kwargs)
+		_attrDisabled.__init__(self, *args, **kwargs)
+		Widget.__init__(self, *args, **kwargs)
+		_attrType.__init__(self, *args, **kwargs)
+		_attrForm.__init__(self, *args, **kwargs)
+		_attrAlt.__init__(self, *args, **kwargs)
+		_attrAutofocus.__init__(self, *args, **kwargs)
+		_attrChecked.__init__(self, *args, **kwargs)
+		_attrIndeterminate.__init__(self, *args, **kwargs)
+		_attrName.__init__(self, *args, **kwargs)
+		_attrDimensions.__init__(self, *args, **kwargs)
+		_attrValue.__init__(self, *args, **kwargs)
+		_attrFormhead.__init__(self, *args, **kwargs)
+		_attrAutocomplete.__init__(self, *args, **kwargs)
+		_attrInputs.__init__(self, *args, **kwargs)
+		_attrMultiple.__init__(self, *args, **kwargs)
+		_attrSize.__init__(self, *args, **kwargs)
+		_attrSrc.__init__(self, *args, **kwargs)
 
 	def _getAccept(self):
 		return self.element.accept
