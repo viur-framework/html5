@@ -32,7 +32,7 @@ def domCreateElement(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... tag
 		  :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-   """
+	"""
 	uri = None
 
 	if ns == "SVG":
@@ -43,7 +43,7 @@ def domCreateElement(tag, ns=None):
 		uri = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 
 	if uri:
-		return document.createElement(uri, tag)
+		return document.createElementNS(uri, tag)
 
 	return document.createElement(tag)
 
@@ -82,7 +82,7 @@ class TextNode(object):
 		super(TextNode, self).__init__()
 		self._parent = None
 		self._children = []
-		self.element = domCreateTextNode(txt)
+		self.element = domCreateTextNode(txt or "")
 		self._isAttached = False
 
 	def _setText(self, txt):
@@ -646,7 +646,7 @@ class Widget(object):
 
 			return
 
-		elif not isinstance(child, Widget):
+		elif not (isinstance(child, Widget) or isinstance(child, TextNode)):
 			child = TextNode(str(child))
 
 		if child._parent:
@@ -1324,10 +1324,10 @@ class _attrSrc(object):
 # Svg ------------------------------------------------------------------------------------------------------------------
 
 class _attrSvgViewBox(object):
-	def _getSvgViewBox(self):
+	def _getViewBox(self):
 		return self.element.viewBox
 
-	def _setSvgViewBox(self, val):
+	def _setViewBox(self, val):
 		self.element.setAttribute("viewBox", val)
 
 	def _getPreserveAspectRatio(self):
@@ -2014,13 +2014,29 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 		self.element.setAttribute("accept-_attrCharset", val)
 
 
-class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate,
+class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate,
             _attrName, _attrDimensions, _attrValue, _attrFormhead,
             _attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
 	_baseClass = "input"
 
 	def __init__(self, *args, **kwargs):
-		super(Input, self).__init__(*args, **kwargs)
+		_attrDisabled.__init__(self, *args, **kwargs)
+		Widget.__init__(self, *args, **kwargs)
+		_attrType.__init__(self, *args, **kwargs)
+		_attrForm.__init__(self, *args, **kwargs)
+		_attrAlt.__init__(self, *args, **kwargs)
+		_attrAutofocus.__init__(self, *args, **kwargs)
+		_attrChecked.__init__(self, *args, **kwargs)
+		_attrIndeterminate.__init__(self, *args, **kwargs)
+		_attrName.__init__(self, *args, **kwargs)
+		_attrDimensions.__init__(self, *args, **kwargs)
+		_attrValue.__init__(self, *args, **kwargs)
+		_attrFormhead.__init__(self, *args, **kwargs)
+		_attrAutocomplete.__init__(self, *args, **kwargs)
+		_attrInputs.__init__(self, *args, **kwargs)
+		_attrMultiple.__init__(self, *args, **kwargs)
+		_attrSize.__init__(self, *args, **kwargs)
+		_attrSrc.__init__(self, *args, **kwargs)
 
 	def _getAccept(self):
 		return self.element.accept
@@ -2638,7 +2654,7 @@ class SvgText(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
 
 	def __init__(self, text="", *args, **kwargs):
 		super(SvgText, self).__init__(*args, **kwargs)
-		self.element.appendChild(text)
+		self.element.appendChild(domCreateTextNode(text))
 
 
 # Table ----------------------------------------------------------------------------------------------------------------
