@@ -70,7 +70,7 @@ class Input(html5.Input):
 
 
 class Popup(html5.Div):
-	def __init__(self, title=None, id=None, className=None, *args, **kwargs):
+	def __init__(self, title=None, id=None, className=None, enableShortcuts=True, *args, **kwargs):
 		super(Popup, self).__init__(*args, **kwargs)
 
 		self["class"] = "alertbox"
@@ -86,11 +86,28 @@ class Popup(html5.Div):
 		# id can be used to pass information to callbacks
 		self.id = id
 
+		self.enableShortcuts = enableShortcuts
+
 		self.frameDiv = html5.Div()
 		self.frameDiv["class"] = "popup"
 
 		self.frameDiv.appendChild(self)
 		html5.Body().appendChild(self.frameDiv)
+
+	def onAttach(self):
+		super(Popup, self)
+		if self.enableShortcuts:
+			self.onDocumentKeyDownMethod = self.onDocumentKeyDown  # safe reference to method
+			html5.document.addEventListener("keydown", self.onDocumentKeyDownMethod)
+
+	def onDetach(self):
+		super(Popup, self)
+		if self.enableShortcuts:
+			html5.document.removeEventListener("keydown", self.onDocumentKeyDownMethod)
+
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
+			self.close()
 
 	def close(self, *args, **kwargs):
 		html5.Body().removeChild(self.frameDiv)
@@ -118,23 +135,17 @@ class InputDialog(Popup):
 		cancelBtn = Button(abortLbl, self.onCancel)
 		cancelBtn["class"].append("btn_cancel")
 		self.appendChild(cancelBtn)
-		self.sinkEvent("onkeydown")
+		self.sinkEvent("onKeyDown")
 		self.inputElem.focus()
 
-	def onkeydown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			# Babelfish: Translate "keyIdentifier" into "key"
-			if event.keyIdentifier in ["Esc", "U+001B"]:
-				key = "Escape"
-			else:
-				key = event.keyIdentifier
-		if "Enter" == key:
+	def onKeyDown(self, event):
+		if html5.isReturn(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onOkay()
-		elif "Escape" == key:
+
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onCancel()
@@ -188,14 +199,7 @@ class Alert(Popup):
 		self.drop()
 
 	def onKeyDown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			key = event.keyIdentifier
-		else:
-			key = None
-
-		if key == "Enter":
+		if html5.isReturn(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onOkBtnClick()
@@ -228,26 +232,17 @@ class YesNoDialog(Popup):
 			btnNo["class"].append("btn_no")
 			self.appendChild(btnNo)
 
-		self.sinkEvent("onkeydown")
+		self.sinkEvent("onKeyDown")
 		btnYes.focus()
 
-	def onkeydown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			# Babelfish: Translate "keyIdentifier" into "key"
-			if event.keyIdentifier in ["Esc", "U+001B"]:
-				key = "Escape"
-			else:
-				key = event.keyIdentifier
-		else:
-			key = None
-
-		if "Enter" == key:
+	def onKeyDown(self, event):
+		if html5.isReturn(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onYesClicked()
-		elif "Escape" == key:
+
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onNoClicked()
@@ -385,24 +380,11 @@ class TextareaDialog(Popup):
 		cancelBtn = Button(abortLbl, self.onCancel)
 		cancelBtn["class"].append("btn_cancel")
 		self.appendChild(cancelBtn)
-		self.sinkEvent("onkeydown")
+		self.sinkEvent("onKeyDown")
 		self.inputElem.focus()
 
-	def onkeydown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			# Babelfish: Translate "keyIdentifier" into "key"
-			if event.keyIdentifier in ["Esc", "U+001B"]:
-				key = "Escape"
-			else:
-				key = event.keyIdentifier
-
-		# Some keys have special treatment
-		if "Enter" == key:
-			pass
-
-		elif "Escape" == key:
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onCancel()

@@ -256,7 +256,7 @@ class Widget(object):
 
 			self.element.addEventListener(event, eventFn)
 
-	# print("sink", eventFn)
+			# print("sink", event, eventFn)
 
 	def unsinkEvent(self, *args):
 		for event_attrName in args:
@@ -2985,42 +2985,47 @@ def parseFloat(s, ret=0.0):
 # Keycodes
 ########################################################################################################################
 
-def isSingleSelectionKey(keyCode):
+def getKey(event):
 	"""
-		Tests wherever keyCode means the modifier key for single selection
+	Returns the Key Identifier of the given event
+
+	Available Codes: https://www.w3.org/TR/2006/WD-DOM-Level-3-Events-20060413/keyset.html#KeySet-Set
 	"""
-	if keyCode == 17:  # "ctrl" on all major platforms
-		return True
+	if hasattr(event, "key"):
+		return event.key
 
-	elif eval("navigator.appVersion.indexOf(\"Mac\") != -1"):  # "cmd" on the broken one
-		if keyCode in [224, 17, 91, 93]:
-			return True
+	elif hasattr(event, "keyIdentifier"):
+		if event.keyIdentifier in ["Esc", "U+001B"]:
+			return "Escape"
+		else:
+			return event.keyIdentifier
 
-	return False
-
-
-def isArrowLeft(keyCode):
-	return keyCode == 37
+	return None
 
 
-def isArrowUp(keyCode):
-	return keyCode == 38
+def isArrowLeft(event):
+	return getKey(event) == "Left"
 
+def isArrowUp(event):
+	return getKey(event) == "Up"
 
-def isArrowRight(keyCode):
-	return keyCode == 39
+def isArrowRight(event):
+	return getKey(event) == "Right"
 
+def isArrowDown(event):
+	return getKey(event) == "Down"
 
-def isArrowDown(keyCode):
-	return keyCode == 40
+def isEscape(event):
+	return getKey(event) == "Escape"
 
+def isReturn(event):
+	return getKey(event) == "Enter"
 
-def isReturn(keyCode):
-	return keyCode == 13
+def isControl(event): # The Control (Ctrl) key.
+	return getKey(event) == "Control"
 
-
-def isShift(keyCode):
-	return keyCode == 16
+def isShift(event):
+	return getKey(event) == "Shift"
 
 
 ########################################################################################################################
