@@ -921,10 +921,10 @@ class Widget(object):
 		if n is None:
 			return self._children[:]
 
-		if n >= 0 and n < len(self._children):
+		try:
 			return self._children[n]
-
-		return None
+		except IndexError:
+			return None
 
 	def sortChildren(self, key):
 		"""
