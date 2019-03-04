@@ -68,12 +68,12 @@ class Input(html5.Input):
 			self.focusCallback(self, self["id"], self["value"])
 
 	def onDetach(self):
-		super(Input, self)
+		super(Input, self).onDetach()
 		self.callback = None
 
 
 class Popup(html5.Div):
-	def __init__(self, title=None, id=None, className=None, icon=None, *args, **kwargs):
+	def __init__(self, title=None, id=None, className=None, icon=None, enableShortcuts=True, *args, **kwargs):
 		super(Popup, self).__init__(*args, **kwargs)
 
 		self["class"] = "popup popup--center is-active"
@@ -118,10 +118,31 @@ class Popup(html5.Div):
 		self.popupOverlay = html5.Div()
 		self.popupOverlay["class"] = "popup-overlay is-active"
 
+		self.enableShortcuts = enableShortcuts
+		self.onDocumentKeyDownMethod = None
+
 		self.popupOverlay.appendChild(self)
 		html5.Body().appendChild(self.popupOverlay)
 
 		#FIXME: Close/Cancel every popup with click on popupCloseBtn without removing the global overlay.
+
+	def onAttach(self):
+		super(Popup, self).onAttach()
+
+		if self.enableShortcuts:
+			self.onDocumentKeyDownMethod = self.onDocumentKeyDown  # safe reference to method
+			html5.document.addEventListener("keydown", self.onDocumentKeyDownMethod)
+
+	def onDetach(self):
+		super(Popup, self).onDetach()
+
+		if self.enableShortcuts:
+			html5.document.removeEventListener("keydown", self.onDocumentKeyDownMethod)
+
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
+			self.close()
+
 	def close(self, *args, **kwargs):
 		html5.Body().removeChild(self.popupOverlay)
 		self.popupOverlay = None
@@ -155,23 +176,17 @@ class InputDialog(Popup):
 		okayBtn = Button(successLbl, self.onOkay)
 		okayBtn["class"].append("btn--okay btn--primary")
 		self.popupFoot.appendChild(okayBtn)
-		self.sinkEvent("onkeydown")
+		self.sinkEvent("onKeyDown")
 		self.inputElem.focus()
 
-	def onkeydown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			# Babelfish: Translate "keyIdentifier" into "key"
-			if event.keyIdentifier in ["Esc", "U+001B"]:
-				key = "Escape"
-			else:
-				key = event.keyIdentifier
-		if "Enter" == key:
+	def onKeyDown(self, event):
+		if html5.isReturn(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onOkay()
-		elif "Escape" == key:
+
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onCancel()
@@ -225,14 +240,7 @@ class Alert(Popup):
 		self.drop()
 
 	def onKeyDown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			key = event.keyIdentifier
-		else:
-			key = None
-
-		if key == "Enter":
+		if html5.isReturn(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onOkBtnClick()
@@ -267,26 +275,17 @@ class YesNoDialog(Popup):
 
 
 
-		self.sinkEvent("onkeydown")
+		self.sinkEvent("onKeyDown")
 		btnYes.focus()
 
-	def onkeydown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			# Babelfish: Translate "keyIdentifier" into "key"
-			if event.keyIdentifier in ["Esc", "U+001B"]:
-				key = "Escape"
-			else:
-				key = event.keyIdentifier
-		else:
-			key = None
-
-		if "Enter" == key:
+	def onKeyDown(self, event):
+		if html5.isReturn(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onYesClicked()
-		elif "Escape" == key:
+
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onNoClicked()
@@ -428,24 +427,12 @@ class TextareaDialog(Popup):
 		cancelBtn["class"].append("btn--cancel")
 		self.popupFoot.appendChild(cancelBtn)
 
-		self.sinkEvent("onkeydown")
+		self.sinkEvent("onKeyDown")
+
 		self.inputElem.focus()
 
-	def onkeydown(self, event):
-		if hasattr(event, "key"):
-			key = event.key
-		elif hasattr(event, "keyIdentifier"):
-			# Babelfish: Translate "keyIdentifier" into "key"
-			if event.keyIdentifier in ["Esc", "U+001B"]:
-				key = "Escape"
-			else:
-				key = event.keyIdentifier
-
-		# Some keys have special treatment
-		if "Enter" == key:
-			pass
-
-		elif "Escape" == key:
+	def onDocumentKeyDown(self, event):
+		if html5.isEscape(event):
 			event.stopPropagation()
 			event.preventDefault()
 			self.onCancel()
