@@ -65,7 +65,7 @@ class Input(html5.Input):
 			self.focusCallback(self, self["id"], self["value"])
 
 	def onDetach(self):
-		super(Input, self)
+		super(Input, self).onDetach()
 		self.callback = None
 
 
@@ -87,6 +87,7 @@ class Popup(html5.Div):
 		self.id = id
 
 		self.enableShortcuts = enableShortcuts
+		self.onDocumentKeyDownMethod = None
 
 		self.frameDiv = html5.Div()
 		self.frameDiv["class"] = "popup"
@@ -95,13 +96,15 @@ class Popup(html5.Div):
 		html5.Body().appendChild(self.frameDiv)
 
 	def onAttach(self):
-		super(Popup, self)
+		super(Popup, self).onAttach()
+
 		if self.enableShortcuts:
 			self.onDocumentKeyDownMethod = self.onDocumentKeyDown  # safe reference to method
 			html5.document.addEventListener("keydown", self.onDocumentKeyDownMethod)
 
 	def onDetach(self):
-		super(Popup, self)
+		super(Popup, self).onDetach()
+
 		if self.enableShortcuts:
 			html5.document.removeEventListener("keydown", self.onDocumentKeyDownMethod)
 
