@@ -3020,16 +3020,16 @@ def getKey(event):
 
 
 def isArrowLeft(event):
-	return getKey(event) == "Left"
+	return getKey(event) in ["ArrowLeft", "Left"]
 
 def isArrowUp(event):
-	return getKey(event) == "Up"
+	return getKey(event) in ["ArrowUp", "Up"]
 
 def isArrowRight(event):
-	return getKey(event) == "Right"
+	return getKey(event) in ["ArrowRight", "Right"]
 
 def isArrowDown(event):
-	return getKey(event) == "Down"
+	return getKey(event) in ["ArrowDown", "Down"]
 
 def isEscape(event):
 	return getKey(event) == "Escape"
