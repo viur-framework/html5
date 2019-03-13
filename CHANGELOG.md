@@ -6,8 +6,12 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 Current development version.
 
-- Fully refactored the librarys source base into just two single files, to reduce number of required files to download and make the library easier to access.
-- New function `Widget.isHidden()` to check if a widget is currently shown.
+- Bugfix: Fixed bug with disabling of input widgets.
+- Feature: Fully refactored the librarys source base into just two single files, to reduce number of required files to download and make the library easier to access.
+- Feature: New function `Widget.isHidden()` to check if a widget is currently shown.
+- Feature: Improved handling of key-events. 
+- Feature: Allow to close popups by pressing `ESC`.
+- Feature: Improvements for SVG and TextNode.
 
 ## [2.3] Kilauea
 
