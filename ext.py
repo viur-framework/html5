@@ -17,8 +17,10 @@ class Button(html5.Button):
 	def setText(self, txt):
 		if txt is not None:
 			self.element.innerHTML = txt
+			self["title"] = txt
 		else:
 			self.element.innerHTML = ""
+			self["title"] = ""
 
 	def onClick(self, event):
 		event.stopPropagation()
