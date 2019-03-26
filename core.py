@@ -273,7 +273,7 @@ class Widget(object):
 
 			self.element.removeEventListener(event, eventFn)
 
-	# print("unsink", ret, eventFn)
+			# print("unsink", ret, eventFn)
 
 	def disable(self):
 		if not self["disabled"]:
@@ -342,92 +342,92 @@ class Widget(object):
 	def _getData(self):
 		"""
 		Custom data attributes are intended to store custom data private to the page or application, for which there are no more appropriate attributes or elements.
-		@param name:
-		@return:
+		:param name:
+		:returns:
 		"""
 		return _WidgetDataWrapper(self)
 
 	def _getTranslate(self):
 		"""
-		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
-		@return: True | False
+		Specifies whether an elements attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		:returns: True | False
 		"""
 		return True if self.element.translate == "yes" else False
 
 	def _setTranslate(self, val):
 		"""
-		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
-		@param val: True | False
+		Specifies whether an elements attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		:param val: True | False
 		"""
 		self.element.translate = "yes" if val == True else "no"
 
 	def _getTitle(self):
 		"""
 		Advisory information associated with the element.
-		@return: String
+		:returns: str
 		"""
 		return self.element.title
 
 	def _setTitle(self, val):
 		"""
 		Advisory information associated with the element.
-		@param val: String
+		:param val: str
 		"""
 		self.element.title = val
 
 	def _getTabindex(self):
 		"""
 		Specifies whether the element represents an element that is is focusable (that is, an element which is part of the sequence of focusable elements in the document), and the relative order of the element in the sequence of focusable elements in the document.
-		@return: number
+		:returns: number
 		"""
 		return self.element.getAttribute("tabindex")
 
 	def _setTabindex(self, val):
 		"""
 		Specifies whether the element represents an element that is is focusable (that is, an element which is part of the sequence of focusable elements in the document), and the relative order of the element in the sequence of focusable elements in the document.
-		@param val:  number
+		:param val:  number
 		"""
 		self.element.setAttribute("tabindex", val)
 
 	def _getSpellcheck(self):
 		"""
 		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
-		@return: True | False
+		:returns: True | False
 		"""
 		return (True if self.element.spellcheck == "true" else False)
 
 	def _setSpellcheck(self, val):
 		"""
 		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
-		@param val: True | False
+		:param val: True | False
 		"""
 		self.element.spellcheck = str(val).lower()
 
 	def _getLang(self):
 		"""
-		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
-		@return: language tag e.g. de|en|fr|es|it|ru|
+		Specifies the primary language for the contents of the element and for any of the elements attributes that contain text.
+		:returns: language tag e.g. de|en|fr|es|it|ru|
 		"""
 		return self.element.lang
 
 	def _setLang(self, val):
 		"""
-		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
-		@param val: language tag
+		Specifies the primary language for the contents of the element and for any of the elements attributes that contain text.
+		:param val: language tag
 		"""
 		self.element.lang = val
 
 	def _getHidden(self):
 		"""
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
-		@return: True | False
+		:returns: True | False
 		"""
 		return (True if self.element.hasAttribute("hidden") else False)
 
 	def _setHidden(self, val):
 		"""
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
-		@param val: True | False
+		:param val: True | False
 		"""
 		if val == True:
 			self.element.setAttribute("hidden", "")
@@ -437,21 +437,21 @@ class Widget(object):
 	def _getDropzone(self):
 		"""
 		Specifies what types of content can be dropped on the element, and instructs the UA about which actions to take with content when it is dropped on the element.
-		@return: "copy" | "move" | "link"
+		:returns: "copy" | "move" | "link"
 		"""
 		return self.element.dropzone
 
 	def _setDropzone(self, val):
 		"""
 		Specifies what types of content can be dropped on the element, and instructs the UA about which actions to take with content when it is dropped on the element.
-		@param val: "copy" | "move" | "link"
+		:param val: "copy" | "move" | "link"
 		"""
 		self.element.dropzone = val
 
 	def _getDraggable(self):
 		"""
 		Specifies whether the element is draggable.
-		@return: True | False | "auto"
+		:returns: True | False | "auto"
 		"""
 		return (self.element.draggable if str(self.element.draggable) == "auto" else (
 			True if str(self.element.draggable).lower() == "true" else False))
@@ -459,42 +459,42 @@ class Widget(object):
 	def _setDraggable(self, val):
 		"""
 		Specifies whether the element is draggable.
-		@param val: True | False | "auto"
+		:param val: True | False | "auto"
 		"""
 		self.element.draggable = str(val).lower()
 
 	def _getDir(self):
 		"""
-		Specifies the elementâs text directionality.
-		@return: ltr | rtl | auto
+		Specifies the elements text directionality.
+		:returns: ltr | rtl | auto
 		"""
 		return self.element.dir
 
 	def _setDir(self, val):
 		"""
-		Specifies the elementâs text directionality.
-		@param val: ltr | rtl | auto
+		Specifies the elements text directionality.
+		:param val: ltr | rtl | auto
 		"""
 		self.element.dir = val
 
 	def _getContextmenu(self):
 		"""
 		The value of the id attribute on the menu with which to associate the element as a context menu.
-		@return:
+		:returns:
 		"""
 		return self.element.contextmenu
 
 	def _setContextmenu(self, val):
 		"""
 		The value of the id attribute on the menu with which to associate the element as a context menu.
-		@param val:
+		:param val:
 		"""
 		self.element.contextmenu = val
 
 	def _getContenteditable(self):
 		"""
 		Specifies whether the contents of the element are editable.
-		@return: True | False
+		:returns: True | False
 		"""
 		v = self.element.getAttribute("contenteditable")
 		return (str(v).lower() == "true")
@@ -502,54 +502,54 @@ class Widget(object):
 	def _setContenteditable(self, val):
 		"""
 		Specifies whether the contents of the element are editable.
-		@param val: True | False
+		:param val: True | False
 		"""
 		self.element.setAttribute("contenteditable", str(val).lower())
 
 	def _getAccesskey(self):
 		"""
 		A key label or list of key labels with which to associate the element; each key label represents a keyboard shortcut which UAs can use to activate the element or give focus to the element.
-		@param self:
-		@return:
+		:param self:
+		:returns:
 		"""
 		return (self.element.accesskey)
 
 	def _setAccesskey(self, val):
 		"""
 		A key label or list of key labels with which to associate the element; each key label represents a keyboard shortcut which UAs can use to activate the element or give focus to the element.
-		@param self:
-		@param val:
+		:param self:
+		:param val:
 		"""
 		self.element.accesskey = val
 
 	def _getId(self):
 		"""
 		Specifies a unique id for an element
-		@param self:
-		@return:
+		:param self:
+		:returns:
 		"""
 		return self.element.id
 
 	def _setId(self, val):
 		"""
 		Specifies a unique id for an element
-		@param self:
-		@param val:
+		:param self:
+		:param val:
 		"""
 		self.element.id = val
 
 	def _getClass(self):
 		"""
 		The class attribute specifies one or more classnames for an element.
-		@return:
+		:returns:
 		"""
 		return _WidgetClassWrapper(self)
 
 	def _setClass(self, value):
 		"""
 		The class attribute specifies one or more classnames for an element.
-		@param self:
-		@param value:
+		:param self:
+		:param value:
 		@raise ValueError:
 		"""
 
@@ -560,13 +560,13 @@ class Widget(object):
 		elif isinstance(value, list):
 			self.element.setAttribute("class", " ".join(value))
 		else:
-			raise ValueError("Class must be a String, a List or None")
+			raise ValueError("Class must be a str, a List or None")
 
 	def _getStyle(self):
 		"""
 		The style attribute specifies an inline style for an element.
-		@param self:
-		@return:
+		:param self:
+		:returns:
 		"""
 		return _WidgetStyleWrapper(self)
 
@@ -1182,14 +1182,14 @@ class _attrHref(object):
 	def _getHref(self):
 		"""
 		Url of a Page
-		@param self:
+		:param self:
 		"""
 		return self.element.href
 
 	def _setHref(self, val):
 		"""
 		Url of a Page
-		@param val: URL
+		:param val: URL
 		"""
 		self.element.href = val
 
@@ -1470,14 +1470,14 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 	def _getDownload(self):
 		"""
 		The download attribute specifies the path to a download
-		@return: filename
+		:returns: filename
 		"""
 		return self.element.download
 
 	def _setDownload(self, val):
 		"""
 		The download attribute specifies the path to a download
-		@param val: filename
+		:param val: filename
 		"""
 		self.element.download = val
 
