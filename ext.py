@@ -121,7 +121,7 @@ class Popup(html5.Div):
 
 class InputDialog(Popup):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
-	             *args, **kwargs):
+	             placeholder="", *args, **kwargs):
 		super(InputDialog, self).__init__(*args, **kwargs)
 		self["class"].append("inputdialog")
 		self.successHandler = successHandler
@@ -133,6 +133,7 @@ class InputDialog(Popup):
 		self.inputElem = html5.Input()
 		self.inputElem["type"] = "text"
 		self.inputElem["value"] = value
+		self.inputElem["placeholder"] = placeholder
 		self.appendChild(self.inputElem)
 		okayBtn = Button(successLbl, self.onOkay)
 		okayBtn["class"].append("btn_okay")
