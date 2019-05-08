@@ -16,6 +16,7 @@ except NameError:
 	except:
 		print("Emulation mode")
 		from xml.dom.minidom import parseString
+		jseval = None
 
 		window = None
 		document = parseString('<html><head /><body /></html>')
@@ -3089,6 +3090,9 @@ def __convertEncodedText(txt):
 	:return: The decoded text.
 	"""
 	global __domParser
+
+	if jseval is None:
+		return txt
 
 	if __domParser is None:
 		__domParser = jseval("new DOMParser")
