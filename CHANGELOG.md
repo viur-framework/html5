@@ -6,6 +6,9 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 This is the current development version.
 
+- Bugfix: `Widget.Th()` now supporting full col-/rowspan getting and setting.
+- Feature: New function `Widget.isVisible()` as counterpart for `Widget.isHidden()`.
+
 ## [2.4.0] Agung
 
 Release date: May 17, 2019

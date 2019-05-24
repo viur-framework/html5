@@ -592,10 +592,17 @@ class Widget(object):
 
 	def isHidden(self):
 		"""
-		Checks if a widget is flagged hidden.
+		Checks if a widget is hidden.
 		:return: True if hidden, False otherwise.
 		"""
 		return self["style"].get("display", "") == "none"
+
+	def isVisible(self):
+		"""
+		Checks if a widget is visible.
+		:return: True if visible, False otherwise.
+		"""
+		return not self.isHidden()
 
 	def onAttach(self):
 		self._isAttached = True
@@ -2673,28 +2680,6 @@ class Tr(Widget):
 		return self
 
 
-class Th(Widget):
-	_baseClass = "th"
-
-	def __init__(self, *args, **kwargs):
-		super(Th, self).__init__(**kwargs)
-		self.appendChild(args)
-
-	def _getRowspan(self):
-		span = self.element.getAttribute("rowspan")
-		return span if span else 1
-
-	def _setColspan(self, span):
-		assert span >= 1, "span may not be negative"
-		self.element.setAttribute("colspan", span)
-		return self
-
-	def _setRowspan(self, span):
-		assert span >= 1, "span may not be negative"
-		self.element.setAttribute("rowspan", span)
-		return self
-
-
 class Td(Widget):
 	_baseClass = "td"
 
@@ -2719,6 +2704,10 @@ class Td(Widget):
 		assert span >= 1, "span may not be negative"
 		self.element.setAttribute("rowspan", span)
 		return self
+
+
+class Th(Td):
+	_baseClass = "th"
 
 
 class Thead(Widget):
