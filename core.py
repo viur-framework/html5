@@ -3214,7 +3214,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 				junk += tag
 
 				# print("/", tag.lower(), stack[-1][1].lower())
-				if stack[-1][1].lower() == tag.lower():
+				if stack[-1][1] == tag.lower():
 					junk += scanWhite(html)
 					if html and html[0] == ">":
 						html.pop(0)
@@ -3236,9 +3236,17 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 		# Create tag
 		if tag:
-			wdg = __tags[tag][0]()
+			tag = tag.lower()
 
-			parent.appendChild(wdg)
+			# Special handling for tables: A "thead" and "tbody" are already part of table!
+			if tag in ["thead", "tbody"] and isinstance(parent, Table):
+				wdg = getattr(stack[-1][0], tag[1:])
+
+			# Usual way: Construct new element and chain it into the parent.
+			else:
+				wdg = __tags[tag][0]()
+				parent.appendChild(wdg)
+
 			stack.append((wdg, tag))
 
 			# print("tag", tag)

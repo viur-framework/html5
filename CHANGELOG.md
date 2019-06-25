@@ -2,11 +2,13 @@
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
-## [develop] 
+## [develop] Vesuv
 
 This is the current development version.
 
 - Bugfix: `Widget.Th()` now supporting full col-/rowspan getting and setting.
+- Bugfix: Build-in HTML parser accepts tags in upper-/camel-case order now.
+- Bugfix: Build-in HTML parser handles table tags with tbody/thead tags inside more gracefully.
 - Feature: New function `Widget.isVisible()` as counterpart for `Widget.isHidden()`.
 
 ## [2.4.0] Agung
