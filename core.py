@@ -3237,19 +3237,17 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 		# Create tag
 		if tag:
 			tag = tag.lower()
+			# print("tag", tag)
 
 			# Special handling for tables: A "thead" and "tbody" are already part of table!
 			if tag in ["thead", "tbody"] and isinstance(parent, Table):
-				wdg = getattr(stack[-1][0], tag[1:])
+				wdg = getattr(parent, tag[1:])
 
 			# Usual way: Construct new element and chain it into the parent.
 			else:
 				wdg = __tags[tag][0]()
-				parent.appendChild(wdg)
 
 			stack.append((wdg, tag))
-
-			# print("tag", tag)
 
 			while html:
 				scanWhite(html)
@@ -3317,17 +3315,17 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 					elif att == "class":
 						# print(tag, att, val.split())
-						stack[-1][0].addClass(*val.split())
+						wdg.addClass(*val.split())
 
 					elif att == "disabled":
 						# print(tag, att, val)
 						if val == "disabled":
-							stack[-1][0].disable()
+							wdg.disable()
 
 					elif att == "hidden":
 						# print(tag, att, val)
 						if val == "hidden":
-							stack[-1][0].hide()
+							wdg.hide()
 
 					elif att == "style":
 						for dfn in val.split(";"):
@@ -3337,16 +3335,19 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 							att, val = dfn.split(":", 1)
 
 							# print(tag, "style", att.strip(), val.strip())
-							stack[-1][0]["style"][att.strip()] = val.strip()
+							wdg["style"][att.strip()] = val.strip()
 
 					elif att.startswith("data-"):
-						stack[-1][0]["data"][att[5:]] = val
+						wdg["data"][att[5:]] = val
 
 					else:
 						# print(tag, att, val)
-						stack[-1][0][att] = val
+						wdg[att] = val
 
 				continue
+
+			if not wdg.parent():
+				parent.appendChild(wdg)
 
 
 if __name__ == '__main__':
