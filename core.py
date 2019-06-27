@@ -3405,6 +3405,8 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 
 	interpret(appendTo, html)
 
+	return html #return compiled HTML (for optional reuse)
+
 
 if __name__ == '__main__':
 	print(globals())
