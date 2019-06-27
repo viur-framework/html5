@@ -7,8 +7,10 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 This is the current development version.
 
 - Bugfix: `Widget.Th()` now supporting full col-/rowspan getting and setting.
-- Bugfix: Build-in HTML parser accepts tags in upper-/camel-case order now.
-- Bugfix: Build-in HTML parser handles table tags with tbody/thead tags inside more gracefully.
+- Bugfix: HTML-parser accepts tags in upper-/camel-case order now.
+- Bugfix: HTML-parser handles table tags with tbody/thead tags inside more gracefully.
+- Feature: Split HTML-parser into separate stages to compile and run; This allows to pre-compile HTML into a list/dict-structure and render it later on without parsing it again. `parseHTML()` is the new function, `fromHTML()` works like before and handles pre-compiled or raw HTML as parameter.
+- Feature: `fromHTML()` extended to `vars` parameter to replace key-value pairs in text-nodes and attribute values expressed as `{{key}}`.
 - Feature: New function `Widget.isVisible()` as counterpart for `Widget.isHidden()`.
 
 ## [2.4.0] Agung
