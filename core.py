@@ -72,7 +72,7 @@ def domElementFromPoint(x, y):
 
 def domGetElementsByTagName(tag):
 	items = document.getElementsByTagName(tag)
-	return [items.item(i) for i in range(0, items.length)]
+	return [items.item(i) for i in range(0, int(items.length))] #pyodide interprets items.length as float, so convert to int
 
 
 ########################################################################################################################

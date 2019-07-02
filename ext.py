@@ -73,7 +73,7 @@ class Input(html5.Input):
 
 class Popup(html5.Div):
 	def __init__(self, title=None, id=None, className=None, enableShortcuts=True, *args, **kwargs):
-		super(Popup, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self["class"] = "alertbox"
 		if className is not None and len(className):
