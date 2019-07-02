@@ -5,16 +5,18 @@
 ########################################################################################################################
 
 try:
+	# Pyodide
+	from js import window, eval as jseval
 	document = window.document
-except NameError:
+
+except:
 	print("Emulation mode")
-	# __pragma__("skip")
 	from xml.dom.minidom import parseString
+	jseval = None
 
 	window = None
-	document = parseString('<html><head /><body /></html>')
+	document = parseString("<html><head /><body /></html>")
 
-	# __pragma__("noskip")
 
 def domCreateAttribute(tag, ns=None):
 	"""
@@ -273,7 +275,7 @@ class Widget(object):
 
 			self.element.addEventListener(event, eventFn)
 
-	# print("sink", eventFn)
+			# print("sink", event, eventFn)
 
 	def unsinkEvent(self, *args):
 		for event_attrName in args:
@@ -290,7 +292,7 @@ class Widget(object):
 
 			self.element.removeEventListener(event, eventFn)
 
-	# print("unsink", ret, eventFn)
+			# print("unsink", ret, eventFn)
 
 	def disable(self):
 		if not self["disabled"]:
@@ -359,92 +361,92 @@ class Widget(object):
 	def _getData(self):
 		"""
 		Custom data attributes are intended to store custom data private to the page or application, for which there are no more appropriate attributes or elements.
-		@param name:
-		@return:
+		:param name:
+		:returns:
 		"""
 		return _WidgetDataWrapper(self)
 
 	def _getTranslate(self):
 		"""
-		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
-		@return: True | False
+		Specifies whether an elements attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		:returns: True | False
 		"""
 		return True if self.element.translate == "yes" else False
 
 	def _setTranslate(self, val):
 		"""
-		Specifies whether an elementâs attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
-		@param val: True | False
+		Specifies whether an elements attribute values and contents of its children are to be translated when the page is localized, or whether to leave them unchanged.
+		:param val: True | False
 		"""
 		self.element.translate = "yes" if val == True else "no"
 
 	def _getTitle(self):
 		"""
 		Advisory information associated with the element.
-		@return: String
+		:returns: str
 		"""
 		return self.element.title
 
 	def _setTitle(self, val):
 		"""
 		Advisory information associated with the element.
-		@param val: String
+		:param val: str
 		"""
 		self.element.title = val
 
 	def _getTabindex(self):
 		"""
 		Specifies whether the element represents an element that is is focusable (that is, an element which is part of the sequence of focusable elements in the document), and the relative order of the element in the sequence of focusable elements in the document.
-		@return: number
+		:returns: number
 		"""
 		return self.element.getAttribute("tabindex")
 
 	def _setTabindex(self, val):
 		"""
 		Specifies whether the element represents an element that is is focusable (that is, an element which is part of the sequence of focusable elements in the document), and the relative order of the element in the sequence of focusable elements in the document.
-		@param val:  number
+		:param val:  number
 		"""
 		self.element.setAttribute("tabindex", val)
 
 	def _getSpellcheck(self):
 		"""
 		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
-		@return: True | False
+		:returns: True | False
 		"""
 		return (True if self.element.spellcheck == "true" else False)
 
 	def _setSpellcheck(self, val):
 		"""
 		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
-		@param val: True | False
+		:param val: True | False
 		"""
 		self.element.spellcheck = str(val).lower()
 
 	def _getLang(self):
 		"""
-		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
-		@return: language tag e.g. de|en|fr|es|it|ru|
+		Specifies the primary language for the contents of the element and for any of the elements attributes that contain text.
+		:returns: language tag e.g. de|en|fr|es|it|ru|
 		"""
 		return self.element.lang
 
 	def _setLang(self, val):
 		"""
-		Specifies the primary language for the contents of the element and for any of the elementâs attributes that contain text.
-		@param val: language tag
+		Specifies the primary language for the contents of the element and for any of the elements attributes that contain text.
+		:param val: language tag
 		"""
 		self.element.lang = val
 
 	def _getHidden(self):
 		"""
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
-		@return: True | False
+		:returns: True | False
 		"""
 		return (True if self.element.hasAttribute("hidden") else False)
 
 	def _setHidden(self, val):
 		"""
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
-		@param val: True | False
+		:param val: True | False
 		"""
 		if val == True:
 			self.element.setAttribute("hidden", "")
@@ -454,21 +456,21 @@ class Widget(object):
 	def _getDropzone(self):
 		"""
 		Specifies what types of content can be dropped on the element, and instructs the UA about which actions to take with content when it is dropped on the element.
-		@return: "copy" | "move" | "link"
+		:returns: "copy" | "move" | "link"
 		"""
 		return self.element.dropzone
 
 	def _setDropzone(self, val):
 		"""
 		Specifies what types of content can be dropped on the element, and instructs the UA about which actions to take with content when it is dropped on the element.
-		@param val: "copy" | "move" | "link"
+		:param val: "copy" | "move" | "link"
 		"""
 		self.element.dropzone = val
 
 	def _getDraggable(self):
 		"""
 		Specifies whether the element is draggable.
-		@return: True | False | "auto"
+		:returns: True | False | "auto"
 		"""
 		return (self.element.draggable if str(self.element.draggable) == "auto" else (
 			True if str(self.element.draggable).lower() == "true" else False))
@@ -476,42 +478,42 @@ class Widget(object):
 	def _setDraggable(self, val):
 		"""
 		Specifies whether the element is draggable.
-		@param val: True | False | "auto"
+		:param val: True | False | "auto"
 		"""
 		self.element.draggable = str(val).lower()
 
 	def _getDir(self):
 		"""
-		Specifies the elementâs text directionality.
-		@return: ltr | rtl | auto
+		Specifies the elements text directionality.
+		:returns: ltr | rtl | auto
 		"""
 		return self.element.dir
 
 	def _setDir(self, val):
 		"""
-		Specifies the elementâs text directionality.
-		@param val: ltr | rtl | auto
+		Specifies the elements text directionality.
+		:param val: ltr | rtl | auto
 		"""
 		self.element.dir = val
 
 	def _getContextmenu(self):
 		"""
 		The value of the id attribute on the menu with which to associate the element as a context menu.
-		@return:
+		:returns:
 		"""
 		return self.element.contextmenu
 
 	def _setContextmenu(self, val):
 		"""
 		The value of the id attribute on the menu with which to associate the element as a context menu.
-		@param val:
+		:param val:
 		"""
 		self.element.contextmenu = val
 
 	def _getContenteditable(self):
 		"""
 		Specifies whether the contents of the element are editable.
-		@return: True | False
+		:returns: True | False
 		"""
 		v = self.element.getAttribute("contenteditable")
 		return (str(v).lower() == "true")
@@ -519,54 +521,54 @@ class Widget(object):
 	def _setContenteditable(self, val):
 		"""
 		Specifies whether the contents of the element are editable.
-		@param val: True | False
+		:param val: True | False
 		"""
 		self.element.setAttribute("contenteditable", str(val).lower())
 
 	def _getAccesskey(self):
 		"""
 		A key label or list of key labels with which to associate the element; each key label represents a keyboard shortcut which UAs can use to activate the element or give focus to the element.
-		@param self:
-		@return:
+		:param self:
+		:returns:
 		"""
 		return (self.element.accesskey)
 
 	def _setAccesskey(self, val):
 		"""
 		A key label or list of key labels with which to associate the element; each key label represents a keyboard shortcut which UAs can use to activate the element or give focus to the element.
-		@param self:
-		@param val:
+		:param self:
+		:param val:
 		"""
 		self.element.accesskey = val
 
 	def _getId(self):
 		"""
 		Specifies a unique id for an element
-		@param self:
-		@return:
+		:param self:
+		:returns:
 		"""
 		return self.element.id
 
 	def _setId(self, val):
 		"""
 		Specifies a unique id for an element
-		@param self:
-		@param val:
+		:param self:
+		:param val:
 		"""
 		self.element.id = val
 
 	def _getClass(self):
 		"""
 		The class attribute specifies one or more classnames for an element.
-		@return:
+		:returns:
 		"""
 		return _WidgetClassWrapper(self)
 
 	def _setClass(self, value):
 		"""
 		The class attribute specifies one or more classnames for an element.
-		@param self:
-		@param value:
+		:param self:
+		:param value:
 		@raise ValueError:
 		"""
 
@@ -577,13 +579,13 @@ class Widget(object):
 		elif isinstance(value, list):
 			self.element.setAttribute("class", " ".join(value))
 		else:
-			raise ValueError("Class must be a String, a List or None")
+			raise ValueError("Class must be a str, a List or None")
 
 	def _getStyle(self):
 		"""
 		The style attribute specifies an inline style for an element.
-		@param self:
-		@return:
+		:param self:
+		:returns:
 		"""
 		return _WidgetStyleWrapper(self)
 
@@ -609,10 +611,17 @@ class Widget(object):
 
 	def isHidden(self):
 		"""
-		Checks if a widget is flagged hidden.
+		Checks if a widget is hidden.
 		:return: True if hidden, False otherwise.
 		"""
 		return self["style"].get("display", "") == "none"
+
+	def isVisible(self):
+		"""
+		Checks if a widget is visible.
+		:return: True if visible, False otherwise.
+		"""
+		return not self.isHidden()
 
 	def onAttach(self):
 		self._isAttached = True
@@ -938,10 +947,10 @@ class Widget(object):
 		if n is None:
 			return self._children[:]
 
-		if n >= 0 and n < len(self._children):
+		try:
 			return self._children[n]
-
-		return None
+		except IndexError:
+			return None
 
 	def sortChildren(self, key):
 		"""
@@ -956,7 +965,7 @@ class Widget(object):
 			self.element.removeChild(c.element)
 			self.element.insertBefore(c.element, self.element.children.item(0))
 
-	def fromHTML(self, html, appendTo=None, bindTo=None):
+	def fromHTML(self, html, appendTo=None, bindTo=None, vars=None):
 		"""
 		Parses html and constructs its elements as part of self.
 
@@ -974,7 +983,7 @@ class Widget(object):
 		if bindTo is None:
 			bindTo = self
 
-		return fromHTML(html, appendTo, bindTo)
+		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
 
 
 ########################################################################################################################
@@ -1199,14 +1208,14 @@ class _attrHref(object):
 	def _getHref(self):
 		"""
 		Url of a Page
-		@param self:
+		:param self:
 		"""
 		return self.element.href
 
 	def _setHref(self, val):
 		"""
 		Url of a Page
-		@param val: URL
+		:param val: URL
 		"""
 		self.element.href = val
 
@@ -1487,14 +1496,14 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 	def _getDownload(self):
 		"""
 		The download attribute specifies the path to a download
-		@return: filename
+		:returns: filename
 		"""
 		return self.element.download
 
 	def _setDownload(self, val):
 		"""
 		The download attribute specifies the path to a download
-		@param val: filename
+		:param val: filename
 		"""
 		self.element.download = val
 
@@ -2690,28 +2699,6 @@ class Tr(Widget):
 		return self
 
 
-class Th(Widget):
-	_baseClass = "th"
-
-	def __init__(self, *args, **kwargs):
-		super().__init__(**kwargs)
-		self.appendChild(args)
-
-	def _getRowspan(self):
-		span = self.element.getAttribute("rowspan")
-		return span if span else 1
-
-	def _setColspan(self, span):
-		assert span >= 1, "span may not be negative"
-		self.element.setAttribute("colspan", span)
-		return self
-
-	def _setRowspan(self, span):
-		assert span >= 1, "span may not be negative"
-		self.element.setAttribute("rowspan", span)
-		return self
-
-
 class Td(Widget):
 	_baseClass = "td"
 
@@ -2736,6 +2723,10 @@ class Td(Widget):
 		assert span >= 1, "span may not be negative"
 		self.element.setAttribute("rowspan", span)
 		return self
+
+
+class Th(Td):
+	_baseClass = "th"
 
 
 class Thead(Widget):
@@ -3018,42 +3009,47 @@ def parseFloat(s, ret=0.0):
 # Keycodes
 ########################################################################################################################
 
-def isSingleSelectionKey(keyCode):
+def getKey(event):
 	"""
-		Tests wherever keyCode means the modifier key for single selection
+	Returns the Key Identifier of the given event
+
+	Available Codes: https://www.w3.org/TR/2006/WD-DOM-Level-3-Events-20060413/keyset.html#KeySet-Set
 	"""
-	if keyCode == 17:  # "ctrl" on all major platforms
-		return True
+	if hasattr(event, "key"):
+		return event.key
 
-	elif eval("navigator.appVersion.indexOf(\"Mac\") != -1"):  # "cmd" on the broken one
-		if keyCode in [224, 17, 91, 93]:
-			return True
+	elif hasattr(event, "keyIdentifier"):
+		if event.keyIdentifier in ["Esc", "U+001B"]:
+			return "Escape"
+		else:
+			return event.keyIdentifier
 
-	return False
-
-
-def isArrowLeft(keyCode):
-	return keyCode == 37
+	return None
 
 
-def isArrowUp(keyCode):
-	return keyCode == 38
+def isArrowLeft(event):
+	return getKey(event) in ["ArrowLeft", "Left"]
 
+def isArrowUp(event):
+	return getKey(event) in ["ArrowUp", "Up"]
 
-def isArrowRight(keyCode):
-	return keyCode == 39
+def isArrowRight(event):
+	return getKey(event) in ["ArrowRight", "Right"]
 
+def isArrowDown(event):
+	return getKey(event) in ["ArrowDown", "Down"]
 
-def isArrowDown(keyCode):
-	return keyCode == 40
+def isEscape(event):
+	return getKey(event) == "Escape"
 
+def isReturn(event):
+	return getKey(event) == "Enter"
 
-def isReturn(keyCode):
-	return keyCode == 13
+def isControl(event): # The Control (Ctrl) key.
+	return getKey(event) == "Control"
 
-
-def isShift(keyCode):
-	return keyCode == 16
+def isShift(event):
+	return getKey(event) == "Shift"
 
 
 ########################################################################################################################
@@ -3065,92 +3061,68 @@ __tags = None
 __domParser = None
 
 
-def __convertEncodedText(txt):
+def parseHTML(html, debug=False):
 	"""
-	Convert HTML-encoded text into decoded string.
-
-	The reason for this function is the handling of HTML entities, which is not
-	properly supported by native JavaScript.
-
-	We use the browser's DOM parser to to this, according to
-	https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
-
-	:param txt: The encoded text.
-	:return: The decoded text.
+	Parses the provided HTML-code according to the objects defined in the html5-library.
 	"""
-	global __domParser
 
-	if __domParser is None:
-		__domParser = eval("new DOMParser")
+	def buildDescription():
+		"""
+		Generates a dictionary of all to the html5-library
+		known tags and their associated objects and attributes.
+		"""
+		tags = {}
 
-	dom = __domParser.parseFromString("<!doctype html><body>" + str(txt), "text/html")
-	return dom.body.textContent
-
-
-def __buildDescription(debug = False):
-	"""
-	Generates a dictionary of all to the html5-library
-	known tags and their associated objects and attributes.
-	"""
-	tags = {}
-
-	for cname in globals().keys():
-		if cname.startswith("_"):
-			continue
-
-		cl = globals()[cname]
-
-		try:
-			if not issubclass(cl, Widget):
+		for cname in globals().keys():
+			if cname.startswith("_"):
 				continue
-		except:
-			continue
 
-		attr = []
+			cl = globals()[cname]
 
-		for fname in dir(cl):
-			if fname.startswith("_set"):
-				attr.append(fname[4:].lower())
+			try:
+				if not issubclass(cl, Widget):
+					continue
+			except:
+				continue
 
-		tags[cname.lower()] = (cl, attr)
-	# print(cname, cl, attr)
+			attr = []
 
-	if debug:
-		for tag in sorted(tags.keys()):
-			print("{}: {}".format(tag, ", ".join(sorted(tags[tag][1]))))
+			for fname in dir(cl):
+				if fname.startswith("_set"):
+					attr.append(fname[4:].lower())
 
-	return tags
+			tags[cname.lower()] = (cl, attr)
+		# print(cname, cl, attr)
 
+		if debug:
+			for tag in sorted(tags.keys()):
+				print("{}: {}".format(tag, ", ".join(sorted(tags[tag][1]))))
 
-def fromHTML(html, appendTo=None, bindTo=None, debug=False):
-	"""
-	Parses the provided HTML code according to the objects defined in the html5-library.
+		return tags
 
-	Constructs all objects as DOM nodes. The first level is chained into root.
-	If no root is provided, root will be set to html5.Body().
+	def convertEncodedText(txt):
+		"""
+		Convert HTML-encoded text into decoded string.
 
-	The HTML elements are parsed for notations of kind [name]="ident", making
-	the corresponding instance available to the widget as widget.ident in the
-	Python code.
+		The reason for this function is the handling of HTML entities, which is not
+		properly supported by native JavaScript.
 
-	Example:
+		We use the browser's DOM parser to to this, according to
+		https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
 
-	```python
-	import html5
+		:param txt: The encoded text.
+		:return: The decoded text.
+		"""
+		global __domParser
 
-	div = html5.Div()
-	html5.fromHTML('''
-		<div>Yeah!
-			<a href="hello world" [name]="myLink" class="trullman bernd" disabled>
-			hah ala malla" bababtschga"
-			<img src="/static/images/icon_home.svg" style="background-color: red;"/>st
-			<em>ah</em>ralla <i>malla tralla</i> da
-			</a>lala
-		</div>''', div)
+		if jseval is None:
+			return txt
 
-	div.myLink.appendChild("appended!")
-	```
-	"""
+		if __domParser is None:
+			__domParser = jseval("new DOMParser")
+
+		dom = __domParser.parseFromString("<!doctype html><body>" + str(txt), "text/html")
+		return dom.body.textContent
 
 	def scanWhite(l):
 		"""
@@ -3179,17 +3151,10 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 	# Obtain tag descriptions
 	if __tags is None:
-		__tags = __buildDescription()
-
-	# Handle defaults
-	if appendTo is None:
-		appendTo = Body()
-
-	if bindTo is None:
-		bindTo = appendTo
+		__tags = buildDescription()
 
 	# Prepare stack and input
-	stack.append((appendTo, None))
+	stack.append((None, None, []))
 	html = [ch for ch in html]
 
 	# Parse
@@ -3198,13 +3163,13 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 		text = ""
 
 		# ugly...
-		while stack and stack[-1][1] in ["br", "input", "img"]:
+		while stack and stack[-1][0] in ["br", "input", "img"]:
 			stack.pop()
 
 		if not stack:
 			break
 
-		parent = stack[-1][0]
+		parent = stack[-1][2]
 
 		while html:
 			# print("html", html)
@@ -3229,7 +3194,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 				text += ch + tag
 
 			# Closing tag
-			elif html and stack[-1][1] and ch == "<" and html[0] == "/":
+			elif html and stack[-1][0] and ch == "<" and html[0] == "/":
 				junk = ch
 				junk += html.pop(0)
 
@@ -3237,7 +3202,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 				junk += tag
 
 				# print("/", tag.lower(), stack[-1][1].lower())
-				if stack[-1][1].lower() == tag.lower():
+				if stack[-1][0] == tag.lower():
 					junk += scanWhite(html)
 					if html and html[0] == ">":
 						html.pop(0)
@@ -3253,18 +3218,19 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 		# Append plain text (if not only whitespace)
 		if (text and ((len(text) == 1 and text in ["\t "])
-		              or not all([ch in " \t\r\n" for ch in text]))):
+					  or not all([ch in " \t\r\n" for ch in text]))):
 			# print("text", text)
-			parent.appendChild(TextNode(__convertEncodedText(text)))
+			parent.append(convertEncodedText(text))
 
 		# Create tag
 		if tag:
-			wdg = __tags[tag][0]()
-
-			parent.appendChild(wdg)
-			stack.append((wdg, tag))
-
+			tag = tag.lower()
 			# print("tag", tag)
+
+			elem = (tag, {}, [])
+
+			stack.append(elem)
+			parent.append(elem)
 
 			while html:
 				scanWhite(html)
@@ -3309,59 +3275,144 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 							html.pop(0)
 
-					if att == "[name]":
-						# Allow disable binding!
-						if not bindTo:
-							continue
 
-						if val in dir(appendTo):
-							print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
-
-						elif not (any([val.startswith(x) for x in
-						               "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
-						          and all(
-									[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
-									 for x in val[1:]])):
-							print("Cannot assign name '{}' because it contains invalid characters".format(val))
-
-						else:
-							setattr(bindTo, val, wdg)
-
-						if debug:
-							print("name '{}' assigned to {}".format(val, bindTo))
-
-					elif att == "class":
-						# print(tag, att, val.split())
-						stack[-1][0].addClass(*val.split())
-
-					elif att == "disabled":
-						# print(tag, att, val)
-						if val == "disabled":
-							stack[-1][0].disable()
-
-					elif att == "hidden":
-						# print(tag, att, val)
-						if val == "hidden":
-							stack[-1][0].hide()
-
-					elif att == "style":
-						for dfn in val.split(";"):
-							if not ":" in dfn:
-								continue
-
-							att, val = dfn.split(":", 1)
-
-							# print(tag, "style", att.strip(), val.strip())
-							stack[-1][0]["style"][att.strip()] = val.strip()
-
-					elif att.startswith("data-"):
-						stack[-1][0]["data"][att[5:]] = val
-
+					if att not in stack[-1][1]:
+						stack[-1][1][att] = val
 					else:
-						# print(tag, att, val)
-						stack[-1][0][att] = val
+						stack[-1][1][att] += " " + val
 
 				continue
+
+	while stack and stack[-1][0]:
+		stack.pop()
+
+	return stack[0][2]
+
+
+def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
+	"""
+	Parses the provided HTML code according to the objects defined in the html5-library.
+	html can also be pre-compiled by `parseHTML()` so that it executes faster.
+
+	Constructs all objects as DOM nodes. The first level is chained into appendTo.
+	If no appendTo is provided, appendTo will be set to html5.Body().
+
+	If bindTo is provided, objects are bound to this widget.
+
+	```python
+	import html5
+
+	div = html5.Div()
+	html5.parse.fromHTML('''
+		<div>Yeah!
+			<a href="hello world" [name]="myLink" class="trullman bernd" disabled>
+			hah ala malla" bababtschga"
+			<img src="/static/images/icon_home.svg" style="background-color: red;"/>st
+			<em>ah</em>ralla <i>malla tralla</i> da
+			</a>lala
+		</div>''', div)
+
+	div.myLink.appendChild("appended!")
+	```
+	"""
+
+	# Handle defaults
+	if appendTo is None:
+		appendTo = Body()
+
+	if bindTo is None:
+		bindTo = appendTo
+
+	if isinstance(html, str):
+		html = parseHTML(html, debug=debug)
+
+	def replaceVars(txt):
+		if vars:
+			for var, val in vars.items():
+				txt = txt.replace("{{%s}}" % var, val)
+
+		return txt
+
+	def interpret(parent, items):
+		for item in items:
+			if isinstance(item, str):
+				parent.appendChild(TextNode(replaceVars(item)))
+				continue
+
+			tag = item[0]
+			atts = item[1]
+			children = item[2]
+
+			# Special handling for tables: A "thead" and "tbody" are already part of table!
+			if tag in ["thead", "tbody"] and isinstance(parent, Table):
+				wdg = getattr(parent, tag[1:])
+
+			# Usual way: Construct new element and chain it into the parent.
+			else:
+				wdg = __tags[tag][0]()
+
+			for att, val in atts.items():
+				val = replaceVars(val)
+
+				if att == "[name]":
+					# Allow disable binding!
+					if not bindTo:
+						continue
+
+					if val in dir(appendTo):
+						print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
+
+					elif not (any([val.startswith(x) for x in
+								   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
+							  and all(
+								[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
+								 for x in val[1:]])):
+						print("Cannot assign name '{}' because it contains invalid characters".format(val))
+					
+					else:
+						setattr(bindTo, val, wdg)
+
+					if debug:
+						print("name '{}' assigned to {}".format(val, bindTo))
+
+				elif att == "class":
+					# print(tag, att, val.split())
+					wdg.addClass(*val.split())
+
+				elif att == "disabled":
+					# print(tag, att, val)
+					if val == "disabled":
+						wdg.disable()
+
+				elif att == "hidden":
+					# print(tag, att, val)
+					if val == "hidden":
+						wdg.hide()
+
+				elif att == "style":
+					for dfn in val.split(";"):
+						if ":" not in dfn:
+							continue
+
+						att, val = dfn.split(":", 1)
+
+						# print(tag, "style", att.strip(), val.strip())
+						wdg["style"][att.strip()] = val.strip()
+
+				elif att.startswith("data-"):
+					wdg[att[5:]] = val
+
+				else:
+					wdg[att] = val
+
+			interpret(wdg, children)
+
+			if not wdg.parent():
+				parent.appendChild(wdg)
+
+	interpret(appendTo, html)
+
+	return html #return compiled HTML (for optional reuse)
 
 
 if __name__ == '__main__':
