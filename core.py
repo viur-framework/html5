@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*
 
-# __pragma__("xglobs")
-
 ########################################################################################################################
 # DOM-access functions and variables
 ########################################################################################################################
@@ -122,64 +120,69 @@ class TextNode(object):
 
 # _WidgetClassWrapper -------------------------------------------------------------------------------------------------
 
-class _WidgetClassWrapper(object):
+class _WidgetClassWrapper(list):
+
 	def __init__(self, targetWidget):
 		super().__init__()
+
 		self.targetWidget = targetWidget
-		self.classList = []
 
 		clsStr = targetWidget.element.getAttribute("class")
 		if clsStr:
 			for c in clsStr.split(" "):
-				self.classList.append(c)
+				list.append(self, c)
 
 	def _updateElem(self):
-		if len(self.classList) == 0:
+		if len(self) == 0:
 			self.targetWidget.element.removeAttribute("class")
 		else:
-			self.targetWidget.element.setAttribute("class", " ".join(self.classList))
+			self.targetWidget.element.setAttribute("class", " ".join(self))
 
 	def append(self, p_object):
-		self.classList.append(p_object)
+		list.append(self, p_object)
 		self._updateElem()
 
 	def clear(self):
-		self.classList.clear()
+		list.clear(self)
 		self._updateElem()
 
 	def remove(self, value):
 		try:
-			self.classList.remove(value)
-			self._updateElem()
+			list.remove(self, value)
 		except:
 			pass
+		self._updateElem()
 
 	def extend(self, iterable):
-		self.classList.extend(iterable)
+		list.extend(self, iterable)
 		self._updateElem()
 
 	def insert(self, index, p_object):
-		self.classList.insert(index, p_object)
+		list.insert(self, index, p_object)
 		self._updateElem()
 
 	def pop(self, index=None):
-		self.classList.pop(self, index)
+		list.pop(self, index)
 		self._updateElem()
 
 
-'''
-# _WidgetDataWrapper --------------------------------------------------------------------------------------------------
+# _WidgetDataWrapper ---------------------------------------------------------------------------------------------------
 
 class _WidgetDataWrapper(dict):
+
 	def __init__(self, targetWidget):
 		super().__init__()
+
 		self.targetWidget = targetWidget
 		alldata = targetWidget.element
+
 		for data in dir(alldata.dataset):
 			dict.__setitem__(self, data, getattr(alldata.dataset, data))
+
 	def __setitem__(self, key, value):
 		dict.__setitem__(self, key, value)
 		self.targetWidget.element.setAttribute(str("data-" + key), value)
+
 	def update(self, E=None, **F):
 		dict.update(self, E, **F)
 		if E is not None and "keys" in dir(E):
@@ -190,16 +193,18 @@ class _WidgetDataWrapper(dict):
 				self.targetWidget.element.setAttribute(str("data-" + key), "data-" + val)
 		for key in F:
 			self.targetWidget.element.setAttribute(str("data-" + key), F["data-" + key])
-'''
-'''
+
 
 # _WidgetStyleWrapper --------------------------------------------------------------------------------------------------
 
 class _WidgetStyleWrapper(dict):
+
 	def __init__(self, targetWidget):
 		super().__init__()
+
 		self.targetWidget = targetWidget
 		style = targetWidget.element.style
+
 		for key in dir(style):
 			# Convert JS-Style-Syntax to CSS Syntax (ie borderTop -> border-top)
 			realKey = ""
@@ -226,7 +231,6 @@ class _WidgetStyleWrapper(dict):
 		for key in F:
 			self.targetWidget.element.style.setProperty(key, F[key])
 
-'''
 
 # Widget ---------------------------------------------------------------------------------------------------------------
 
