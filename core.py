@@ -1474,6 +1474,10 @@ class _attrSvgStyles(object):
 		self.element.setAttribute("stroke", val)
 
 
+class _isLeaf(object):
+	pass
+
+
 ########################################################################################################################
 # HTML Elements
 ########################################################################################################################
@@ -1688,7 +1692,7 @@ class Bdi(Widget):
 		super(Bdi, self).__init__(*args, **kwargs)
 
 
-class Br(Widget):
+class Br(Widget, _isLeaf):
 	_baseClass = "br"
 
 	def __init__(self, *args, **kwargs):
@@ -1807,7 +1811,7 @@ class H6(Widget):
 		super(H6, self).__init__(*args, **kwargs)
 
 
-class Hr(Widget):
+class Hr(Widget, _isLeaf):
 	_baseClass = "hr"
 
 	def __init__(self, *args, **kwargs):
@@ -2033,9 +2037,9 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 		self.element.setAttribute("accept-_attrCharset", val)
 
 
-class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate,
-            _attrName, _attrDimensions, _attrValue, _attrFormhead,
-            _attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
+class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
+				_attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
+					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isLeaf):
 	_baseClass = "input"
 
 	def __init__(self, *args, **kwargs):
@@ -2245,7 +2249,7 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 
 # Img ------------------------------------------------------------------------------------------------------------------
 
-class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt):
+class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isLeaf):
 	_baseClass = "img"
 
 	def __init__(self, src=None, *args, **kwargs):
@@ -3049,49 +3053,63 @@ def isShift(event):
 # HTML parser
 ########################################################################################################################
 
-# Global variables
+# Global variables required by HTML parser
 __tags = None
 __domParser = None
+
+
+def registerTag(tagName, widgetClass):
+	assert issubclass(widgetClass, Widget), "widgetClass must be a sub-class of Widget!"
+	global __tags
+
+	if __tags is None:
+		_buildTags()
+
+	attr = []
+
+	for fname in dir(widgetClass):
+		if fname.startswith("_set"):
+			attr.append(fname[4:].lower())
+
+	__tags[tagName.lower()] = (widgetClass, attr)
+
+
+def _buildTags(debug=False):
+	"""
+	Generates a dictionary of all to the html5-library
+	known tags and their associated objects and attributes.
+	"""
+	global __tags
+
+	if __tags is not None:
+		return
+
+	if __tags is None:
+		__tags = {}
+
+	for cname in globals().keys():
+		if cname.startswith("_"):
+			continue
+
+		cl = globals()[cname]
+
+		try:
+			if not issubclass(cl, Widget):
+				continue
+		except:
+			continue
+
+		registerTag(cname, cl)
+
+	if debug:
+		for tag in sorted(__tags.keys()):
+			print("{}: {}".format(tag, ", ".join(sorted(__tags[tag][1]))))
 
 
 def parseHTML(html, debug=False):
 	"""
 	Parses the provided HTML-code according to the objects defined in the html5-library.
 	"""
-
-	def buildDescription():
-		"""
-		Generates a dictionary of all to the html5-library
-		known tags and their associated objects and attributes.
-		"""
-		tags = {}
-
-		for cname in globals().keys():
-			if cname.startswith("_"):
-				continue
-
-			cl = globals()[cname]
-
-			try:
-				if not issubclass(cl, Widget):
-					continue
-			except:
-				continue
-
-			attr = []
-
-			for fname in dir(cl):
-				if fname.startswith("_set"):
-					attr.append(fname[4:].lower())
-
-			tags[cname.lower()] = (cl, attr)
-		# print(cname, cl, attr)
-
-		if debug:
-			for tag in sorted(tags.keys()):
-				print("{}: {}".format(tag, ", ".join(sorted(tags[tag][1]))))
-
-		return tags
 
 	def convertEncodedText(txt):
 		"""
@@ -3139,12 +3157,13 @@ def parseHTML(html, debug=False):
 
 		return ret
 
-	global __tags
 	stack = []
 
-	# Obtain tag descriptions
+	# Obtain tag descriptions, if not already done!
+	global __tags
+
 	if __tags is None:
-		__tags = buildDescription()
+		_buildTags(debug=debug)
 
 	# Prepare stack and input
 	stack.append((None, None, []))
@@ -3155,8 +3174,8 @@ def parseHTML(html, debug=False):
 		tag = None
 		text = ""
 
-		# ugly...
-		while stack and stack[-1][0] in ["br", "input", "img"]:
+		# Auto-close tags which may not have children (_isLeaf), e.g. <hr>, <br>...
+		while stack and stack[-1][0] and issubclass(__tags[stack[-1][0]][0], _isLeaf):
 			stack.pop()
 
 		if not stack:
@@ -3268,11 +3287,10 @@ def parseHTML(html, debug=False):
 
 							html.pop(0)
 
-
-					if att not in stack[-1][1]:
-						stack[-1][1][att] = val
+					if att not in elem[1]:
+						elem[1][att] = val
 					else:
-						stack[-1][1][att] += " " + val
+						elem[1][att] += " " + val
 
 				continue
 
