@@ -11,6 +11,8 @@ This is the current development version.
 - Bugfix: HTML-parser handles table tags with tbody/thead tags inside more gracefully.
 - Feature: Split HTML-parser into separate stages to compile and run; This allows to pre-compile HTML into a list/dict-structure and render it later on without parsing it again. `parseHTML()` is the new function, `fromHTML()` works like before and handles pre-compiled or raw HTML as parameter.
 - Feature: `fromHTML()` extended to `vars` parameter to replace key-value pairs in text-nodes and attribute values expressed as `{{key}}`.
+- Feature: HTML-parser dynamically reconizes void elements
+- Feature: `html5.registerTag()` can be used to define new or override existing HTML elements in the HTML parser by custom implementations based on `html5.Widget()`
 - Feature: New function `Widget.isVisible()` as counterpart for `Widget.isHidden()`.
 
 ## [2.4.0] Agung
