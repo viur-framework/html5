@@ -1474,7 +1474,7 @@ class _attrSvgStyles(object):
 		self.element.setAttribute("stroke", val)
 
 
-class _isLeaf(object):
+class _isVoid(object):
 	pass
 
 
@@ -1507,7 +1507,7 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 
 # Area -----------------------------------------------------------------------------------------------------------------
 
-class Area(A, _attrAlt):
+class Area(A, _attrAlt, _isVoid):
 	_baseClass = "area"
 
 	def __init__(self, *args, **kwargs):
@@ -1692,7 +1692,7 @@ class Bdi(Widget):
 		super(Bdi, self).__init__(*args, **kwargs)
 
 
-class Br(Widget, _isLeaf):
+class Br(Widget, _isVoid):
 	_baseClass = "br"
 
 	def __init__(self, *args, **kwargs):
@@ -1811,7 +1811,7 @@ class H6(Widget):
 		super(H6, self).__init__(*args, **kwargs)
 
 
-class Hr(Widget, _isLeaf):
+class Hr(Widget, _isVoid):
 	_baseClass = "hr"
 
 	def __init__(self, *args, **kwargs):
@@ -1960,7 +1960,7 @@ class Wbr(Widget):
 
 # Embed ----------------------------------------------------------------------------------------------------------------
 
-class Embed(Widget, _attrSrc, _attrType, _attrDimensions):
+class Embed(Widget, _attrSrc, _attrType, _attrDimensions, _isVoid):
 	_baseClass = "embed"
 
 	def __init__(self, *args, **kwargs):
@@ -2039,7 +2039,7 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 
 class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
 				_attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
-					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isLeaf):
+					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isVoid):
 	_baseClass = "input"
 
 	def __init__(self, *args, **kwargs):
@@ -2249,7 +2249,7 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 
 # Img ------------------------------------------------------------------------------------------------------------------
 
-class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isLeaf):
+class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
 	_baseClass = "img"
 
 	def __init__(self, src=None, *args, **kwargs):
@@ -2305,7 +2305,7 @@ class Keygen(Form, _attrAutofocus, _attrDisabled):
 
 # Link -----------------------------------------------------------------------------------------------------------------
 
-class Link(Widget, _attrHref, _attrMedia, _attrRel):
+class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
 	_baseClass = "link"
 
 	def __init__(self, *args, **kwargs):
@@ -2385,7 +2385,7 @@ class Menu(Widget):
 
 # Meta -----------------------------------------------------------------------------------------------------------------
 
-class Meta(Widget, _attrName, _attrCharset):
+class Meta(Widget, _attrName, _attrCharset, _isVoid):
 	_baseClass = "meta"
 
 	def __init__(self, *args, **kwargs):
@@ -2464,7 +2464,7 @@ class Object(Form, _attrType, _attrName, _attrDimensions, _attrUsemap):
 
 # Param -----------------------------------------------------------------------------------------------------------------
 
-class Param(Widget, _attrName, _attrValue):
+class Param(Widget, _attrName, _attrValue, _isVoid):
 	_baseClass = "param"
 
 	def __init__(self, *args, **kwargs):
@@ -2524,7 +2524,7 @@ class Script(Widget, _attrSrc, _attrCharset):
 
 # Source ---------------------------------------------------------------------------------------------------------------
 
-class Source(Widget, _attrMedia, _attrSrc):
+class Source(Widget, _attrMedia, _attrSrc, _isVoid):
 	_baseClass = "source"
 
 	def __init__(self, *args, **kwargs):
@@ -2850,7 +2850,7 @@ class Time(Widget, _attrDatetime):
 
 # Track ----------------------------------------------------------------------------------------------------------------
 
-class Track(Label, _attrSrc):
+class Track(Label, _attrSrc, _isVoid):
 	_baseClass = "track"
 
 	def __init__(self, *args, **kwargs):
@@ -3174,8 +3174,8 @@ def parseHTML(html, debug=False):
 		tag = None
 		text = ""
 
-		# Auto-close tags which may not have children (_isLeaf), e.g. <hr>, <br>...
-		while stack and stack[-1][0] and issubclass(__tags[stack[-1][0]][0], _isLeaf):
+		# Auto-close void elements (_isVoid), e.g. <hr>, <br>, etc.
+		while stack and stack[-1][0] and issubclass(__tags[stack[-1][0]][0], _isVoid):
 			stack.pop()
 
 		if not stack:
