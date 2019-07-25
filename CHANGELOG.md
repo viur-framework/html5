@@ -2,9 +2,13 @@
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
-## [develop] Vesuv
+## [develop]
 
 This is the current development version.
+
+## [2.5.0] Vesuv
+
+Release date: Jul 26, 2019
 
 - Bugfix: `Widget.Th()` now supporting full col-/rowspan getting and setting.
 - Bugfix: HTML-parser accepts tags in upper-/camel-case order now.
@@ -67,7 +71,8 @@ Release date: Dec 22, 2016
 - Insert text blocks easier with `utils.textToHtml()`
 - Several bugfixes
 
-[develop]: https://github.com/viur-framework/html5/compare/v2.4.0...develop
+[develop]: https://github.com/viur-framework/html5/compare/v2.5.0...develop
+[2.5.0]: https://github.com/viur-framework/html5/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/viur-framework/html5/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/viur-framework/html5/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/viur-framework/html5/compare/v2.1.0...v2.2.0
