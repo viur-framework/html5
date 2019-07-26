@@ -4,7 +4,7 @@
 
 ## About
 
-This library serves as a toolkit for writing DOM-oriented web-apps using the Python programming language.
+This library serves as a DOM-toolkit for writing HTML5 web-apps using the Python programming language.
 
 The most prominent software completely established on this library is [ViUR vi](https://github.com/viur-framework/vi/), the visual administration interface for ViUR-based applications.
 
@@ -13,6 +13,8 @@ The most prominent software completely established on this library is [ViUR vi](
 ## Prerequisites
 
 This library currently works with [PyJS](https://github.com/pyjs/pyjs), a Python-to-JavaScript transpiling framework.
+
+We're also working on a Python 3 port to run with [pyodide](https://github.com/iodide-project/pyodide).
 
 ## Quick Start
 

@@ -4,8 +4,20 @@
 # DOM-access functions and variables
 ########################################################################################################################
 
-window = eval("window.top")
-document = window.document
+try:
+	# PyJS
+	jseval = eval
+
+	window = jseval("window.top")
+	document = window.document
+
+except NameError:
+	print("Emulation mode")
+	from xml.dom.minidom import parseString
+	jseval = None
+
+	window = None
+	document = parseString('<html><head /><body /></html>')
 
 
 def domCreateAttribute(tag, ns=None):
@@ -592,10 +604,17 @@ class Widget(object):
 
 	def isHidden(self):
 		"""
-		Checks if a widget is flagged hidden.
+		Checks if a widget is hidden.
 		:return: True if hidden, False otherwise.
 		"""
 		return self["style"].get("display", "") == "none"
+
+	def isVisible(self):
+		"""
+		Checks if a widget is visible.
+		:return: True if visible, False otherwise.
+		"""
+		return not self.isHidden()
 
 	def onAttach(self):
 		self._isAttached = True
@@ -939,7 +958,7 @@ class Widget(object):
 			self.element.removeChild(c.element)
 			self.element.insertBefore(c.element, self.element.children.item(0))
 
-	def fromHTML(self, html, appendTo=None, bindTo=None):
+	def fromHTML(self, html, appendTo=None, bindTo=None, vars=None):
 		"""
 		Parses html and constructs its elements as part of self.
 
@@ -957,7 +976,7 @@ class Widget(object):
 		if bindTo is None:
 			bindTo = self
 
-		return fromHTML(html, appendTo, bindTo)
+		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
 
 
 ########################################################################################################################
@@ -1455,6 +1474,10 @@ class _attrSvgStyles(object):
 		self.element.setAttribute("stroke", val)
 
 
+class _isVoid(object):
+	pass
+
+
 ########################################################################################################################
 # HTML Elements
 ########################################################################################################################
@@ -1484,7 +1507,7 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 
 # Area -----------------------------------------------------------------------------------------------------------------
 
-class Area(A, _attrAlt):
+class Area(A, _attrAlt, _isVoid):
 	_baseClass = "area"
 
 	def __init__(self, *args, **kwargs):
@@ -1669,7 +1692,7 @@ class Bdi(Widget):
 		super(Bdi, self).__init__(*args, **kwargs)
 
 
-class Br(Widget):
+class Br(Widget, _isVoid):
 	_baseClass = "br"
 
 	def __init__(self, *args, **kwargs):
@@ -1788,7 +1811,7 @@ class H6(Widget):
 		super(H6, self).__init__(*args, **kwargs)
 
 
-class Hr(Widget):
+class Hr(Widget, _isVoid):
 	_baseClass = "hr"
 
 	def __init__(self, *args, **kwargs):
@@ -1937,7 +1960,7 @@ class Wbr(Widget):
 
 # Embed ----------------------------------------------------------------------------------------------------------------
 
-class Embed(Widget, _attrSrc, _attrType, _attrDimensions):
+class Embed(Widget, _attrSrc, _attrType, _attrDimensions, _isVoid):
 	_baseClass = "embed"
 
 	def __init__(self, *args, **kwargs):
@@ -2014,9 +2037,9 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 		self.element.setAttribute("accept-_attrCharset", val)
 
 
-class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked, _attrIndeterminate,
-            _attrName, _attrDimensions, _attrValue, _attrFormhead,
-            _attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
+class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
+				_attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
+					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isVoid):
 	_baseClass = "input"
 
 	def __init__(self, *args, **kwargs):
@@ -2226,7 +2249,7 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 
 # Img ------------------------------------------------------------------------------------------------------------------
 
-class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt):
+class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
 	_baseClass = "img"
 
 	def __init__(self, src=None, *args, **kwargs):
@@ -2282,7 +2305,7 @@ class Keygen(Form, _attrAutofocus, _attrDisabled):
 
 # Link -----------------------------------------------------------------------------------------------------------------
 
-class Link(Widget, _attrHref, _attrMedia, _attrRel):
+class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
 	_baseClass = "link"
 
 	def __init__(self, *args, **kwargs):
@@ -2362,7 +2385,7 @@ class Menu(Widget):
 
 # Meta -----------------------------------------------------------------------------------------------------------------
 
-class Meta(Widget, _attrName, _attrCharset):
+class Meta(Widget, _attrName, _attrCharset, _isVoid):
 	_baseClass = "meta"
 
 	def __init__(self, *args, **kwargs):
@@ -2441,7 +2464,7 @@ class Object(Form, _attrType, _attrName, _attrDimensions, _attrUsemap):
 
 # Param -----------------------------------------------------------------------------------------------------------------
 
-class Param(Widget, _attrName, _attrValue):
+class Param(Widget, _attrName, _attrValue, _isVoid):
 	_baseClass = "param"
 
 	def __init__(self, *args, **kwargs):
@@ -2501,7 +2524,7 @@ class Script(Widget, _attrSrc, _attrCharset):
 
 # Source ---------------------------------------------------------------------------------------------------------------
 
-class Source(Widget, _attrMedia, _attrSrc):
+class Source(Widget, _attrMedia, _attrSrc, _isVoid):
 	_baseClass = "source"
 
 	def __init__(self, *args, **kwargs):
@@ -2673,28 +2696,6 @@ class Tr(Widget):
 		return self
 
 
-class Th(Widget):
-	_baseClass = "th"
-
-	def __init__(self, *args, **kwargs):
-		super(Th, self).__init__(**kwargs)
-		self.appendChild(args)
-
-	def _getRowspan(self):
-		span = self.element.getAttribute("rowspan")
-		return span if span else 1
-
-	def _setColspan(self, span):
-		assert span >= 1, "span may not be negative"
-		self.element.setAttribute("colspan", span)
-		return self
-
-	def _setRowspan(self, span):
-		assert span >= 1, "span may not be negative"
-		self.element.setAttribute("rowspan", span)
-		return self
-
-
 class Td(Widget):
 	_baseClass = "td"
 
@@ -2719,6 +2720,10 @@ class Td(Widget):
 		assert span >= 1, "span may not be negative"
 		self.element.setAttribute("rowspan", span)
 		return self
+
+
+class Th(Td):
+	_baseClass = "th"
 
 
 class Thead(Widget):
@@ -2845,7 +2850,7 @@ class Time(Widget, _attrDatetime):
 
 # Track ----------------------------------------------------------------------------------------------------------------
 
-class Track(Label, _attrSrc):
+class Track(Label, _attrSrc, _isVoid):
 	_baseClass = "track"
 
 	def __init__(self, *args, **kwargs):
@@ -3048,39 +3053,39 @@ def isShift(event):
 # HTML parser
 ########################################################################################################################
 
-# Global variables
+# Global variables required by HTML parser
 __tags = None
 __domParser = None
 
 
-def __convertEncodedText(txt):
-	"""
-	Convert HTML-encoded text into decoded string.
+def registerTag(tagName, widgetClass):
+	assert issubclass(widgetClass, Widget), "widgetClass must be a sub-class of Widget!"
+	global __tags
 
-	The reason for this function is the handling of HTML entities, which is not
-	properly supported by native JavaScript.
+	if __tags is None:
+		_buildTags()
 
-	We use the browser's DOM parser to to this, according to
-	https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
+	attr = []
 
-	:param txt: The encoded text.
-	:return: The decoded text.
-	"""
-	global __domParser
+	for fname in dir(widgetClass):
+		if fname.startswith("_set"):
+			attr.append(fname[4:].lower())
 
-	if __domParser is None:
-		__domParser = eval("new DOMParser")
-
-	dom = __domParser.parseFromString("<!doctype html><body>" + str(txt), "text/html")
-	return dom.body.textContent
+	__tags[tagName.lower()] = (widgetClass, attr)
 
 
-def __buildDescription(debug = False):
+def _buildTags(debug=False):
 	"""
 	Generates a dictionary of all to the html5-library
 	known tags and their associated objects and attributes.
 	"""
-	tags = {}
+	global __tags
+
+	if __tags is not None:
+		return
+
+	if __tags is None:
+		__tags = {}
 
 	for cname in globals().keys():
 		if cname.startswith("_"):
@@ -3094,51 +3099,41 @@ def __buildDescription(debug = False):
 		except:
 			continue
 
-		attr = []
-
-		for fname in dir(cl):
-			if fname.startswith("_set"):
-				attr.append(fname[4:].lower())
-
-		tags[cname.lower()] = (cl, attr)
-	# print(cname, cl, attr)
+		registerTag(cname, cl)
 
 	if debug:
-		for tag in sorted(tags.keys()):
-			print("{}: {}".format(tag, ", ".join(sorted(tags[tag][1]))))
-
-	return tags
+		for tag in sorted(__tags.keys()):
+			print("{}: {}".format(tag, ", ".join(sorted(__tags[tag][1]))))
 
 
-def fromHTML(html, appendTo=None, bindTo=None, debug=False):
+def parseHTML(html, debug=False):
 	"""
-	Parses the provided HTML code according to the objects defined in the html5-library.
-
-	Constructs all objects as DOM nodes. The first level is chained into root.
-	If no root is provided, root will be set to html5.Body().
-
-	The HTML elements are parsed for notations of kind [name]="ident", making
-	the corresponding instance available to the widget as widget.ident in the
-	Python code.
-
-	Example:
-
-	```python
-	import html5
-
-	div = html5.Div()
-	html5.parse.fromHTML('''
-		<div>Yeah!
-			<a href="hello world" [name]="myLink" class="trullman bernd" disabled>
-			hah ala malla" bababtschga"
-			<img src="/static/images/icon_home.svg" style="background-color: red;"/>st
-			<em>ah</em>ralla <i>malla tralla</i> da
-			</a>lala
-		</div>''', div)
-
-	div.myLink.appendChild("appended!")
-	```
+	Parses the provided HTML-code according to the objects defined in the html5-library.
 	"""
+
+	def convertEncodedText(txt):
+		"""
+		Convert HTML-encoded text into decoded string.
+
+		The reason for this function is the handling of HTML entities, which is not
+		properly supported by native JavaScript.
+
+		We use the browser's DOM parser to to this, according to
+		https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
+
+		:param txt: The encoded text.
+		:return: The decoded text.
+		"""
+		global __domParser
+
+		if jseval is None:
+			return txt
+
+		if __domParser is None:
+			__domParser = jseval("new DOMParser")
+
+		dom = __domParser.parseFromString("<!doctype html><body>" + str(txt), "text/html")
+		return dom.body.textContent
 
 	def scanWhite(l):
 		"""
@@ -3162,22 +3157,16 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 		return ret
 
-	global __tags
 	stack = []
 
-	# Obtain tag descriptions
+	# Obtain tag descriptions, if not already done!
+	global __tags
+
 	if __tags is None:
-		__tags = __buildDescription()
-
-	# Handle defaults
-	if appendTo is None:
-		appendTo = Body()
-
-	if bindTo is None:
-		bindTo = appendTo
+		_buildTags(debug=debug)
 
 	# Prepare stack and input
-	stack.append((appendTo, None))
+	stack.append((None, None, []))
 	html = [ch for ch in html]
 
 	# Parse
@@ -3185,14 +3174,14 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 		tag = None
 		text = ""
 
-		# ugly...
-		while stack and stack[-1][1] in ["br", "input", "img"]:
+		# Auto-close void elements (_isVoid), e.g. <hr>, <br>, etc.
+		while stack and stack[-1][0] and issubclass(__tags[stack[-1][0]][0], _isVoid):
 			stack.pop()
 
 		if not stack:
 			break
 
-		parent = stack[-1][0]
+		parent = stack[-1][2]
 
 		while html:
 			# print("html", html)
@@ -3217,7 +3206,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 				text += ch + tag
 
 			# Closing tag
-			elif html and stack[-1][1] and ch == "<" and html[0] == "/":
+			elif html and stack[-1][0] and ch == "<" and html[0] == "/":
 				junk = ch
 				junk += html.pop(0)
 
@@ -3225,7 +3214,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 				junk += tag
 
 				# print("/", tag.lower(), stack[-1][1].lower())
-				if stack[-1][1].lower() == tag.lower():
+				if stack[-1][0] == tag.lower():
 					junk += scanWhite(html)
 					if html and html[0] == ">":
 						html.pop(0)
@@ -3241,18 +3230,19 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 		# Append plain text (if not only whitespace)
 		if (text and ((len(text) == 1 and text in ["\t "])
-		              or not all([ch in " \t\r\n" for ch in text]))):
+					  or not all([ch in " \t\r\n" for ch in text]))):
 			# print("text", text)
-			parent.appendChild(TextNode(__convertEncodedText(text)))
+			parent.append(convertEncodedText(text))
 
 		# Create tag
 		if tag:
-			wdg = __tags[tag][0]()
-
-			parent.appendChild(wdg)
-			stack.append((wdg, tag))
-
+			tag = tag.lower()
 			# print("tag", tag)
+
+			elem = (tag, {}, [])
+
+			stack.append(elem)
+			parent.append(elem)
 
 			while html:
 				scanWhite(html)
@@ -3297,59 +3287,143 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False):
 
 							html.pop(0)
 
-					if att == "[name]":
-						# Allow disable binding!
-						if not bindTo:
-							continue
-
-						if val in dir(appendTo):
-							print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
-
-						elif not (any([val.startswith(x) for x in
-						               "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
-						          and all(
-									[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
-									 for x in val[1:]])):
-							print("Cannot assign name '{}' because it contains invalid characters".format(val))
-
-						else:
-							setattr(bindTo, val, wdg)
-
-						if debug:
-							print("name '{}' assigned to {}".format(val, bindTo))
-
-					elif att == "class":
-						# print(tag, att, val.split())
-						stack[-1][0].addClass(*val.split())
-
-					elif att == "disabled":
-						# print(tag, att, val)
-						if val == "disabled":
-							stack[-1][0].disable()
-
-					elif att == "hidden":
-						# print(tag, att, val)
-						if val == "hidden":
-							stack[-1][0].hide()
-
-					elif att == "style":
-						for dfn in val.split(";"):
-							if not ":" in dfn:
-								continue
-
-							att, val = dfn.split(":", 1)
-
-							# print(tag, "style", att.strip(), val.strip())
-							stack[-1][0]["style"][att.strip()] = val.strip()
-
-					elif att.startswith("data-"):
-						stack[-1][0]["data"][att[5:]] = val
-
+					if att not in elem[1]:
+						elem[1][att] = val
 					else:
-						# print(tag, att, val)
-						stack[-1][0][att] = val
+						elem[1][att] += " " + val
 
 				continue
+
+	while stack and stack[-1][0]:
+		stack.pop()
+
+	return stack[0][2]
+
+
+def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
+	"""
+	Parses the provided HTML code according to the objects defined in the html5-library.
+	html can also be pre-compiled by `parseHTML()` so that it executes faster.
+
+	Constructs all objects as DOM nodes. The first level is chained into appendTo.
+	If no appendTo is provided, appendTo will be set to html5.Body().
+
+	If bindTo is provided, objects are bound to this widget.
+
+	```python
+	import html5
+
+	div = html5.Div()
+	html5.parse.fromHTML('''
+		<div>Yeah!
+			<a href="hello world" [name]="myLink" class="trullman bernd" disabled>
+			hah ala malla" bababtschga"
+			<img src="/static/images/icon_home.svg" style="background-color: red;"/>st
+			<em>ah</em>ralla <i>malla tralla</i> da
+			</a>lala
+		</div>''', div)
+
+	div.myLink.appendChild("appended!")
+	```
+	"""
+
+	# Handle defaults
+	if appendTo is None:
+		appendTo = Body()
+
+	if bindTo is None:
+		bindTo = appendTo
+
+	if isinstance(html, str):
+		html = parseHTML(html, debug=debug)
+
+	def replaceVars(txt):
+		if vars:
+			for var, val in vars.items():
+				txt = txt.replace("{{%s}}" % var, val)
+
+		return txt
+
+	def interpret(parent, items):
+		for item in items:
+			if isinstance(item, str):
+				parent.appendChild(TextNode(replaceVars(item)))
+				continue
+
+			tag = item[0]
+			atts = item[1]
+			children = item[2]
+
+			# Special handling for tables: A "thead" and "tbody" are already part of table!
+			if tag in ["thead", "tbody"] and isinstance(parent, Table):
+				wdg = getattr(parent, tag[1:])
+
+			# Usual way: Construct new element and chain it into the parent.
+			else:
+				wdg = __tags[tag][0]()
+
+			for att, val in atts.items():
+				val = replaceVars(val)
+
+				if att == "[name]":
+					# Allow disable binding!
+					if not bindTo:
+						continue
+
+					if val in dir(appendTo):
+						print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
+
+					elif not (any([val.startswith(x) for x in
+								   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
+							  and all(
+								[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
+								 for x in val[1:]])):
+						print("Cannot assign name '{}' because it contains invalid characters".format(val))
+					
+					else:
+						setattr(bindTo, val, wdg)
+
+					if debug:
+						print("name '{}' assigned to {}".format(val, bindTo))
+
+				elif att == "class":
+					# print(tag, att, val.split())
+					wdg.addClass(*val.split())
+
+				elif att == "disabled":
+					# print(tag, att, val)
+					if val == "disabled":
+						wdg.disable()
+
+				elif att == "hidden":
+					# print(tag, att, val)
+					if val == "hidden":
+						wdg.hide()
+
+				elif att == "style":
+					for dfn in val.split(";"):
+						if ":" not in dfn:
+							continue
+
+						att, val = dfn.split(":", 1)
+
+						# print(tag, "style", att.strip(), val.strip())
+						wdg["style"][att.strip()] = val.strip()
+
+				elif att.startswith("data-"):
+					wdg[att[5:]] = val
+
+				else:
+					wdg[att] = val
+
+			interpret(wdg, children)
+
+			if not wdg.parent():
+				parent.appendChild(wdg)
+
+	interpret(appendTo, html)
+
+	return html #return compiled HTML (for optional reuse)
 
 
 if __name__ == '__main__':

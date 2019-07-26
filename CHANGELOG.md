@@ -2,9 +2,22 @@
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
-## [develop] 
+## [develop]
 
 This is the current development version.
+
+## [2.5.0] Vesuv
+
+Release date: Jul 26, 2019
+
+- Bugfix: `Widget.Th()` now supporting full col-/rowspan getting and setting.
+- Bugfix: HTML-parser accepts tags in upper-/camel-case order now.
+- Bugfix: HTML-parser handles table tags with tbody/thead tags inside more gracefully.
+- Feature: Split HTML-parser into separate stages to compile and run; This allows to pre-compile HTML into a list/dict-structure and render it later on without parsing it again. `parseHTML()` is the new function, `fromHTML()` works like before and handles pre-compiled or raw HTML as parameter.
+- Feature: `fromHTML()` extended to `vars` parameter to replace key-value pairs in text-nodes and attribute values expressed as `{{key}}`.
+- Feature: HTML-parser dynamically reconizes void elements
+- Feature: `html5.registerTag()` can be used to define new or override existing HTML elements in the HTML parser by custom implementations based on `html5.Widget()`
+- Feature: New function `Widget.isVisible()` as counterpart for `Widget.isHidden()`.
 
 ## [2.4.0] Agung
 
@@ -58,7 +71,8 @@ Release date: Dec 22, 2016
 - Insert text blocks easier with `utils.textToHtml()`
 - Several bugfixes
 
-[develop]: https://github.com/viur-framework/html5/compare/v2.4.0...develop
+[develop]: https://github.com/viur-framework/html5/compare/v2.5.0...develop
+[2.5.0]: https://github.com/viur-framework/html5/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/viur-framework/html5/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/viur-framework/html5/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/viur-framework/html5/compare/v2.1.0...v2.2.0
