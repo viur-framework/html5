@@ -20,8 +20,10 @@ class Button(html5.Button):
 	def setText(self, txt):
 		if txt is not None:
 			self.element.innerHTML = txt
+			self["title"] = txt
 		else:
 			self.element.innerHTML = ""
+			self["title"] = ""
 
 	def onClick(self, event):
 		event.stopPropagation()
@@ -150,10 +152,12 @@ class Popup(html5.Div):
 
 
 class InputDialog(Popup):
-	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
-	             *args, **kwargs):
+	def __init__(self, text, value="", successHandler=None, abortHandler=None,
+				 	successLbl="OK", abortLbl="Cancel", placeholder="", *args, **kwargs):
+
 		super(InputDialog, self).__init__(title=text, *args, **kwargs)
 		self["class"].append("popup--inputdialog")
+
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler
 
@@ -164,15 +168,19 @@ class InputDialog(Popup):
 		inputLabel = html5.Label()
 		inputLabel.addClass("label")
 		inputLabel.element.innerHTML = text
+
 		self.inputGroup.appendChild(inputLabel)
 		self.inputElem = html5.Input()
 		self.inputElem.addClass("input")
 		self.inputElem["type"] = "text"
 		self.inputElem["value"] = value
+		self.inputElem["placeholder"] = placeholder
+
 		self.inputGroup.appendChild(self.inputElem)
 		cancelBtn = Button(abortLbl, self.onCancel, className="btn--cancel btn--danger")
 		cancelBtn["class"].append()
 		self.popupFoot.appendChild(cancelBtn)
+
 		okayBtn = Button(successLbl, self.onOkay)
 		okayBtn["class"].append("btn--okay btn--primary")
 		self.popupFoot.appendChild(okayBtn)

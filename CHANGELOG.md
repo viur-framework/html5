@@ -1,15 +1,36 @@
-# Change Log
+# Changelog
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
 ## [develop]
 
-Current development version.
+This is the current development version.
 
-- Fully refactored the librarys source base into just two single files, to reduce number of required files to download and make the library easier to access.
-- New function `Widget.isHidden()` to check if a widget is currently shown.
+## [2.5.0] Vesuv
 
-## [2.3] Kilauea
+Release date: Jul 26, 2019
+
+- Bugfix: `Widget.Th()` now supporting full col-/rowspan getting and setting.
+- Bugfix: HTML-parser accepts tags in upper-/camel-case order now.
+- Bugfix: HTML-parser handles table tags with tbody/thead tags inside more gracefully.
+- Feature: Split HTML-parser into separate stages to compile and run; This allows to pre-compile HTML into a list/dict-structure and render it later on without parsing it again. `parseHTML()` is the new function, `fromHTML()` works like before and handles pre-compiled or raw HTML as parameter.
+- Feature: `fromHTML()` extended to `vars` parameter to replace key-value pairs in text-nodes and attribute values expressed as `{{key}}`.
+- Feature: HTML-parser dynamically reconizes void elements
+- Feature: `html5.registerTag()` can be used to define new or override existing HTML elements in the HTML parser by custom implementations based on `html5.Widget()`
+- Feature: New function `Widget.isVisible()` as counterpart for `Widget.isHidden()`.
+
+## [2.4.0] Agung
+
+Release date: May 17, 2019
+
+- Bugfix: Fixed bug with disabling of input widgets.
+- Feature: Fully refactored the librarys source base into just two single files, to reduce number of required files to download and make the library easier to access.
+- Feature: New function `Widget.isHidden()` to check if a widget is currently shown.
+- Feature: Improved handling of key-events. 
+- Feature: Allow to close popups by pressing `ESC`.
+- Feature: Improvements for SVG and TextNode.
+
+## [2.3.0] Kilauea
 
 Release date: Oct 2, 2018
 
@@ -18,14 +39,14 @@ Release date: Oct 2, 2018
 - Switching event handling to newer JavaScript event listener API
 - Added `onFocusIn` and `onFocusOut` events
 
-## [2.2] Etna
+## [2.2.0] Etna
 
 Release date: Apr 23, 2018
 
 - Implemented `html5.Head()` to access the document's head object within the library.
 - Directly append text in construction of Li().
 
-## [2.1]
+## [2.1.0]
 
 Release date: Nov 2, 2017
 
@@ -50,8 +71,10 @@ Release date: Dec 22, 2016
 - Insert text blocks easier with `utils.textToHtml()`
 - Several bugfixes
 
-[develop]: https://github.com/viur-framework/html5/compare/v2.3.0...develop
-[2.3]: https://github.com/viur-framework/html5/compare/v2.2.0...v2.3.0
-[2.2]: https://github.com/viur-framework/html5/compare/v2.1.0...v2.2.0
-[2.1]: https://github.com/viur-framework/html5/compare/v2.0.0...v2.1.0
+[develop]: https://github.com/viur-framework/html5/compare/v2.5.0...develop
+[2.5.0]: https://github.com/viur-framework/html5/compare/v2.4.0...v2.5.0
+[2.4.0]: https://github.com/viur-framework/html5/compare/v2.3.0...v2.4.0
+[2.3.0]: https://github.com/viur-framework/html5/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/viur-framework/html5/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/viur-framework/html5/compare/v2.0.0...v2.1.0
 [2.0.1]: https://github.com/viur-framework/html5/compare/v2.0.0...v2.0.1
