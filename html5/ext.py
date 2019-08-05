@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-import core as html5
-import utils
+import html5.core as html5
+import html5.utils as utils
 
 class Button(html5.Button):
+
 	def __init__(self, txt=None, callback=None, className=None, *args, **kwargs):
-		super(Button, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"] = "btn"
+
 		if className:
 			self.addClass(className)
 
@@ -42,7 +44,7 @@ class Input(html5.Input):
 		:param id: Optional id of the input element. Will be passed to callback
 		:return:
 		"""
-		super(Input, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"] = "input"
 		self["type"] = type
 		if placeholder is not None:
@@ -70,13 +72,13 @@ class Input(html5.Input):
 			self.focusCallback(self, self["id"], self["value"])
 
 	def onDetach(self):
-		super(Input, self).onDetach()
+		super().onDetach()
 		self.callback = None
 
 
 class Popup(html5.Div):
 	def __init__(self, title=None, id=None, className=None, icon=None, enableShortcuts=True, *args, **kwargs):
-		super(Popup, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self["class"] = "popup popup--center is-active"
 		if className:
@@ -155,7 +157,7 @@ class InputDialog(Popup):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None,
 				 	successLbl="OK", abortLbl="Cancel", placeholder="", *args, **kwargs):
 
-		super(InputDialog, self).__init__(title=text, *args, **kwargs)
+		super().__init__(title=text, *args, **kwargs)
 		self["class"].append("popup--inputdialog")
 
 		self.successHandler = successHandler
@@ -216,7 +218,7 @@ class Alert(Popup):
 	"""
 
 	def __init__(self, msg, title=None, okCallback=None, okLabel="OK", *args, **kwargs):
-		super(Alert, self).__init__(title, *args, **kwargs)
+		super().__init__(title, *args, **kwargs)
 		self.addClass("popup--alert")
 
 		self.okCallback = okCallback
@@ -257,7 +259,7 @@ class Alert(Popup):
 class YesNoDialog(Popup):
 	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args,
 	             **kwargs):
-		super(YesNoDialog, self).__init__(title, *args, **kwargs)
+		super().__init__(title, *args, **kwargs)
 		self["class"].append("popup--yesnodialog")
 
 		self.yesCallback = yesCallback
@@ -320,7 +322,7 @@ class SelectDialog(Popup):
 
 	def __init__(self, prompt, items=None, title=None, okBtn="OK", cancelBtn="Cancel", forceSelect=False,
 	             callback=None, *args, **kwargs):
-		super(SelectDialog, self).__init__(title, *args, **kwargs)
+		super().__init__(title, *args, **kwargs)
 		self["class"].append("popup--selectdialog")
 
 		self.callback = callback
@@ -414,8 +416,9 @@ class SelectDialog(Popup):
 class TextareaDialog(Popup):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
 	             *args, **kwargs):
-		super(TextareaDialog, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"].append("popup--textareadialog")
+
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler
 

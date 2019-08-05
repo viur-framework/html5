@@ -5,26 +5,24 @@
 ########################################################################################################################
 
 try:
-	# PyJS
-	jseval = eval
-
-	window = jseval("window.top")
+	# Pyodide
+	from js import window, eval as jseval
 	document = window.document
 
-except NameError:
+except:
 	print("Emulation mode")
 	from xml.dom.minidom import parseString
 	jseval = None
 
 	window = None
-	document = parseString('<html><head /><body /></html>')
+	document = parseString("<html><head /><body /></html>")
 
 
 def domCreateAttribute(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... attribute
 		 :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-   """
+    """
 	uri = None
 
 	if ns == "SVG":
@@ -44,7 +42,7 @@ def domCreateElement(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... tag
 		  :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-	"""
+    """
 	uri = None
 
 	if ns == "SVG":
@@ -74,7 +72,7 @@ def domElementFromPoint(x, y):
 
 def domGetElementsByTagName(tag):
 	items = document.getElementsByTagName(tag)
-	return [items.item(i) for i in range(0, items.length)]
+	return [items.item(i) for i in range(0, int(items.length))] #pyodide interprets items.length as float, so convert to int
 
 
 ########################################################################################################################
@@ -91,7 +89,7 @@ class TextNode(object):
 	"""
 
 	def __init__(self, txt=None, *args, **kwargs):
-		super(TextNode, self).__init__()
+		super().__init__()
 		self._parent = None
 		self._children = []
 		self.element = domCreateTextNode(txt or "")
@@ -122,12 +120,15 @@ class TextNode(object):
 		return []
 
 
-# _WidgetClassWrapper --------------------------------------------------------------------------------------------------
+# _WidgetClassWrapper -------------------------------------------------------------------------------------------------
 
 class _WidgetClassWrapper(list):
+
 	def __init__(self, targetWidget):
-		super(_WidgetClassWrapper, self).__init__()
+		super().__init__()
+
 		self.targetWidget = targetWidget
+
 		clsStr = targetWidget.element.getAttribute("class")
 		if clsStr:
 			for c in clsStr.split(" "):
@@ -170,10 +171,13 @@ class _WidgetClassWrapper(list):
 # _WidgetDataWrapper ---------------------------------------------------------------------------------------------------
 
 class _WidgetDataWrapper(dict):
+
 	def __init__(self, targetWidget):
-		super(_WidgetDataWrapper, self).__init__()
+		super().__init__()
+
 		self.targetWidget = targetWidget
 		alldata = targetWidget.element
+
 		for data in dir(alldata.dataset):
 			dict.__setitem__(self, data, getattr(alldata.dataset, data))
 
@@ -196,10 +200,13 @@ class _WidgetDataWrapper(dict):
 # _WidgetStyleWrapper --------------------------------------------------------------------------------------------------
 
 class _WidgetStyleWrapper(dict):
+
 	def __init__(self, targetWidget):
-		super(_WidgetStyleWrapper, self).__init__()
+		super().__init__()
+
 		self.targetWidget = targetWidget
 		style = targetWidget.element.style
+
 		for key in dir(style):
 			# Convert JS-Style-Syntax to CSS Syntax (ie borderTop -> border-top)
 			realKey = ""
@@ -241,7 +248,7 @@ class Widget(object):
 			assert self._baseClass is not None
 			self.element = domCreateElement(self._baseClass, ns=self._namespace)
 
-		super(Widget, self).__init__()
+		super().__init__()
 
 		self._children = []
 		self._catchedEvents = {}
@@ -1501,7 +1508,7 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 	_baseClass = "a"
 
 	def __init__(self, *args, **kwargs):
-		super(A, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getDownload(self):
 		"""
@@ -1524,7 +1531,7 @@ class Area(A, _attrAlt, _isVoid):
 	_baseClass = "area"
 
 	def __init__(self, *args, **kwargs):
-		super(Area, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getCoords(self):
 		return self.element.coords
@@ -1545,7 +1552,7 @@ class Audio(Widget, _attrSrc, _attrMultimedia):
 	_baseClass = "audio"
 
 	def __init__(self, *args, **kwargs):
-		super(Audio, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Bdo ------------------------------------------------------------------------------------------------------------------
@@ -1554,7 +1561,7 @@ class Bdo(Widget):
 	_baseClass = "bdo"
 
 	def __init__(self, *args, **kwargs):
-		super(Bdo, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Blockquote -----------------------------------------------------------------------------------------------------------
@@ -1563,7 +1570,7 @@ class Blockquote(Widget):
 	_baseClass = "blockquote"
 
 	def __init__(self, *args, **kwargs):
-		super(Blockquote, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getBlockquote(self):
 		return self.element.blockquote
@@ -1577,7 +1584,7 @@ class Blockquote(Widget):
 class BodyCls(Widget):
 
 	def __init__(self, *args, **kwargs):
-		super(BodyCls, self).__init__(_wrapElem=domGetElementsByTagName("body")[0])
+		super().__init__(_wrapElem=domGetElementsByTagName("body")[0])
 		self._isAttached = True
 
 
@@ -1599,7 +1606,7 @@ class Canvas(Widget, _attrDimensions):
 	_baseClass = "canvas"
 
 	def __init__(self, *args, **kwargs):
-		super(Canvas, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Command --------------------------------------------------------------------------------------------------------------
@@ -1608,7 +1615,7 @@ class Command(Widget, _attrLabel, _attrType, _attrDisabled, _attrChecked):
 	_baseClass = "command"
 
 	def __init__(self, *args, **kwargs):
-		super(Command, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getIcon(self):
 		return self.element.icon
@@ -1629,7 +1636,7 @@ class _Del(Widget, _attrCite, _attrDatetime):
 	_baseClass = "_del"
 
 	def __init__(self, *args, **kwargs):
-		super(_Del, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Dialog --------------------------------------------------------------------------------------------------------------
@@ -1638,7 +1645,7 @@ class Dialog(Widget):
 	_baseClass = "dialog"
 
 	def __init__(self, *args, **kwargs):
-		super(Dialog, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getOpen(self):
 		return (True if self.element.hasAttribute("open") else False)
@@ -1656,7 +1663,7 @@ class Div(Widget):
 	_baseClass = "div"
 
 	def __init__(self, *args, **kwargs):
-		super(Div, self).__init__(**kwargs)
+		super().__init__(**kwargs)
 		self.appendChild(args)
 
 
@@ -1667,308 +1674,308 @@ class Abbr(Widget):
 	_baseClass = "abbr"
 
 	def __init__(self, *args, **kwargs):
-		super(Abbr, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Address(Widget):
 	_baseClass = "address"
 
 	def __init__(self, *args, **kwargs):
-		super(Address, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Article(Widget):
 	_baseClass = "article"
 
 	def __init__(self, *args, **kwargs):
-		super(Article, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Aside(Widget):
 	_baseClass = "aside"
 
 	def __init__(self, *args, **kwargs):
-		super(Aside, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class B(Widget):
 	_baseClass = "b"
 
 	def __init__(self, *args, **kwargs):
-		super(B, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Bdi(Widget):
 	_baseClass = "bdi"
 
 	def __init__(self, *args, **kwargs):
-		super(Bdi, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Br(Widget, _isVoid):
 	_baseClass = "br"
 
 	def __init__(self, *args, **kwargs):
-		super(Br, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Caption(Widget):
 	_baseClass = "caption"
 
 	def __init__(self, *args, **kwargs):
-		super(Caption, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Cite(Widget):
 	_baseClass = "Cite"
 
 	def __init__(self, *args, **kwargs):
-		super(Cite, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Code(Widget):
 	_baseClass = "code"
 
 	def __init__(self, *args, **kwargs):
-		super(Code, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Datalist(Widget):
 	_baseClass = "datalist"
 
 	def __init__(self, *args, **kwargs):
-		super(Datalist, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Dfn(Widget):
 	_baseClass = "dfn"
 
 	def __init__(self, *args, **kwargs):
-		super(Dfn, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Em(Widget):
 	_baseClass = "em"
 
 	def __init__(self, *args, **kwargs):
-		super(Em, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Figcaption(Widget):
 	_baseClass = "figcaption"
 
 	def __init__(self, *args, **kwargs):
-		super(Figcaption, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Figure(Widget):
 	_baseClass = "figure"
 
 	def __init__(self, *args, **kwargs):
-		super(Figure, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Footer(Widget):
 	_baseClass = "footer"
 
 	def __init__(self, *args, **kwargs):
-		super(Footer, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Header(Widget):
 	_baseClass = "header"
 
 	def __init__(self, *args, **kwargs):
-		super(Header, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class H1(Widget):
 	_baseClass = "h1"
 
 	def __init__(self, *args, **kwargs):
-		super(H1, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class H2(Widget):
 	_baseClass = "h2"
 
 	def __init__(self, *args, **kwargs):
-		super(H2, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class H3(Widget):
 	_baseClass = "h3"
 
 	def __init__(self, *args, **kwargs):
-		super(H3, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class H4(Widget):
 	_baseClass = "h4"
 
 	def __init__(self, *args, **kwargs):
-		super(H4, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class H5(Widget):
 	_baseClass = "h5"
 
 	def __init__(self, *args, **kwargs):
-		super(H5, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class H6(Widget):
 	_baseClass = "h6"
 
 	def __init__(self, *args, **kwargs):
-		super(H6, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Hr(Widget, _isVoid):
 	_baseClass = "hr"
 
 	def __init__(self, *args, **kwargs):
-		super(Hr, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class I(Widget):
 	_baseClass = "i"
 
 	def __init__(self, *args, **kwargs):
-		super(I, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Kdb(Widget):
 	_baseClass = "kdb"
 
 	def __init__(self, *args, **kwargs):
-		super(Kdb, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Legend(Widget):
 	_baseClass = "legend"
 
 	def __init__(self, *args, **kwargs):
-		super(Legend, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Mark(Widget):
 	_baseClass = "mark"
 
 	def __init__(self, *args, **kwargs):
-		super(Mark, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Noscript(Widget):
 	_baseClass = "noscript"
 
 	def __init__(self, *args, **kwargs):
-		super(Noscript, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class P(Widget):
 	_baseClass = "p"
 
 	def __init__(self, *args, **kwargs):
-		super(P, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Rq(Widget):
 	_baseClass = "rq"
 
 	def __init__(self, *args, **kwargs):
-		super(Rq, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Rt(Widget):
 	_baseClass = "rt"
 
 	def __init__(self, *args, **kwargs):
-		super(Rt, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Ruby(Widget):
 	_baseClass = "ruby"
 
 	def __init__(self, *args, **kwargs):
-		super(Ruby, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class S(Widget):
 	_baseClass = "s"
 
 	def __init__(self, *args, **kwargs):
-		super(S, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Samp(Widget):
 	_baseClass = "samp"
 
 	def __init__(self, *args, **kwargs):
-		super(Samp, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Section(Widget):
 	_baseClass = "section"
 
 	def __init__(self, *args, **kwargs):
-		super(Section, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Small(Widget):
 	_baseClass = "small"
 
 	def __init__(self, *args, **kwargs):
-		super(Small, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Strong(Widget):
 	_baseClass = "strong"
 
 	def __init__(self, *args, **kwargs):
-		super(Strong, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Sub(Widget):
 	_baseClass = "sub"
 
 	def __init__(self, *args, **kwargs):
-		super(Sub, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Summery(Widget):
 	_baseClass = "summery"
 
 	def __init__(self, *args, **kwargs):
-		super(Summery, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Sup(Widget):
 	_baseClass = "sup"
 
 	def __init__(self, *args, **kwargs):
-		super(Sup, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class U(Widget):
 	_baseClass = "u"
 
 	def __init__(self, *args, **kwargs):
-		super(U, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Var(Widget):
 	_baseClass = "var"
 
 	def __init__(self, *args, **kwargs):
-		super(Var, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Wbr(Widget):
 	_baseClass = "wbr"
 
 	def __init__(self, *args, **kwargs):
-		super(Wbr, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Embed ----------------------------------------------------------------------------------------------------------------
@@ -1977,7 +1984,7 @@ class Embed(Widget, _attrSrc, _attrType, _attrDimensions, _isVoid):
 	_baseClass = "embed"
 
 	def __init__(self, *args, **kwargs):
-		super(Embed, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Form -----------------------------------------------------------------------------------------------------------------
@@ -2116,7 +2123,7 @@ class Label(Widget, _attrForm, _attrFor):
 	autoIdCounter = 0
 
 	def __init__(self, txt="", forElem=None, *args, **kwargs):
-		super(Label, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		if txt:
 			self.appendChild(TextNode(txt))
 		if forElem:
@@ -2163,7 +2170,7 @@ class Output(Widget, _attrForm, _attrName, _attrFor):
 	_baseClass = "output"
 
 	def __init__(self, *args, **kwargs):
-		super(Output, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Select(_attrDisabled, Widget, _attrForm, _attrAutofocus, _attrName, _attrRequired, _attrMultiple, _attrSize):
@@ -2189,6 +2196,9 @@ class Select(_attrDisabled, Widget, _attrForm, _attrAutofocus, _attrName, _attrR
 class Textarea(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrInputs, _attrValue):
 	_baseClass = "textarea"
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
 	def _getCols(self):
 		return self.element.cols
 
@@ -2213,7 +2223,7 @@ class Textarea(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _att
 class HeadCls(Widget):
 
 	def __init__(self, *args, **kwargs):
-		super(HeadCls, self).__init__(_wrapElem=domGetElementsByTagName("head")[0])
+		super().__init__(_wrapElem=domGetElementsByTagName("head")[0])
 		self._isAttached = True
 
 
@@ -2233,7 +2243,7 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 	_baseClass = "iframe"
 
 	def __init__(self, *args, **kwargs):
-		super(Iframe, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getSandbox(self):
 		return self.element.sandbox
@@ -2263,7 +2273,7 @@ class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
 	_baseClass = "img"
 
 	def __init__(self, src=None, *args, **kwargs):
-		super(Img, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		if src is not None:
 			self["src"] = src
 
@@ -2286,7 +2296,7 @@ class Ins(Widget, _attrCite, _attrDatetime):
 	_baseClass = "ins"
 
 	def __init__(self, *args, **kwargs):
-		super(Ins, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Keygen ---------------------------------------------------------------------------------------------------------------
@@ -2295,7 +2305,7 @@ class Keygen(Form, _attrAutofocus, _attrDisabled):
 	_baseClass = "keygen"
 
 	def __init__(self, *args, **kwargs):
-		super(Keygen, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getChallenge(self):
 		return (True if self.element.hasAttribute("challenge") else False)
@@ -2319,7 +2329,7 @@ class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
 	_baseClass = "link"
 
 	def __init__(self, *args, **kwargs):
-		super(Link, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getSizes(self):
 		return self.element.sizes
@@ -2334,21 +2344,21 @@ class Ul(Widget):
 	_baseClass = "ul"
 
 	def __init__(self, *args, **kwargs):
-		super(Ul, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Ol(Widget):
 	_baseClass = "ol"
 
 	def __init__(self, *args, **kwargs):
-		super(Ol, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Li(Widget):
 	_baseClass = "li"
 
 	def __init__(self, child=None, *args, **kwargs):
-		super(Li, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		if child:
 			self.appendChild(child)
@@ -2358,21 +2368,21 @@ class Dl(Widget):
 	_baseClass = "dl"
 
 	def __init__(self, *args, **kwargs):
-		super(Dl, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Dt(Widget):
 	_baseClass = "dt"
 
 	def __init__(self, *args, **kwargs):
-		super(Dt, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class Dd(Widget):
 	_baseClass = "dd"
 
 	def __init__(self, *args, **kwargs):
-		super(Dd, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Map ------------------------------------------------------------------------------------------------------------------
@@ -2381,7 +2391,7 @@ class Map(Label, _attrType):
 	_baseClass = "map"
 
 	def __init__(self, *args, **kwargs):
-		super(Map, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Menu -----------------------------------------------------------------------------------------------------------------
@@ -2390,7 +2400,7 @@ class Menu(Widget):
 	_baseClass = "menu"
 
 	def __init__(self, *args, **kwargs):
-		super(Menu, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Meta -----------------------------------------------------------------------------------------------------------------
@@ -2399,7 +2409,7 @@ class Meta(Widget, _attrName, _attrCharset, _isVoid):
 	_baseClass = "meta"
 
 	def __init__(self, *args, **kwargs):
-		super(Meta, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getContent(self):
 		return self.element.content
@@ -2421,7 +2431,7 @@ class Meter(Form, _attrValue):
 	_baseClass = "meter"
 
 	def __init__(self, *args, **kwargs):
-		super(Meter, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getHigh(self):
 		return self.element.high
@@ -2460,7 +2470,7 @@ class Nav(Widget):
 	_baseClass = "nav"
 
 	def __init__(self, *args, **kwargs):
-		super(Nav, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Object -----------------------------------------------------------------------------------------------------------------
@@ -2469,7 +2479,7 @@ class Object(Form, _attrType, _attrName, _attrDimensions, _attrUsemap):
 	_baseClass = "object"
 
 	def __init__(self, *args, **kwargs):
-		super(Object, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Param -----------------------------------------------------------------------------------------------------------------
@@ -2478,7 +2488,7 @@ class Param(Widget, _attrName, _attrValue, _isVoid):
 	_baseClass = "param"
 
 	def __init__(self, *args, **kwargs):
-		super(Param, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Progress -------------------------------------------------------------------------------------------------------------
@@ -2487,7 +2497,7 @@ class Progress(Widget, _attrValue):
 	_baseClass = "progress"
 
 	def __init__(self, *args, **kwargs):
-		super(Progress, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getMax(self):
 		return self.element.max
@@ -2502,7 +2512,7 @@ class Q(Widget, _attrCite):
 	_baseClass = "q"
 
 	def __init__(self, *args, **kwargs):
-		super(Q, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Script ----------------------------------------------------------------------------------------------------------------
@@ -2511,7 +2521,7 @@ class Script(Widget, _attrSrc, _attrCharset):
 	_baseClass = "script"
 
 	def __init__(self, *args, **kwargs):
-		super(Script, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getAsync(self):
 		return (True if self.element.hasAttribute("async") else False)
@@ -2538,7 +2548,7 @@ class Source(Widget, _attrMedia, _attrSrc, _isVoid):
 	_baseClass = "source"
 
 	def __init__(self, *args, **kwargs):
-		super(Source, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Span -----------------------------------------------------------------------------------------------------------------
@@ -2547,7 +2557,7 @@ class Span(Widget):
 	_baseClass = "span"
 
 	def __init__(self, *args, **kwargs):
-		super(Span, self).__init__(**kwargs)
+		super().__init__(**kwargs)
 		self.appendChild(args)
 
 
@@ -2557,7 +2567,7 @@ class Style(Widget, _attrMedia):
 	_baseClass = "style"
 
 	def __init__(self, *args, **kwargs):
-		super(Style, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getScoped(self):
 		return (True if self.element.hasAttribute("scoped") else False)
@@ -2576,7 +2586,7 @@ class Svg(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform):
 	_namespace = "SVG"
 
 	def __init__(self, version=None, viewBox=None, heigth=None, width=None, *args, **kwargs):
-		super(Svg, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getVersion(self):
 		return self.element.version
@@ -2596,7 +2606,7 @@ class SvgCircle(Widget, _attrSvgTransform, _attrSvgDimensions):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgCircle, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class SvgEllipse(Widget, _attrSvgTransform, _attrSvgDimensions):
@@ -2604,7 +2614,7 @@ class SvgEllipse(Widget, _attrSvgTransform, _attrSvgDimensions):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgEllipse, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class SvgG(Widget, _attrSvgTransform, _attrSvgStyles):
@@ -2612,7 +2622,7 @@ class SvgG(Widget, _attrSvgTransform, _attrSvgStyles):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgG, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getSvgTransform(self):
 		return self.element.transform
@@ -2626,7 +2636,7 @@ class SvgImage(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform, _
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgImage, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class SvgLine(Widget, _attrSvgTransform, _attrSvgPoints):
@@ -2634,7 +2644,7 @@ class SvgLine(Widget, _attrSvgTransform, _attrSvgPoints):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgLine, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class SvgPath(Widget, _attrSvgTransform):
@@ -2642,7 +2652,7 @@ class SvgPath(Widget, _attrSvgTransform):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgPath, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getD(self):
 		return self.element.d
@@ -2662,7 +2672,7 @@ class SvgPolygon(Widget, _attrSvgTransform, _attrSvgPoints):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgPolygon, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class SvgPolyline(Widget, _attrSvgTransform, _attrSvgPoints):
@@ -2670,7 +2680,7 @@ class SvgPolyline(Widget, _attrSvgTransform, _attrSvgPoints):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgPolyline, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class SvgRect(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
@@ -2678,7 +2688,7 @@ class SvgRect(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
 	_namespace = "SVG"
 
 	def __init__(self, *args, **kwargs):
-		super(SvgRect, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 class SvgText(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
@@ -2686,7 +2696,7 @@ class SvgText(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
 	_namespace = "SVG"
 
 	def __init__(self, text="", *args, **kwargs):
-		super(SvgText, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.element.appendChild(domCreateTextNode(text))
 
 
@@ -2710,7 +2720,7 @@ class Td(Widget):
 	_baseClass = "td"
 
 	def __init__(self, *args, **kwargs):
-		super(Td, self).__init__(**kwargs)
+		super().__init__(**kwargs)
 		self.appendChild(args)
 
 	def _getColspan(self):
@@ -2746,7 +2756,7 @@ class Tbody(Widget):
 
 class ColWrapper(object):
 	def __init__(self, parentElem, *args, **kwargs):
-		super(ColWrapper, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.parentElem = parentElem
 
 	def __getitem__(self, item):
@@ -2773,7 +2783,7 @@ class ColWrapper(object):
 
 class RowWrapper(object):
 	def __init__(self, parentElem, *args, **kwargs):
-		super(RowWrapper, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.parentElem = parentElem
 
 	def __getitem__(self, item):
@@ -2788,7 +2798,7 @@ class Table(Widget):
 	_baseClass = "table"
 
 	def __init__(self, *args, **kwargs):
-		super(Table, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.head = Thead()
 		self.body = Tbody()
 		self.appendChild(self.head)
@@ -2855,7 +2865,7 @@ class Time(Widget, _attrDatetime):
 	_baseClass = "time"
 
 	def __init__(self, *args, **kwargs):
-		super(Time, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 
 # Track ----------------------------------------------------------------------------------------------------------------
@@ -2864,7 +2874,7 @@ class Track(Label, _attrSrc, _isVoid):
 	_baseClass = "track"
 
 	def __init__(self, *args, **kwargs):
-		super(Track, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getKind(self):
 		return self.element.kind
@@ -2894,7 +2904,7 @@ class Video(Widget, _attrSrc, _attrDimensions, _attrMultimedia):
 	_baseClass = "video"
 
 	def __init__(self, *args, **kwargs):
-		super(Video, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 	def _getPoster(self):
 		return self.element.poster
