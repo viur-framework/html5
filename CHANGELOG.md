@@ -6,6 +6,8 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 This is the current development version.
 
+- Feature: `html5.utils.textToHtml()` extended to `clear`-parameter
+
 ## [2.5.0] Vesuv
 
 Release date: Jul 26, 2019
