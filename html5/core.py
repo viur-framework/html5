@@ -3433,7 +3433,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 					wdg["data"][att[5:]] = val
 
 				else:
-					wdg[att] = val
+					wdg[att] = parseInt(val)
 
 			interpret(wdg, children)
 
