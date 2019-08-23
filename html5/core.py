@@ -256,6 +256,8 @@ class Widget(object):
 		self._isAttached = False
 		self._parent = None
 
+		self._lastDisplayState = None
+
 	def sinkEvent(self, *args):
 		for event_attrName in args:
 			event = event_attrName.lower()
@@ -600,21 +602,27 @@ class Widget(object):
 		Hide element, if shown.
 		:return:
 		"""
-		self.addClass("is-hidden")
+		state = self["style"].get("display", "")
+
+		if state != "none":
+			self._lastDisplayState = state
+			self["style"]["display"] = "none"
 
 	def show(self):
 		"""
 		Show element, if hidden.
 		:return:
 		"""
-		self.removeClass("is-hidden")
+		if self._lastDisplayState is not None:
+			self["style"]["display"] = self._lastDisplayState
+			self._lastDisplayState = None
 
 	def isHidden(self):
 		"""
 		Checks if a widget is hidden.
 		:return: True if hidden, False otherwise.
 		"""
-		return self.hasClass("is-hidden")
+		return self["style"].get("display", "") == "none"
 
 	def isVisible(self):
 		"""
@@ -3286,9 +3294,7 @@ def parseHTML(html, debug=False):
 						html.pop(0)
 						break
 
-				att = scanWord(html)
-				att = att.lower()  # fixme: Transcrypt bug when combined with line above?
-				val = att
+				val = att = scanWord(html).lower()
 
 				if not att:
 					html.pop(0)
@@ -3435,7 +3441,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 					wdg["data"][att[5:]] = val
 
 				else:
-					wdg[att] = parseInt(val)
+					wdg[att] = parseInt(val, val)
 
 			interpret(wdg, children)
 
