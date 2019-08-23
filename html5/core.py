@@ -22,7 +22,7 @@ def domCreateAttribute(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... attribute
 		 :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-    """
+	"""
 	uri = None
 
 	if ns == "SVG":
@@ -42,7 +42,7 @@ def domCreateElement(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... tag
 		  :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-    """
+	"""
 	uri = None
 
 	if ns == "SVG":
@@ -625,12 +625,13 @@ class Widget(object):
 
 	def onAttach(self):
 		self._isAttached = True
-		for c in self._children[:]:
+
+		for c in self._children:
 			c.onAttach()
 
 	def onDetach(self):
 		self._isAttached = False
-		for c in self._children[:]:
+		for c in self._children:
 			c.onDetach()
 
 	def insertBefore(self, insert, child):
@@ -681,6 +682,7 @@ class Widget(object):
 		self._children.append(child)
 		self.element.appendChild(child.element)
 		child._parent = self
+
 		if self._isAttached:
 			child.onAttach()
 
