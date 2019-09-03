@@ -758,6 +758,15 @@ class Widget(object):
 			else:
 				raise TypeError()
 
+	def hasClass(self, name):
+		"""
+		Checks whether the widget has class name set or unset.
+
+		:param name: The class-name to be checked.
+		:type args: str
+		"""
+		return name in self["class"]
+
 	def removeClass(self, *args):
 		"""
 		Removes a class or a list of classes from the current widget.
