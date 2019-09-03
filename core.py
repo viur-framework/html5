@@ -3420,7 +3420,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 						wdg["style"][att.strip()] = val.strip()
 
 				elif att.startswith("data-"):
-					wdg[att[5:]] = val
+					wdg["data"][att[5:]] = val
 
 				else:
 					wdg[att] = val
