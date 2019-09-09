@@ -252,7 +252,7 @@ class Widget(object):
 
 		self._children = []
 		self._catchedEvents = {}
-		self._disabledState = None
+		self._disabledState = 0
 		self._isAttached = False
 		self._parent = None
 
@@ -299,32 +299,20 @@ class Widget(object):
 			self["disabled"] = False
 
 	def _getDisabled(self):
-		return self._disabledState is not None
+		return bool(self._disabledState)
 
 	def _setDisabled(self, disable):
 		for child in self._children:
 			child._setDisabled(disable)
 
 		if disable:
-			if self._disabledState is not None:
-				self._disabledState["recursionCounter"] += 1
-			else:
-				self._disabledState = {"events": self._catchedEvents.keys(), "recursionCounter": 1}
-				self.unsinkEvent(*self._catchedEvents.keys())
-		else:
+			self._disabledState += 1
+			self.addClass("is-disabled")
 
-			if self._disabledState:
-				if self._disabledState["recursionCounter"] > 1:
-					self._disabledState["recursionCounter"] -= 1
-				else:
-					self.sinkEvent(*self._disabledState["events"])
-					self._disabledState = None
+		elif self._disabledState:
+			self._disabledState -= 1
 
-		if self._getDisabled():
-			if not self.hasClass("is-disabled"):
-				self.addClass("is-disabled")
-		else:
-			if self.hasClass("is-disabled"):
+			if not self._disabledState:
 				self.removeClass("is-disabled")
 
 	def _getTargetfuncName(self, key, type):
