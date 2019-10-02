@@ -157,7 +157,7 @@ class InputDialog(Popup):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None,
 				 	successLbl="OK", abortLbl="Cancel", placeholder="", *args, **kwargs):
 
-		super().__init__(title=text, *args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"].append("popup--inputdialog")
 
 		self.successHandler = successHandler
@@ -180,7 +180,6 @@ class InputDialog(Popup):
 
 		self.inputGroup.appendChild(self.inputElem)
 		cancelBtn = Button(abortLbl, self.onCancel, className="btn--cancel btn--danger")
-		cancelBtn["class"].append()
 		self.popupFoot.appendChild(cancelBtn)
 
 		okayBtn = Button(successLbl, self.onOkay)
