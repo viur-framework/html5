@@ -21,7 +21,7 @@ We're also working on a Python 3 port to run with [pyodide](https://github.com/i
 Let's create a simple game app!
 
 ```python
-import html5, pyjd
+from vi import html5, pyjd
 
 class game(html5.Div):
 	def __init__(self, *args, **kwargs):

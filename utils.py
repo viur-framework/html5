@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import html5
+from . import core as html5
 
 def unescape(val, maxLength = 0):
 	"""

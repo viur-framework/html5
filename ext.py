@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import html5.core as html5
-import html5.utils as utils
+from . import core as html5
+from . import utils
 
 class Button(html5.Button):
 

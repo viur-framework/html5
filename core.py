@@ -12,8 +12,8 @@ try:
 except:
 	print("Emulation mode")
 	from xml.dom.minidom import parseString
-	jseval = None
 
+	jseval = None
 	window = None
 	document = parseString("<html><head /><body /></html>")
 
@@ -3326,7 +3326,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 	If bindTo is provided, objects are bound to this widget.
 
 	```python
-	import html5
+	from vi import html5
 
 	div = html5.Div()
 	html5.parse.fromHTML('''

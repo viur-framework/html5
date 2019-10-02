@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import html5.core as html5
+from . import core as html5
 
 class Label(html5.Label):
 	def __init__(self, *args, **kwargs):
