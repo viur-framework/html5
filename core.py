@@ -631,6 +631,15 @@ class Widget(object):
 			c.onDetach()
 
 	def insertBefore(self, insert, child):
+		if not child:
+			return self.appendChild(insert)
+
+		if isinstance(insert, list) or isinstance(insert, tuple):
+			for item in insert:
+				self.insertBefore(item, child)
+
+			return
+
 		assert child in self._children, "{} is not a child of {}".format(child, self)
 
 		if insert._parent:
