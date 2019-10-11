@@ -77,7 +77,7 @@ class Input(html5.Input):
 
 
 class Popup(html5.Div):
-	def __init__(self, title=None, id=None, className=None, icon=None, enableShortcuts=True, *args, **kwargs):
+	def __init__(self, title=None, id=None, className=None, icon=None, enableShortcuts=True, closeable=True, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
 		self["class"] = "popup popup--center is-active"
@@ -101,9 +101,10 @@ class Popup(html5.Div):
 			</div>
 		""")
 
-		closeBtn = Button("&times;", self.close, className="item-action")
-		closeBtn.removeClass("btn")
-		self.popupHeadItem.appendChild(closeBtn)
+		if closeable:
+			closeBtn = Button("&times;", self.close, className="item-action")
+			closeBtn.removeClass("btn")
+			self.popupHeadItem.appendChild(closeBtn)
 
 		if title:
 			self.popupHeadline.appendChild(html5.TextNode(title))
