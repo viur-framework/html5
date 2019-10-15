@@ -217,9 +217,12 @@ class Alert(Popup):
 	Just displaying an alerting message box with OK-button.
 	"""
 
-	def __init__(self, msg, title=None, okCallback=None, okLabel="OK", *args, **kwargs):
-		super().__init__(title, *args, **kwargs)
+	def __init__(self, msg, title=None, className=None, okCallback=None, okLabel="OK", icon="!", closeable=True, *args, **kwargs):
+		super().__init__(title, className=None, icon=icon, closeable=closeable, *args, **kwargs)
 		self.addClass("popup--alert")
+
+		if className:
+			self.addClass(className)
 
 		self.okCallback = okCallback
 
@@ -232,9 +235,10 @@ class Alert(Popup):
 		else:
 			utils.textToHtml(message, msg)
 
-		okBtn = Button(okLabel, callback=self.onOkBtnClick)
-		okBtn.addClass("btn--okay btn--primary")
-		self.popupFoot.appendChild(okBtn)
+		if closeable:
+			okBtn = Button(okLabel, callback=self.onOkBtnClick)
+			okBtn.addClass("btn--okay btn--primary")
+			self.popupFoot.appendChild(okBtn)
 
 		self.sinkEvent("onKeyDown")
 		okBtn.focus()
@@ -257,10 +261,11 @@ class Alert(Popup):
 
 
 class YesNoDialog(Popup):
-	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args,
-	             **kwargs):
-		super().__init__(title, *args, **kwargs)
-		self["class"].append("popup--yesnodialog")
+	def __init__(self, question, title=None, yesCallback=None, noCallback=None,
+	                yesLabel="Yes", noLabel="No", icon="?",
+	                    closeable=False, *args, **kwargs):
+		super().__init__(title, closeable=closeable, icon=icon, *args, **kwargs)
+		self.addClass("popup--yesnodialog")
 
 		self.yesCallback = yesCallback
 		self.noCallback = noCallback
@@ -282,8 +287,6 @@ class YesNoDialog(Popup):
 		btnYes = Button(yesLabel, callback=self.onYesClicked)
 		btnYes["class"].append("btn--yes")
 		self.popupFoot.appendChild(btnYes)
-
-
 
 		self.sinkEvent("onKeyDown")
 		btnYes.focus()
