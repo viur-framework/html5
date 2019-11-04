@@ -235,13 +235,14 @@ class Alert(Popup):
 		else:
 			utils.textToHtml(message, msg)
 
+		self.sinkEvent("onKeyDown")
+
 		if closeable:
 			okBtn = Button(okLabel, callback=self.onOkBtnClick)
 			okBtn.addClass("btn--okay btn--primary")
 			self.popupFoot.appendChild(okBtn)
 
-		self.sinkEvent("onKeyDown")
-		okBtn.focus()
+			okBtn.focus()
 
 	def drop(self):
 		self.okCallback = None
