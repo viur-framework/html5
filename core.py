@@ -3370,21 +3370,22 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 					if not bindTo:
 						continue
 
-					if val in dir(appendTo):
-						print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
+					for name in val.split():
+						if name in dir(appendTo):
+							print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
 
-					elif not (any([val.startswith(x) for x in
-								   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
-							  and all(
-								[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
-								 for x in val[1:]])):
-						print("Cannot assign name '{}' because it contains invalid characters".format(val))
-					
-					else:
-						setattr(bindTo, val, wdg)
+						elif not (any([name.startswith(x) for x in
+									   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
+								  and all(
+									[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
+									 for x in name[1:]])):
+							print("Cannot assign name '{}' because it contains invalid characters".format(name))
 
-					if debug:
-						print("name '{}' assigned to {}".format(val, bindTo))
+						else:
+							setattr(bindTo, name, wdg)
+
+							if debug:
+								print("name '{}' assigned to {}".format(name, bindTo))
 
 				elif att == "class":
 					# print(tag, att, val.split())
