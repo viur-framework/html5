@@ -758,6 +758,15 @@ class Widget(object):
 			else:
 				raise TypeError()
 
+	def hasClass(self, name):
+		"""
+		Checks whether the widget has class name set or unset.
+
+		:param name: The class-name to be checked.
+		:type args: str
+		"""
+		return name in self["class"]
+
 	def removeClass(self, *args):
 		"""
 		Removes a class or a list of classes from the current widget.
@@ -3412,7 +3421,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 						wdg["style"][att.strip()] = val.strip()
 
 				elif att.startswith("data-"):
-					wdg[att[5:]] = val
+					wdg["data"][att[5:]] = val
 
 				else:
 					wdg[att] = val

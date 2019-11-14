@@ -51,14 +51,17 @@ def doesEventHitWidgetOrChildren(event, widget):
 
 	return False
 
-def textToHtml(node, text):
+def textToHtml(node, text, clear=False):
 	"""
 	Generates html nodes from text by splitting text into content and into
 	line breaks html5.Br.
 
 	:param node: The node where the nodes are appended to.
 	:param text: The text to be inserted.
+	:param clear: Clear node before inserting text
 	"""
+	if clear:
+		node.removeAllChildren()
 
 	for (i, part) in enumerate(text.split("\n")):
 		if i > 0:
