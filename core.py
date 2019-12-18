@@ -400,7 +400,7 @@ class Widget(object):
 		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
 		:returns: True | False
 		"""
-		return (True if self.element.spellcheck == "true" else False)
+		return True if self.element.spellcheck == "true" else False
 
 	def _setSpellcheck(self, val):
 		"""
@@ -428,14 +428,14 @@ class Widget(object):
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
 		:returns: True | False
 		"""
-		return (True if self.element.hasAttribute("hidden") else False)
+		return True if self.element.hasAttribute("hidden") else False
 
 	def _setHidden(self, val):
 		"""
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
 		:param val: True | False
 		"""
-		if val == True:
+		if val:
 			self.element.setAttribute("hidden", "")
 		else:
 			self.element.removeAttribute("hidden")
@@ -503,7 +503,7 @@ class Widget(object):
 		:returns: True | False
 		"""
 		v = self.element.getAttribute("contenteditable")
-		return (str(v).lower() == "true")
+		return str(v).lower() == "true"
 
 	def _setContenteditable(self, val):
 		"""
@@ -518,7 +518,7 @@ class Widget(object):
 		:param self:
 		:returns:
 		"""
-		return (self.element.accesskey)
+		return self.element.accesskey
 
 	def _setAccesskey(self, val):
 		"""
@@ -1077,10 +1077,10 @@ class _attrAlt(object):
 
 class _attrAutofocus(object):
 	def _getAutofocus(self):
-		return (True if self.element.hasAttribute("autofocus") else False)
+		return True if self.element.hasAttribute("autofocus") else False
 
 	def _setAutofocus(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("autofocus", "")
 		else:
 			self.element.removeAttribute("autofocus")
@@ -1105,7 +1105,7 @@ class _attrChecked(object):
 
 class _attrIndeterminate(object):
 	def _getIndeterminate(self):
-		return (self.element.indeterminate)
+		return self.element.indeterminate
 
 	def _setIndeterminate(self, val):
 		self.element.indeterminate = val
@@ -1137,10 +1137,10 @@ class _attrAutocomplete(object):
 
 class _attrRequired(object):
 	def _getRequired(self):
-		return (True if self.element.hasAttribute("required") else False)
+		return True if self.element.hasAttribute("required") else False
 
 	def _setRequired(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("required", "")
 		else:
 			self.element.removeAttribute("required")
@@ -1148,10 +1148,10 @@ class _attrRequired(object):
 
 class _attrMultiple(object):
 	def _getMultiple(self):
-		return (True if self.element.hasAttribute("multiple") else False)
+		return True if self.element.hasAttribute("multiple") else False
 
 	def _setMultiple(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("multiple", "")
 		else:
 			self.element.removeAttribute("multiple")
@@ -1187,10 +1187,10 @@ class _attrInputs(_attrRequired):
 		self.element.placeholder = val
 
 	def _getReadonly(self):
-		return (True if self.element.hasAttribute("readonly") else False)
+		return True if self.element.hasAttribute("readonly") else False
 
 	def _setReadonly(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("readonly", "")
 		else:
 			self.element.removeAttribute("readonly")
@@ -1222,10 +1222,10 @@ class _attrFormhead(object):
 		self.element.formtarget = val
 
 	def _getFormnovalidate(self):
-		return (True if self.element.hasAttribute("formnovalidate") else False)
+		return True if self.element.hasAttribute("formnovalidate") else False
 
 	def _setFormnovalidate(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("formnovalidate", "")
 		else:
 			self.element.removeAttribute("formnovalidate")
@@ -1634,10 +1634,10 @@ class Dialog(Widget):
 	_baseClass = "dialog"
 
 	def _getOpen(self):
-		return (True if self.element.hasAttribute("open") else False)
+		return True if self.element.hasAttribute("open") else False
 
 	def _setOpen(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("open", "")
 		else:
 			self.element.removeAttribute("open")
@@ -1941,11 +1941,10 @@ class Option(_attrDisabled, Widget, _attrLabel, _attrValue):
 	_baseClass = "option"
 
 	def _getSelected(self):
-		return (True if self.element.selected else False)
+		return True if self.element.selected else False
 
-	# return( True if self.element.hasAttribute("selected") else False )
 	def _setSelected(self, val):
-		if val == True:
+		if val:
 			self.element.selected = True
 		else:
 			self.element.selected = False
@@ -1959,10 +1958,10 @@ class Select(_attrDisabled, Widget, _attrForm, _attrAutofocus, _attrName, _attrR
 	_baseClass = "select"
 
 	def _getSelectedIndex(self):
-		return (self.element.selectedIndex)
+		return self.element.selectedIndex
 
 	def _getOptions(self):
-		return (self.element.options)
+		return self.element.options
 
 
 class Textarea(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrInputs, _attrValue):
@@ -2024,10 +2023,10 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 		self.element.src = val
 
 	def _getSeamless(self):
-		return (True if self.element.hasAttribute("seamless") else False)
+		return True if self.element.hasAttribute("seamless") else False
 
 	def _setSeamless(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("seamless", "")
 		else:
 			self.element.removeAttribute("seamless")
