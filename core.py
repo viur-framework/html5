@@ -3364,7 +3364,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 	def replaceVars(txt):
 		if vars:
 			for var, val in vars.items():
-				txt = txt.replace("{{%s}}" % var, val)
+				txt = txt.replace("{{%s}}" % var, str(val) if val is not None else "")
 
 		return txt
 
