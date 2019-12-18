@@ -259,6 +259,7 @@ class Widget(object):
 		self._lastDisplayState = None
 
 		if html:
+			assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._baseClass
 			self.fromHTML(html, bindTo=bindTo, vars=vars)
 
 		if appendTo:
@@ -678,13 +679,15 @@ class Widget(object):
 			self.insertBefore(child, self.children(0))
 
 	def appendChild(self, child):
-		if isinstance(child, list) or isinstance(child, tuple):
+		assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._baseClass
+
+		if isinstance(child, (list, tuple)):
 			for item in child:
 				self.appendChild(item)
 
 			return
 
-		elif not (isinstance(child, Widget) or isinstance(child, TextNode)):
+		elif not isinstance(child, (Widget, TextNode)):
 			child = TextNode(str(child))
 
 		if child._parent:
