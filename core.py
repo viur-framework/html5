@@ -678,27 +678,32 @@ class Widget(object):
 		else:
 			self.insertBefore(child, self.children(0))
 
-	def appendChild(self, child):
+	def appendChild(self, *args):
 		assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._baseClass
 
-		if isinstance(child, (list, tuple)):
-			for item in child:
-				self.appendChild(item)
+		for arg in args:
+			if isinstance(arg, str):
+				self.fromHTML(arg)
+				continue
 
-			return
+			elif isinstance(arg, (list, tuple)):
+				for subarg in arg:
+					self.appendChild(subarg)
 
-		elif not isinstance(child, (Widget, TextNode)):
-			child = TextNode(str(child))
+				continue
 
-		if child._parent:
-			child._parent._children.remove(child)
+			elif not isinstance(arg, (Widget, TextNode)):
+				arg = TextNode(str(arg))
 
-		self._children.append(child)
-		self.element.appendChild(child.element)
-		child._parent = self
+			if arg._parent:
+				arg._parent._children.remove(arg)
 
-		if self._isAttached:
-			child.onAttach()
+			self._children.append(arg)
+			self.element.appendChild(arg.element)
+			arg._parent = self
+
+			if self._isAttached:
+				arg.onAttach()
 
 	def removeChild(self, child):
 		assert child in self._children, "{} is not a child of {}".format(child, self)
@@ -1013,6 +1018,15 @@ class Widget(object):
 			bindTo = self
 
 		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
+
+	def replace(self, *args):
+		"""
+		Removes all children from this widget, and replaces it by the widgets or html code specified in *args.
+		"""
+		self.removeAllChildren()
+
+		for arg in args:
+			self.appendChild(arg)
 
 
 ########################################################################################################################
