@@ -999,15 +999,15 @@ class Widget(object):
 			self.element.removeChild(c.element)
 			self.element.insertBefore(c.element, self.element.children.item(0))
 
-	def fromHTML(self, html, appendTo=None, bindTo=None, vars=None):
+	def fromHTML(self, html, appendTo=None, bindTo=None, vars=None, replace=False):
 		"""
 		Parses html and constructs its elements as part of self.
 
 		:param html: HTML code.
-		:param appendTo: The entity where the HTML code is constructed below.
-						This defaults to self in usual case.
-		:param bindTo: The entity where the named objects are bound to.
-						This defaults to self in usual case.
+		:param appendTo: The entity where the HTML code is constructed below. This defaults to self in usual case.
+		:param bindTo: The entity where the named objects are bound to. This defaults to self in usual case.
+		:param vars: Additional variables provided as a dict for {{placeholders}} inside the HTML
+		:param replace: Clear entire content of appendTo before appending.
 
 		:return:
 		"""
@@ -1017,16 +1017,10 @@ class Widget(object):
 		if bindTo is None:
 			bindTo = self
 
+		if replace:
+			appendTo.removeAllChildren()
+
 		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
-
-	def replace(self, *args):
-		"""
-		Removes all children from this widget, and replaces it by the widgets or html code specified in *args.
-		"""
-		self.removeAllChildren()
-
-		for arg in args:
-			self.appendChild(arg)
 
 
 ########################################################################################################################
