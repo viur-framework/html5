@@ -316,11 +316,17 @@ class Widget(object):
 			self._disabledState += 1
 			self.addClass("is-disabled")
 
+			if isinstance(self, _attrDisabled):
+				self.element.disabled = True
+
 		elif self._disabledState:
 			self._disabledState -= 1
 
 			if not self._disabledState:
 				self.removeClass("is-disabled")
+
+			if isinstance(self, _attrDisabled):
+				self.element.disabled = False
 
 	def _getTargetfuncName(self, key, type):
 		assert type in ["get", "set"]
@@ -1095,12 +1101,7 @@ class _attrAutofocus(object):
 
 
 class _attrDisabled(object):
-	def _setDisabled(self, val):
-		Widget._setDisabled(self, val)
-		if self._getDisabled():
-			self.element.disabled = True
-		else:
-			self.element.disabled = False
+	pass
 
 
 class _attrChecked(object):
@@ -1838,11 +1839,11 @@ class Wbr(Widget):
 
 # Form -----------------------------------------------------------------------------------------------------------------
 
-class Button(_attrDisabled, Widget, _attrType, _attrForm, _attrAutofocus, _attrName, _attrValue, _attrFormhead):
+class Button(Widget, _attrDisabled, _attrType, _attrForm, _attrAutofocus, _attrName, _attrValue, _attrFormhead):
 	_baseClass = "button"
 
 
-class Fieldset(_attrDisabled, Widget, _attrForm, _attrName):
+class Fieldset(Widget, _attrDisabled, _attrForm, _attrName):
 	_baseClass = "fieldset"
 
 
@@ -1883,7 +1884,7 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 		self.element.setAttribute("accept-charset", val)
 
 
-class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
+class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
 				_attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
 					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isVoid):
 	_baseClass = "input"
@@ -1941,11 +1942,11 @@ class Label(Widget, _attrForm, _attrFor):
 			self["for"] = forElem["id"]
 
 
-class Optgroup(_attrDisabled, Widget, _attrLabel):
+class Optgroup(Widget, _attrDisabled, _attrLabel):
 	_baseClass = "optgroup"
 
 
-class Option(_attrDisabled, Widget, _attrLabel, _attrValue):
+class Option(Widget, _attrDisabled, _attrLabel, _attrValue):
 	_baseClass = "option"
 
 	def _getSelected(self):
@@ -1962,7 +1963,7 @@ class Output(Widget, _attrForm, _attrName, _attrFor):
 	_baseClass = "output"
 
 
-class Select(_attrDisabled, Widget, _attrForm, _attrAutofocus, _attrName, _attrRequired, _attrMultiple, _attrSize):
+class Select(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrRequired, _attrMultiple, _attrSize):
 	_baseClass = "select"
 
 	def _getSelectedIndex(self):
