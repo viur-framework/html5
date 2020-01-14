@@ -12,6 +12,7 @@ This is the current development version.
   - vars: Variables for the HTML-code
   - appendTo: Directly append the widget into other widget
   - bindTo: Bind parsed elements to different widget
+- Feature: `html5.ext.InputDialog` refactored & disables OK-Button when no value is present 
 
 ## [2.5.0] Vesuv
 
