@@ -684,12 +684,12 @@ class Widget(object):
 		else:
 			self.insertBefore(child, self.children(0))
 
-	def appendChild(self, *args):
+	def appendChild(self, *args, **kwargs):
 		assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._baseClass
 
 		for arg in args:
 			if isinstance(arg, str):
-				self.fromHTML(arg)
+				self.fromHTML(arg, **kwargs)
 				continue
 
 			elif isinstance(arg, (list, tuple)):
