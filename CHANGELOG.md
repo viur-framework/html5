@@ -6,6 +6,14 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 This is the current development version.
 
+- Feature: Full library clean-up
+- Feature: `html5.Widget` provides parameters for
+  - html: HTML-body code to be appended to the widget
+  - vars: Variables for the HTML-code
+  - appendTo: Directly append the widget into other widget
+  - bindTo: Bind parsed elements to different widget
+- Feature: `html5.ext.InputDialog` refactored & disables OK-Button when no value is present 
+
 ## [2.5.0] Vesuv
 
 Release date: Jul 26, 2019
