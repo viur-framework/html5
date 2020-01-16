@@ -240,7 +240,7 @@ class Widget(object):
 	_baseClass = None
 	_namespace = None
 
-	def __init__(self, html=None, vars=None, appendTo=None, bindTo=None, *args, **kwargs):
+	def __init__(self, html=None, vars=None, appendTo=None, bindTo=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
 			self.element = kwargs["_wrapElem"]
 			del kwargs["_wrapElem"]
@@ -259,8 +259,7 @@ class Widget(object):
 		self._lastDisplayState = None
 
 		if html:
-			assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._baseClass
-			self.fromHTML(html, bindTo=bindTo, vars=vars)
+			self.appendChild(html, bindTo=bindTo, vars=vars)
 
 		if appendTo:
 			appendTo.appendChild(self)
@@ -643,73 +642,79 @@ class Widget(object):
 		for c in self._children:
 			c.onDetach()
 
-	def insertBefore(self, insert, child):
-		if not child:
-			return self.appendChild(insert)
-
-		if isinstance(insert, list) or isinstance(insert, tuple):
-			for item in insert:
-				self.insertBefore(item, child)
-
-			return
-
-		assert child in self._children, "{} is not a child of {}".format(child, self)
-
-		if insert._parent:
-			insert._parent.removeChild(insert)
-
-		self.element.insertBefore(insert.element, child.element)
-		self._children.insert(self._children.index(child), insert)
-
-		insert._parent = self
-		if self._isAttached:
-			insert.onAttach()
-
-	def prependChild(self, child):
-		if isinstance(child, list) or isinstance(child, tuple):
-			for item in child:
-				self.prependChild(item)
-
-			return
-
-		elif not isinstance(child, Widget):
-			child = TextNode(str(child))
-
-		if child._parent:
-			child._parent._children.remove(child)
-			child._parent = None
-
-		if not self._children:
-			self.appendChild(child)
-		else:
-			self.insertBefore(child, self.children(0))
-
-	def appendChild(self, *args, **kwargs):
+	def __collectChildren(self, *args, **kwargs):
 		assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._baseClass
 
+		if kwargs.get("bindTo") is None:
+			kwargs["bindTo"] = self
+
+		widgets = []
 		for arg in args:
 			if isinstance(arg, str):
-				self.fromHTML(arg, **kwargs)
-				continue
+				widgets.extend(fromHTML(arg, **kwargs))
 
 			elif isinstance(arg, (list, tuple)):
 				for subarg in arg:
-					self.appendChild(subarg)
-
-				continue
+					widgets.extend(self.__collectChildren(subarg, **kwargs))
 
 			elif not isinstance(arg, (Widget, TextNode)):
-				arg = TextNode(str(arg))
+				widgets.append(TextNode(str(arg)))
 
-			if arg._parent:
-				arg._parent._children.remove(arg)
+			else:
+				widgets.append(arg)
 
-			self._children.append(arg)
-			self.element.appendChild(arg.element)
-			arg._parent = self
+		return widgets
+
+	def insertBefore(self, insert, child, **kwargs):
+		if not child:
+			return self.appendChild(insert)
+
+		assert child in self._children, "{} is not a child of {}".format(child, self)
+
+		for insert in self.__collectChildren(insert, **kwargs):
+			if insert._parent:
+				insert._parent.removeChild(insert)
+
+			self.element.insertBefore(insert.element, child.element)
+			self._children.insert(self._children.index(child), insert)
+
+			insert._parent = self
+			if self._isAttached:
+				insert.onAttach()
+
+	def prependChild(self, *args, **kwargs):
+		if kwargs.get("replace", False):
+			self.removeAllChildren()
+			del kwargs["replace"]
+
+		for child in self.__collectChildren(*args, **kwargs):
+			if child._parent:
+				child._parent._children.remove(arg)
+
+			if child._parent:
+				child._parent._children.remove(child)
+				child._parent = None
+
+			if not self._children:
+				self.appendChild(child)
+			else:
+				self.insertBefore(child, self.children(0))
+
+	def appendChild(self, *args, **kwargs):
+		if kwargs.get("replace", False):
+			self.removeAllChildren()
+			del kwargs["replace"]
+
+		for child in self.__collectChildren(*args, **kwargs):
+			if child._parent:
+				child._parent._children.remove(child)
+
+			self._children.append(child)
+			self.element.appendChild(child.element)
+			child._parent = self
 
 			if self._isAttached:
-				arg.onAttach()
+				child.onAttach()
 
 	def removeChild(self, child):
 		assert child in self._children, "{} is not a child of {}".format(child, self)
@@ -1023,10 +1028,7 @@ class Widget(object):
 		if bindTo is None:
 			bindTo = self
 
-		if replace:
-			appendTo.removeAllChildren()
-
-		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
+		self.appendChild(fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars), replace=replace)
 
 
 ########################################################################################################################
@@ -2995,9 +2997,6 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 	"""
 
 	# Handle defaults
-	if appendTo is None:
-		appendTo = Body()
-
 	if bindTo is None:
 		bindTo = appendTo
 
@@ -3012,9 +3011,16 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 		return txt
 
 	def interpret(parent, items):
+		ret = []
+
 		for item in items:
 			if isinstance(item, str):
-				parent.appendChild(TextNode(replaceVars(item)))
+				txt = TextNode(replaceVars(item))
+
+				if parent:
+					parent.appendChild(txt)
+
+				ret.append(txt)
 				continue
 
 			tag = item[0]
@@ -3037,8 +3043,8 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 					if not bindTo:
 						continue
 
-					if val in dir(appendTo):
-						print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
+					if val in dir(bindTo):
+						print("Cannot assign name '{}' because it already exists in {}".format(val, bindTo))
 
 					elif not (any([val.startswith(x) for x in
 								   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
@@ -3085,12 +3091,14 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 
 			interpret(wdg, children)
 
-			if not wdg.parent():
+			if parent and not wdg.parent():
 				parent.appendChild(wdg)
 
-	interpret(appendTo, html)
+			ret.append(wdg)
 
-	return html #return compiled HTML (for optional reuse)
+		return ret
+
+	return interpret(appendTo, html)
 
 
 if __name__ == '__main__':

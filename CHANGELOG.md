@@ -7,11 +7,13 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 This is the current development version.
 
 - Feature: Full library clean-up
-- Feature: `html5.Widget` provides parameters for
+- Feature: `html5.Widget.__init__()` now provides parameters for
   - html: HTML-body code to be appended to the widget
   - vars: Variables for the HTML-code
   - appendTo: Directly append the widget into other widget
   - bindTo: Bind parsed elements to different widget
+- Feature: `html5.Widget.appendChild()` and `html5.Widget.prependChild()` can handle arbitrary input now, including HTML, lists of widgets or just text, in any order. `html5.Widget.insertChild()` runs slightly different, but shares same features. This change mostly supersedes `html5.Widget.fromHTML()`.
+- Feature: New `replace`-parameter for `html5.Widget.appendChild()` and `html5.Widget.prependChild()` which clears the content
 - Feature: `html5.ext.InputDialog` refactored & disables OK-Button when no value is present 
 
 ## [2.5.0] Vesuv
