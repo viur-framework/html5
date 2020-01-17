@@ -240,7 +240,7 @@ class Widget(object):
 	_baseClass = None
 	_namespace = None
 
-	def __init__(self, html=None, vars=None, appendTo=None, bindTo=None, **kwargs):
+	def __init__(self, html=None, appendTo=None, bindTo=None, vars=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
 			self.element = kwargs["_wrapElem"]
 			del kwargs["_wrapElem"]
@@ -1028,7 +1028,10 @@ class Widget(object):
 		if bindTo is None:
 			bindTo = self
 
-		self.appendChild(fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars), replace=replace)
+		if replace:
+			appendTo.removeAllChildren()
+
+		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
 
 
 ########################################################################################################################
