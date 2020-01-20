@@ -15,6 +15,7 @@ This is the current development version.
 - Feature: `html5.Widget.appendChild()` and `html5.Widget.prependChild()` can handle arbitrary input now, including HTML, lists of widgets or just text, in any order. `html5.Widget.insertChild()` runs slightly different, but shares same features. This change mostly supersedes `html5.Widget.fromHTML()`.
 - Feature: New `replace`-parameter for `html5.Widget.appendChild()` and `html5.Widget.prependChild()` which clears the content
 - Feature: `html5.ext.InputDialog` refactored & disables OK-Button when no value is present 
+- Feature: `html5.utils.doesEventHitWidgetOrChildren()` and `html5.utils.doesEventHitWidgetOrParent()` now return the Widget or None instead of a boolean, to avoid creating loops and directly work with the recognized Widget. 
 
 ## [2.5.0] Vesuv
 

@@ -32,24 +32,24 @@ def doesEventHitWidgetOrParents(event, widget):
 	"""
 	while widget:
 		if event.target == widget.element:
-			return True
+			return widget
 
 		widget = widget.parent()
 
-	return False
+	return None
 
 def doesEventHitWidgetOrChildren(event, widget):
 	"""
 		Test if event 'event' hits widget 'widget' (or *any* of its children)
 	"""
 	if event.target == widget.element:
-		return True
+		return widget
 
 	for child in widget.children():
 		if doesEventHitWidgetOrChildren(event, child):
-			return True
+			return child
 
-	return False
+	return None
 
 def textToHtml(node, text):
 	"""
