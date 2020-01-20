@@ -671,7 +671,9 @@ class Widget(object):
 
 		assert child in self._children, "{} is not a child of {}".format(child, self)
 
-		for insert in self.__collectChildren(insert, **kwargs):
+		toInsert = self.__collectChildren(insert, **kwargs)
+
+		for insert in toInsert:
 			if insert._parent:
 				insert._parent.removeChild(insert)
 
@@ -682,12 +684,16 @@ class Widget(object):
 			if self._isAttached:
 				insert.onAttach()
 
+		return toInsert
+
 	def prependChild(self, *args, **kwargs):
 		if kwargs.get("replace", False):
 			self.removeAllChildren()
 			del kwargs["replace"]
 
-		for child in self.__collectChildren(*args, **kwargs):
+		toPrepend = self.__collectChildren(*args, **kwargs)
+
+		for child in toPrepend:
 			if child._parent:
 				child._parent._children.remove(arg)
 
@@ -700,12 +706,16 @@ class Widget(object):
 			else:
 				self.insertBefore(child, self.children(0))
 
+		return toPrepend
+
 	def appendChild(self, *args, **kwargs):
 		if kwargs.get("replace", False):
 			self.removeAllChildren()
 			del kwargs["replace"]
 
-		for child in self.__collectChildren(*args, **kwargs):
+		toAppend = self.__collectChildren(*args, **kwargs)
+
+		for child in toAppend:
 			if child._parent:
 				child._parent._children.remove(child)
 
@@ -715,6 +725,8 @@ class Widget(object):
 
 			if self._isAttached:
 				child.onAttach()
+
+		return toAppend
 
 	def removeChild(self, child):
 		assert child in self._children, "{} is not a child of {}".format(child, self)
