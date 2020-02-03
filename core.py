@@ -695,9 +695,6 @@ class Widget(object):
 
 		for child in toPrepend:
 			if child._parent:
-				child._parent._children.remove(arg)
-
-			if child._parent:
 				child._parent._children.remove(child)
 				child._parent = None
 
