@@ -242,10 +242,10 @@ class Alert(Popup):
 		message.addClass("alert-msg")
 		self.popupBody.appendChild(message)
 
-		if isinstance(msg, html5.Widget):
-			message.appendChild(msg)
-		else:
-			utils.textToHtml(message, msg)
+		if isinstance(msg, str):
+			msg = msg.replace("\n", "<br>")
+
+		message.appendChild(msg, bindTo=False)
 
 		self.sinkEvent("onKeyDown")
 
