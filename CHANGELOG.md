@@ -6,6 +6,7 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 This is the current development version.
 
+- Feature: Ported framework to Python 3 using [Pyodide](https://github.com/iodide-project/pyodide)
 - Feature: Full library clean-up
 - Feature: `html5.Widget.__init__()` now provides parameters for
   - html: HTML-body code to be appended to the widget

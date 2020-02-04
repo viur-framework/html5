@@ -1,63 +1,55 @@
 # ViUR html5
 
-**html5** is a HTML5-DOM library that has been written in Python.
+**WARNING: THIS IS AN UNSTABLE PYTHON3 / PYODIDE PORT, WORK IN PROGRESS!**
+
+**html5** is a framework and abstraction layer for writing HTML5 web-apps using Python.
 
 ## About
 
-This library serves as a DOM-toolkit for writing HTML5 web-apps using the Python programming language.
+This framework is used to implement HTML5 web-apps using the Python programming language. The framework is an abstraction layer for a DOM running in [Pyodide](https://github.com/iodide-project/pyodide), a Python 3 interpreter compiled to web-assembly.
 
-The most prominent software completely established on this library is [ViUR vi](https://github.com/viur-framework/vi/), the visual administration interface for ViUR-based applications.
+It provides
 
-[ViUR](https://www.viur.is) is a free software development framework for the [Google App Engine](https://appengine.google.com).
+- class abstraction for all HTML5-DOM-elements, e.g. `html5.Div()`
+- a built-in HTML parser and executor to generate DOM objects from HTML-code
+- helpers for adding/removing classes, arrange children, handling events etc.
 
-## Prerequisites
+The most prominent software completely established on this library is [ViUR vi](https://github.com/viur-framework/viur-vi/), the visual administration interface for ViUR-based applications.
 
-This library currently works with [PyJS](https://github.com/pyjs/pyjs), a Python-to-JavaScript transpiling framework.
-
-We're also working on a Python 3 port to run with [pyodide](https://github.com/iodide-project/pyodide).
+[ViUR](https://www.viur.dev) is a free software development framework for the [Google App Engine](https://appengine.google.com).
 
 ## Quick Start
 
-Let's create a simple game app!
+**Warning: This section is incomplete, a working example will follow soon!**
 
 ```python
-from vi import html5, pyjd
+import html5
 
-class game(html5.Div):
-	def __init__(self, *args, **kwargs):
-		super(game, self).__init__()
+class Game(html5.Div):
+	def __init__(self):
+		super().__init__(
+        """
+            <label>
+                Your Name:
+                <input [name]="myInput" type="text" placeholder="Name">
+            </label>
+            
+            <h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
+        """)
 		self.sinkEvent("onChange")
-
-		self.fromHTML(
-		"""
-			<label>
-				Your Name:
-				<input [name]="myInput" type="text" placeholder="Name">
-			</label>
-
-			<h1>Hello <span [name]="mySpan" class="name">Enter Name</span>!</h1>
-		""")
 
 	def onChange(self, event):
 		if html5.utils.doesEventHitWidgetOrChildren(event, self.myInput):
-			self.mySpan.removeAllChildren()
-			self.mySpan.appendChild(self.myInput["value"])
+			self.mySpan.appendChild(self.myInput["value"], replace=True)
 
-if __name__ == '__main__':
-	pyjd.setup()
-	html5.Body().appendChild(game())
-	pyjd.run()
+Game()
 ```
-
-Just compile it with
-
-	$ pyjsbuild game.py
 
 ## Contributing
 
 We take a great interest in your opinion about ViUR. We appreciate your feedback and are looking forward to hear about your ideas. Share your visions or questions with us and participate in ongoing discussions.
 
-- [ViUR website](https://www.viur.is)
+- [ViUR website](https://www.viur.dev)
 - [#ViUR on freenode IRC](https://webchat.freenode.net/?channels=viur)
 - [ViUR on GitHub](https://github.com/viur-framework)
 - [ViUR on Twitter](https://twitter.com/weloveViUR)
@@ -70,7 +62,7 @@ Help of any kind to extend and improve or enhance this project in any kind or wa
 
 ## License
 
-Copyright (C) 2012-2019 by Mausbrand Informationssysteme GmbH.
+Copyright (C) 2012-2020 by Mausbrand Informationssysteme GmbH.
 
 Mausbrand and ViUR are registered trademarks of Mausbrand Informationssysteme GmbH.
 
