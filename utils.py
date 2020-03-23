@@ -102,3 +102,28 @@ def parseFloat(s, ret = 0.0):
 			return float(s)
 
 	return ret
+
+def importJS(*args, **kwargs):
+	"""
+	Dynamically imports the provided JavaScript files sequentially.
+
+	This has to be done when multiple scripts are bootstrapped, and cause errors in case they're all loaded
+	simultaneously.
+
+	:param callback: Allows to specify a callback function to be called when all scripts have been loaded.
+	:type callback: callable
+	"""
+	if not args:
+		callback = kwargs.get("callback")
+		if callable(callback):
+			callback()
+
+		return
+
+	script = html5.Script()
+	script["src"] = args[0]
+	#print(script["src"])
+	script.onLoad = lambda *xargs, **xkwargs: importJS(*args[1:], **kwargs)
+	script.sinkEvent("onLoad")
+
+	html5.Head().appendChild(script)
