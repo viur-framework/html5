@@ -2762,6 +2762,11 @@ def registerTag(tagName, widgetClass):
 	__tags[tagName.lower()] = (widgetClass, attr)
 
 
+def tag(cls):
+	registerTag(cls.__name__, cls)
+	return cls
+
+
 def _buildTags(debug=False):
 	"""
 	Generates a dictionary of all to the html5-library
