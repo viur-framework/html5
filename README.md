@@ -6,7 +6,7 @@
 
 This library serves as a DOM-toolkit for writing HTML5 web-apps using the Python programming language.
 
-The most prominent software completely established on this library is [ViUR vi](https://github.com/viur-framework/vi/), the visual administration interface for ViUR-based applications.
+The most prominent software completely implemented using this library is [ViUR vi](https://github.com/viur-framework/vi/), the visual administration interface for ViUR-based applications.
 
 [ViUR](https://www.viur.is) is a free software development framework for the [Google App Engine](https://appengine.google.com).
 
@@ -55,7 +55,7 @@ Just compile it with
 
 ## Contributing
 
-We take a great interest in your opinion about ViUR. We appreciate your feedback and are looking forward to hear about your ideas. Share your visions or questions with us and participate in ongoing discussions.
+We take great interest in your opinion about ViUR. We appreciate your feedback and are looking forward to hear about your ideas. Share your vision or questions with us and participate in ongoing discussions.
 
 - [ViUR website](https://www.viur.is)
 - [#ViUR on freenode IRC](https://webchat.freenode.net/?channels=viur)
