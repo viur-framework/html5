@@ -132,3 +132,12 @@ class Table(html5.Table):
 					col -= 1
 
 				return
+	def fastGrid( self, rows, cols, createHidden=False ):
+		colsstr = "".join(['<td class="ignt-table-body-cell"></td>' for i in range(0, cols)])
+		tblstr = '<tbody [name]="body" class="ignt-table-body" >'
+
+		for r in range(0, rows):
+			tblstr += '<tr class="ignt-table-body-row %s">%s</tr>' %("is-hidden" if createHidden else "",colsstr)
+		tblstr +="</tbody>"
+
+		self.fromHTML(tblstr)
