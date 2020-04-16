@@ -172,8 +172,8 @@ class InputDialog(Popup):
 			<div class="input-group">
 				<label class="label">
 					{{text}}
-					<input class="input" [name]="inputElem" value="{{value}}" placeholder="{{placeholder}}" />
 				</label>
+				<input class="input" [name]="inputElem" value="{{value}}" placeholder="{{placeholder}}" />
 			</div>
 			""",
 			vars={
