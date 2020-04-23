@@ -631,6 +631,13 @@ class Widget(object):
 		"""
 		return not self.isHidden()
 
+	def onBind(self, widget, name):
+		"""
+		Event function that is called on the widget when it is bound to another widget with a name.
+		This is only done by the HTML parser, a manual binding by the user is not triggered.
+		"""
+		return
+
 	def onAttach(self):
 		self._isAttached = True
 
@@ -810,9 +817,9 @@ class Widget(object):
 
 		for item in args:
 			if isinstance(item, list):
-				self.addClass(item)
+				self.addClass(*item)
 
-			elif isinstance(item, str) or isinstance(item, unicode):
+			elif isinstance(item, str):
 				for sitem in item.split(" "):
 					if not self.hasClass(sitem):
 						self["class"].append(sitem)
@@ -831,7 +838,7 @@ class Widget(object):
 			if isinstance(item, list):
 				self.removeClass(item)
 
-			elif isinstance(item, str) or isinstance(item, unicode):
+			elif isinstance(item, str):
 				for sitem in item.split(" "):
 					if self.hasClass(sitem):
 						self["class"].remove(sitem)
@@ -3072,6 +3079,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 
 					else:
 						setattr(bindTo, val, wdg)
+						wdg.onBind(bindTo, val)
 
 					if debug:
 						print("name '{}' assigned to {}".format(val, bindTo))

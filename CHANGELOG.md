@@ -2,12 +2,11 @@
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
-## [develop]
+## 3.0.0 [develop]
 
 This is the current development version.
 
-- Feature: Ported framework to Python 3 using [Pyodide](https://github.com/iodide-project/pyodide)
-- Feature: Full library clean-up
+- Feature: Ported framework to Python 3 using [Pyodide](https://github.com/iodide-project/pyodide), with a full source code and library cleanup
 - Feature: `html5.Widget.__init__()` now provides parameters for
   - html: HTML-body code to be appended to the widget
   - vars: Variables for the HTML-code
@@ -17,6 +16,7 @@ This is the current development version.
 - Feature: New `replace`-parameter for `html5.Widget.appendChild()` and `html5.Widget.prependChild()` which clears the content
 - Feature: `html5.ext.InputDialog` refactored & disables OK-Button when no value is present 
 - Feature: `html5.utils.doesEventHitWidgetOrChildren()` and `html5.utils.doesEventHitWidgetOrParent()` now return the Widget or None instead of a boolean, to avoid creating loops and directly work with the recognized Widget. 
+- Feature: New function `html5.Widget.onBind()` enables widgets to react when bound to other widgets using the HTML parser.
 
 ## [2.5.0] Vesuv
 
