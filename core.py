@@ -240,7 +240,7 @@ class Widget(object):
 	_baseClass = None
 	_namespace = None
 
-	def __init__(self, html=None, appendTo=None, bindTo=None, vars=None, **kwargs):
+	def __init__(self, html=None, appendTo=None, bindTo=None, vars=None, style=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
 			self.element = kwargs["_wrapElem"]
 			del kwargs["_wrapElem"]
@@ -249,6 +249,8 @@ class Widget(object):
 			self.element = domCreateElement(self._baseClass, ns=self._namespace)
 
 		super().__init__()
+		if style:
+			self.addClass(style)
 
 		self._children = []
 		self._catchedEvents = {}
