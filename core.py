@@ -3069,7 +3069,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 					if not bindTo:
 						continue
 
-					if val in dir(bindTo):
+					if getattr(bindTo, val, None):
 						print("Cannot assign name '{}' because it already exists in {}".format(val, bindTo))
 
 					elif not (any([val.startswith(x) for x in
