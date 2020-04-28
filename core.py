@@ -240,7 +240,7 @@ class Widget(object):
 	_baseClass = None
 	_namespace = None
 
-	def __init__(self, html=None, appendTo=None, bindTo=None, vars=None, style=None, **kwargs):
+	def __init__(self, *args, appendTo=None, style=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
 			self.element = kwargs["_wrapElem"]
 			del kwargs["_wrapElem"]
@@ -260,8 +260,8 @@ class Widget(object):
 
 		self._lastDisplayState = None
 
-		if html:
-			self.appendChild(html, bindTo=bindTo, vars=vars)
+		if args:
+			self.appendChild(*args, **kwargs)
 
 		if appendTo:
 			appendTo.appendChild(self)
@@ -1953,8 +1953,8 @@ class Label(Widget, _attrForm, _attrFor):
 	_baseClass = "label"
 	autoIdCounter = 0
 
-	def __init__(self, html=None, bindTo=None, vars=None, forElem=None, *args, **kwargs):
-		super().__init__(html, bindTo, vars, *args, **kwargs)
+	def __init__(self, *args, forElem=None, **kwargs):
+		super().__init__(*args, **kwargs)
 
 		if forElem:
 			if not forElem["id"]:

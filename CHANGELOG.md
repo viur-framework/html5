@@ -7,12 +7,10 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 This is the current development version.
 
 - Feature: Ported framework to Python 3 using [Pyodide](https://github.com/iodide-project/pyodide), with a full source code and library cleanup
-- Feature: `html5.Widget.__init__()` now provides parameters for
-  - html: HTML-body code to be appended to the widget
-  - vars: Variables for the HTML-code
-  - appendTo: Directly append the widget into other widget
-  - bindTo: Bind parsed elements to different widget
-  - style: Class names for styling added to the new Widget, using `Widget.addClass()`
+- Feature: `html5.Widget.__init__()` now allows parameters equal to `Widget.appendChild()` to directly stack widgets together.
+  Additionally, the following parameters are available:
+  - `appendTo`: Directly append the newly created widget to another widget
+  - `style`: Provide class attributes for styling added to the new Widget, using `Widget.addClass()`
 - Feature: `html5.Widget.appendChild()` and `html5.Widget.prependChild()` can handle arbitrary input now, including HTML, lists of widgets or just text, in any order. `html5.Widget.insertChild()` runs slightly different, but shares same features. This change mostly supersedes `html5.Widget.fromHTML()`.
 - Feature: New `replace`-parameter for `html5.Widget.appendChild()` and `html5.Widget.prependChild()` which clears the content
 - Feature: `html5.ext.InputDialog` refactored & disables OK-Button when no value is present 
