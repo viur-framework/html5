@@ -240,7 +240,7 @@ class Widget(object):
 	_baseClass = None
 	_namespace = None
 
-	def __init__(self, html=None, appendTo=None, bindTo=None, vars=None, **kwargs):
+	def __init__(self, *args, appendTo=None, style=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
 			self.element = kwargs["_wrapElem"]
 			del kwargs["_wrapElem"]
@@ -249,6 +249,8 @@ class Widget(object):
 			self.element = domCreateElement(self._baseClass, ns=self._namespace)
 
 		super().__init__()
+		if style:
+			self.addClass(style)
 
 		self._children = []
 		self._catchedEvents = {}
@@ -258,8 +260,8 @@ class Widget(object):
 
 		self._lastDisplayState = None
 
-		if html:
-			self.appendChild(html, bindTo=bindTo, vars=vars)
+		if args:
+			self.appendChild(*args, **kwargs)
 
 		if appendTo:
 			appendTo.appendChild(self)
@@ -631,6 +633,13 @@ class Widget(object):
 		"""
 		return not self.isHidden()
 
+	def onBind(self, widget, name):
+		"""
+		Event function that is called on the widget when it is bound to another widget with a name.
+		This is only done by the HTML parser, a manual binding by the user is not triggered.
+		"""
+		return
+
 	def onAttach(self):
 		self._isAttached = True
 
@@ -810,9 +819,9 @@ class Widget(object):
 
 		for item in args:
 			if isinstance(item, list):
-				self.addClass(item)
+				self.addClass(*item)
 
-			elif isinstance(item, str) or isinstance(item, unicode):
+			elif isinstance(item, str):
 				for sitem in item.split(" "):
 					if not self.hasClass(sitem):
 						self["class"].append(sitem)
@@ -831,7 +840,7 @@ class Widget(object):
 			if isinstance(item, list):
 				self.removeClass(item)
 
-			elif isinstance(item, str) or isinstance(item, unicode):
+			elif isinstance(item, str):
 				for sitem in item.split(" "):
 					if self.hasClass(sitem):
 						self["class"].remove(sitem)
@@ -1944,8 +1953,8 @@ class Label(Widget, _attrForm, _attrFor):
 	_baseClass = "label"
 	autoIdCounter = 0
 
-	def __init__(self, html=None, bindTo=None, vars=None, forElem=None, *args, **kwargs):
-		super().__init__(html, bindTo, vars, *args, **kwargs)
+	def __init__(self, *args, forElem=None, **kwargs):
+		super().__init__(*args, **kwargs)
 
 		if forElem:
 			if not forElem["id"]:
@@ -3055,7 +3064,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 					if not bindTo:
 						continue
 
-					if val in dir(bindTo):
+					if getattr(bindTo, val, None):
 						print("Cannot assign name '{}' because it already exists in {}".format(val, bindTo))
 
 					elif not (any([val.startswith(x) for x in
@@ -3067,6 +3076,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 
 					else:
 						setattr(bindTo, val, wdg)
+						wdg.onBind(bindTo, val)
 
 					if debug:
 						print("name '{}' assigned to {}".format(val, bindTo))
