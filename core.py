@@ -237,16 +237,17 @@ class _WidgetStyleWrapper(dict):
 # Widget ---------------------------------------------------------------------------------------------------------------
 
 class Widget(object):
-	_baseClass = None
+	_tagName = None
 	_namespace = None
+	_parserTagName = None
 
 	def __init__(self, *args, appendTo=None, style=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
 			self.element = kwargs["_wrapElem"]
 			del kwargs["_wrapElem"]
 		else:
-			assert self._baseClass is not None
-			self.element = domCreateElement(self._baseClass, ns=self._namespace)
+			assert self._tagName is not None
+			self.element = domCreateElement(self._tagName, ns=self._namespace)
 
 		super().__init__()
 		if style:
@@ -347,7 +348,7 @@ class Widget(object):
 		if funcName in dir(self):
 			return getattr(self, funcName)(value)
 
-		raise ValueError("{} is no valid attribute for {}".format(key, (self._baseClass or str(self))))
+		raise ValueError("{} is no valid attribute for {}".format(key, (self._tagName or str(self))))
 
 	def __str__(self):
 		return str(self.__class__.__name__)
@@ -652,7 +653,7 @@ class Widget(object):
 			c.onDetach()
 
 	def __collectChildren(self, *args, **kwargs):
-		assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._baseClass
+		assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._tagName
 
 		if kwargs.get("bindTo") is None:
 			kwargs["bindTo"] = self
@@ -1553,7 +1554,7 @@ class _isVoid(object):
 # A --------------------------------------------------------------------------------------------------------------------
 
 class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
-	_baseClass = "a"
+	_tagName = "a"
 
 	def _getDownload(self):
 		"""
@@ -1573,7 +1574,7 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 # Area -----------------------------------------------------------------------------------------------------------------
 
 class Area(A, _attrAlt, _isVoid):
-	_baseClass = "area"
+	_tagName = "area"
 
 	def _getCoords(self):
 		return self.element.coords
@@ -1591,16 +1592,16 @@ class Area(A, _attrAlt, _isVoid):
 # Audio ----------------------------------------------------------------------------------------------------------------
 
 class Audio(Widget, _attrSrc, _attrMultimedia):
-	_baseClass = "audio"
+	_tagName = "audio"
 
 class Bdo(Widget):
-	_baseClass = "bdo"
+	_tagName = "bdo"
 
 
 # Blockquote -----------------------------------------------------------------------------------------------------------
 
 class Blockquote(Widget):
-	_baseClass = "blockquote"
+	_tagName = "blockquote"
 
 	def _getBlockquote(self):
 		return self.element.blockquote
@@ -1633,13 +1634,13 @@ def Body():
 # Canvas ---------------------------------------------------------------------------------------------------------------
 
 class Canvas(Widget, _attrDimensions):
-	_baseClass = "canvas"
+	_tagName = "canvas"
 
 
 # Command --------------------------------------------------------------------------------------------------------------
 
 class Command(Widget, _attrLabel, _attrType, _attrDisabled, _attrChecked):
-	_baseClass = "command"
+	_tagName = "command"
 
 	def _getIcon(self):
 		return self.element.icon
@@ -1657,13 +1658,13 @@ class Command(Widget, _attrLabel, _attrType, _attrDisabled, _attrChecked):
 # _Del -----------------------------------------------------------------------------------------------------------------
 
 class _Del(Widget, _attrCite, _attrDatetime):
-	_baseClass = "_del"
+	_tagName = "_del"
 
 
 # Dialog --------------------------------------------------------------------------------------------------------------
 
 class Dialog(Widget):
-	_baseClass = "dialog"
+	_tagName = "dialog"
 
 	def _getOpen(self):
 		return True if self.element.hasAttribute("open") else False
@@ -1677,201 +1678,201 @@ class Dialog(Widget):
 # Elements -------------------------------------------------------------------------------------------------------------
 
 class Abbr(Widget):
-	_baseClass = "abbr"
+	_tagName = "abbr"
 
 
 class Address(Widget):
-	_baseClass = "address"
+	_tagName = "address"
 
 
 class Article(Widget):
-	_baseClass = "article"
+	_tagName = "article"
 
 
 class Aside(Widget):
-	_baseClass = "aside"
+	_tagName = "aside"
 
 
 class B(Widget):
-	_baseClass = "b"
+	_tagName = "b"
 
 
 class Bdi(Widget):
-	_baseClass = "bdi"
+	_tagName = "bdi"
 
 
 class Br(Widget, _isVoid):
-	_baseClass = "br"
+	_tagName = "br"
 
 
 class Caption(Widget):
-	_baseClass = "caption"
+	_tagName = "caption"
 
 
 class Cite(Widget):
-	_baseClass = "cite"
+	_tagName = "cite"
 
 
 class Code(Widget):
-	_baseClass = "code"
+	_tagName = "code"
 
 
 class Datalist(Widget):
-	_baseClass = "datalist"
+	_tagName = "datalist"
 
 
 class Dfn(Widget):
-	_baseClass = "dfn"
+	_tagName = "dfn"
 
 
 class Div(Widget):
-	_baseClass = "div"
+	_tagName = "div"
 
 
 class Em(Widget):
-	_baseClass = "em"
+	_tagName = "em"
 
 
 class Embed(Widget, _attrSrc, _attrType, _attrDimensions, _isVoid):
-	_baseClass = "embed"
+	_tagName = "embed"
 
 
 class Figcaption(Widget):
-	_baseClass = "figcaption"
+	_tagName = "figcaption"
 
 
 class Figure(Widget):
-	_baseClass = "figure"
+	_tagName = "figure"
 
 
 class Footer(Widget):
-	_baseClass = "footer"
+	_tagName = "footer"
 
 
 class Header(Widget):
-	_baseClass = "header"
+	_tagName = "header"
 
 
 class H1(Widget):
-	_baseClass = "h1"
+	_tagName = "h1"
 
 
 class H2(Widget):
-	_baseClass = "h2"
+	_tagName = "h2"
 
 
 class H3(Widget):
-	_baseClass = "h3"
+	_tagName = "h3"
 
 
 class H4(Widget):
-	_baseClass = "h4"
+	_tagName = "h4"
 
 
 class H5(Widget):
-	_baseClass = "h5"
+	_tagName = "h5"
 
 
 class H6(Widget):
-	_baseClass = "h6"
+	_tagName = "h6"
 
 
 class Hr(Widget, _isVoid):
-	_baseClass = "hr"
+	_tagName = "hr"
 
 
 class I(Widget):
-	_baseClass = "i"
+	_tagName = "i"
 
 
 class Kdb(Widget):
-	_baseClass = "kdb"
+	_tagName = "kdb"
 
 
 class Legend(Widget):
-	_baseClass = "legend"
+	_tagName = "legend"
 
 
 class Mark(Widget):
-	_baseClass = "mark"
+	_tagName = "mark"
 
 
 class Noscript(Widget):
-	_baseClass = "noscript"
+	_tagName = "noscript"
 
 
 class P(Widget):
-	_baseClass = "p"
+	_tagName = "p"
 
 
 class Rq(Widget):
-	_baseClass = "rq"
+	_tagName = "rq"
 
 
 class Rt(Widget):
-	_baseClass = "rt"
+	_tagName = "rt"
 
 
 class Ruby(Widget):
-	_baseClass = "ruby"
+	_tagName = "ruby"
 
 
 class S(Widget):
-	_baseClass = "s"
+	_tagName = "s"
 
 
 class Samp(Widget):
-	_baseClass = "samp"
+	_tagName = "samp"
 
 
 class Section(Widget):
-	_baseClass = "section"
+	_tagName = "section"
 
 
 class Small(Widget):
-	_baseClass = "small"
+	_tagName = "small"
 
 
 class Strong(Widget):
-	_baseClass = "strong"
+	_tagName = "strong"
 
 
 class Sub(Widget):
-	_baseClass = "sub"
+	_tagName = "sub"
 
 
 class Summery(Widget):
-	_baseClass = "summery"
+	_tagName = "summery"
 
 
 class Sup(Widget):
-	_baseClass = "sup"
+	_tagName = "sup"
 
 
 class U(Widget):
-	_baseClass = "u"
+	_tagName = "u"
 
 
 class Var(Widget):
-	_baseClass = "var"
+	_tagName = "var"
 
 
 class Wbr(Widget):
-	_baseClass = "wbr"
+	_tagName = "wbr"
 
 
 # Form -----------------------------------------------------------------------------------------------------------------
 
 class Button(Widget, _attrDisabled, _attrType, _attrForm, _attrAutofocus, _attrName, _attrValue, _attrFormhead):
-	_baseClass = "button"
+	_tagName = "button"
 
 
 class Fieldset(Widget, _attrDisabled, _attrForm, _attrName):
-	_baseClass = "fieldset"
+	_tagName = "fieldset"
 
 
 class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
-	_baseClass = "form"
+	_tagName = "form"
 
 	def _getNovalidate(self):
 		return True if self.element.hasAttribute("novalidate") else False
@@ -1910,7 +1911,7 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
 				_attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
 					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isVoid):
-	_baseClass = "input"
+	_tagName = "input"
 
 	def _getAccept(self):
 		return self.element.accept
@@ -1950,7 +1951,7 @@ class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocu
 
 
 class Label(Widget, _attrForm, _attrFor):
-	_baseClass = "label"
+	_tagName = "label"
 	autoIdCounter = 0
 
 	def __init__(self, *args, forElem=None, **kwargs):
@@ -1966,11 +1967,11 @@ class Label(Widget, _attrForm, _attrFor):
 
 
 class Optgroup(Widget, _attrDisabled, _attrLabel):
-	_baseClass = "optgroup"
+	_tagName = "optgroup"
 
 
 class Option(Widget, _attrDisabled, _attrLabel, _attrValue):
-	_baseClass = "option"
+	_tagName = "option"
 
 	def _getSelected(self):
 		return True if self.element.selected else False
@@ -1983,11 +1984,11 @@ class Option(Widget, _attrDisabled, _attrLabel, _attrValue):
 
 
 class Output(Widget, _attrForm, _attrName, _attrFor):
-	_baseClass = "output"
+	_tagName = "output"
 
 
 class Select(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrRequired, _attrMultiple, _attrSize):
-	_baseClass = "select"
+	_tagName = "select"
 
 	def _getSelectedIndex(self):
 		return self.element.selectedIndex
@@ -1997,7 +1998,7 @@ class Select(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrR
 
 
 class Textarea(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrInputs, _attrValue):
-	_baseClass = "textarea"
+	_tagName = "textarea"
 
 	def _getCols(self):
 		return self.element.cols
@@ -2040,7 +2041,7 @@ def Head():
 # Iframe ---------------------------------------------------------------------------------------------------------------
 
 class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
-	_baseClass = "iframe"
+	_tagName = "iframe"
 
 	def _getSandbox(self):
 		return self.element.sandbox
@@ -2067,7 +2068,7 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 # Img ------------------------------------------------------------------------------------------------------------------
 
 class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
-	_baseClass = "img"
+	_tagName = "img"
 
 	def __init__(self, src=None, *args, **kwargs):
 		super().__init__()
@@ -2090,13 +2091,13 @@ class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
 # Ins ------------------------------------------------------------------------------------------------------------------
 
 class Ins(Widget, _attrCite, _attrDatetime):
-	_baseClass = "ins"
+	_tagName = "ins"
 
 
 # Keygen ---------------------------------------------------------------------------------------------------------------
 
 class Keygen(Form, _attrAutofocus, _attrDisabled):
-	_baseClass = "keygen"
+	_tagName = "keygen"
 
 	def _getChallenge(self):
 		return True if self.element.hasAttribute("challenge") else False
@@ -2117,7 +2118,7 @@ class Keygen(Form, _attrAutofocus, _attrDisabled):
 # Link -----------------------------------------------------------------------------------------------------------------
 
 class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
-	_baseClass = "link"
+	_tagName = "link"
 
 	def _getSizes(self):
 		return self.element.sizes
@@ -2129,45 +2130,45 @@ class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
 # List -----------------------------------------------------------------------------------------------------------------
 
 class Ul(Widget):
-	_baseClass = "ul"
+	_tagName = "ul"
 
 
 class Ol(Widget):
-	_baseClass = "ol"
+	_tagName = "ol"
 
 
 class Li(Widget):
-	_baseClass = "li"
+	_tagName = "li"
 
 
 class Dl(Widget):
-	_baseClass = "dl"
+	_tagName = "dl"
 
 
 class Dt(Widget):
-	_baseClass = "dt"
+	_tagName = "dt"
 
 
 class Dd(Widget):
-	_baseClass = "dd"
+	_tagName = "dd"
 
 
 # Map ------------------------------------------------------------------------------------------------------------------
 
 class Map(Label, _attrType):
-	_baseClass = "map"
+	_tagName = "map"
 
 
 # Menu -----------------------------------------------------------------------------------------------------------------
 
 class Menu(Widget):
-	_baseClass = "menu"
+	_tagName = "menu"
 
 
 # Meta -----------------------------------------------------------------------------------------------------------------
 
 class Meta(Widget, _attrName, _attrCharset, _isVoid):
-	_baseClass = "meta"
+	_tagName = "meta"
 
 	def _getContent(self):
 		return self.element.content
@@ -2179,7 +2180,7 @@ class Meta(Widget, _attrName, _attrCharset, _isVoid):
 # Meter ----------------------------------------------------------------------------------------------------------------
 
 class Meter(Form, _attrValue):
-	_baseClass = "meter"
+	_tagName = "meter"
 
 	def _getHigh(self):
 		return self.element.high
@@ -2215,25 +2216,25 @@ class Meter(Form, _attrValue):
 # Nav ------------------------------------------------------------------------------------------------------------------
 
 class Nav(Widget):
-	_baseClass = "nav"
+	_tagName = "nav"
 
 
 # Object -----------------------------------------------------------------------------------------------------------------
 
 class Object(Form, _attrType, _attrName, _attrDimensions, _attrUsemap):
-	_baseClass = "object"
+	_tagName = "object"
 
 
 # Param -----------------------------------------------------------------------------------------------------------------
 
 class Param(Widget, _attrName, _attrValue, _isVoid):
-	_baseClass = "param"
+	_tagName = "param"
 
 
 # Progress -------------------------------------------------------------------------------------------------------------
 
 class Progress(Widget, _attrValue):
-	_baseClass = "progress"
+	_tagName = "progress"
 
 	def _getMax(self):
 		return self.element.max
@@ -2245,13 +2246,13 @@ class Progress(Widget, _attrValue):
 # Q --------------------------------------------------------------------------------------------------------------------
 
 class Q(Widget, _attrCite):
-	_baseClass = "q"
+	_tagName = "q"
 
 
 # Script ----------------------------------------------------------------------------------------------------------------
 
 class Script(Widget, _attrSrc, _attrCharset):
-	_baseClass = "script"
+	_tagName = "script"
 
 	def _getAsync(self):
 		return True if self.element.hasAttribute("async") else False
@@ -2275,19 +2276,19 @@ class Script(Widget, _attrSrc, _attrCharset):
 # Source ---------------------------------------------------------------------------------------------------------------
 
 class Source(Widget, _attrMedia, _attrSrc, _isVoid):
-	_baseClass = "source"
+	_tagName = "source"
 
 
 # Span -----------------------------------------------------------------------------------------------------------------
 
 class Span(Widget):
-	_baseClass = "span"
+	_tagName = "span"
 
 
 # Style ----------------------------------------------------------------------------------------------------------------
 
 class Style(Widget, _attrMedia):
-	_baseClass = "style"
+	_tagName = "style"
 
 	def _getScoped(self):
 		return True if self.element.hasAttribute("scoped") else False
@@ -2302,7 +2303,7 @@ class Style(Widget, _attrMedia):
 # SVG ------------------------------------------------------------------------------------------------------------------
 
 class Svg(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform):
-	_baseClass = "svg"
+	_tagName = "svg"
 	_namespace = "SVG"
 
 	def _getVersion(self):
@@ -2319,17 +2320,17 @@ class Svg(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform):
 
 
 class SvgCircle(Widget, _attrSvgTransform, _attrSvgDimensions):
-	_baseClass = "circle"
+	_tagName = "circle"
 	_namespace = "SVG"
 
 
 class SvgEllipse(Widget, _attrSvgTransform, _attrSvgDimensions):
-	_baseClass = "ellipse"
+	_tagName = "ellipse"
 	_namespace = "SVG"
 
 
 class SvgG(Widget, _attrSvgTransform, _attrSvgStyles):
-	_baseClass = "g"
+	_tagName = "g"
 	_namespace = "SVG"
 
 	def _getSvgTransform(self):
@@ -2340,17 +2341,17 @@ class SvgG(Widget, _attrSvgTransform, _attrSvgStyles):
 
 
 class SvgImage(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform, _attrSvgXlink):
-	_baseClass = "image"
+	_tagName = "image"
 	_namespace = "SVG"
 
 
 class SvgLine(Widget, _attrSvgTransform, _attrSvgPoints):
-	_baseClass = "line"
+	_tagName = "line"
 	_namespace = "SVG"
 
 
 class SvgPath(Widget, _attrSvgTransform):
-	_baseClass = "path"
+	_tagName = "path"
 	_namespace = "SVG"
 
 	def _getD(self):
@@ -2367,22 +2368,22 @@ class SvgPath(Widget, _attrSvgTransform):
 
 
 class SvgPolygon(Widget, _attrSvgTransform, _attrSvgPoints):
-	_baseClass = "polygon"
+	_tagName = "polygon"
 	_namespace = "SVG"
 
 
 class SvgPolyline(Widget, _attrSvgTransform, _attrSvgPoints):
-	_baseClass = "polyline"
+	_tagName = "polyline"
 	_namespace = "SVG"
 
 
 class SvgRect(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
-	_baseClass = "rect"
+	_tagName = "rect"
 	_namespace = "SVG"
 
 
 class SvgText(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
-	_baseClass = "text"
+	_tagName = "text"
 	_namespace = "SVG"
 
 
@@ -2390,7 +2391,7 @@ class SvgText(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
 
 
 class Tr(Widget):
-	_baseClass = "tr"
+	_tagName = "tr"
 
 	def _getRowspan(self):
 		span = self.element.getAttribute("rowspan")
@@ -2403,7 +2404,7 @@ class Tr(Widget):
 
 
 class Td(Widget):
-	_baseClass = "td"
+	_tagName = "td"
 
 	def _getColspan(self):
 		span = self.element.getAttribute("colspan")
@@ -2425,15 +2426,15 @@ class Td(Widget):
 
 
 class Th(Td):
-	_baseClass = "th"
+	_tagName = "th"
 
 
 class Thead(Widget):
-	_baseClass = "thead"
+	_tagName = "thead"
 
 
 class Tbody(Widget):
-	_baseClass = "tbody"
+	_tagName = "tbody"
 
 
 class ColWrapper(object):
@@ -2477,7 +2478,7 @@ class RowWrapper(object):
 
 
 class Table(Widget):
-	_baseClass = "table"
+	_tagName = "table"
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -2544,13 +2545,13 @@ class Table(Widget):
 # Time -----------------------------------------------------------------------------------------------------------------
 
 class Time(Widget, _attrDatetime):
-	_baseClass = "time"
+	_tagName = "time"
 
 
 # Track ----------------------------------------------------------------------------------------------------------------
 
 class Track(Label, _attrSrc, _isVoid):
-	_baseClass = "track"
+	_tagName = "track"
 
 	def _getKind(self):
 		return self.element.kind
@@ -2577,7 +2578,7 @@ class Track(Label, _attrSrc, _isVoid):
 # Video ----------------------------------------------------------------------------------------------------------------
 
 class Video(Widget, _attrSrc, _attrDimensions, _attrMultimedia):
-	_baseClass = "video"
+	_tagName = "video"
 
 	def _getPoster(self):
 		return self.element.poster
@@ -2741,6 +2742,7 @@ def isControl(event): # The Control (Ctrl) key.
 def isShift(event):
 	return getKey(event) == "Shift"
 
+
 ########################################################################################################################
 # HTML parser
 ########################################################################################################################
@@ -2767,7 +2769,8 @@ def registerTag(tagName, widgetClass):
 
 
 def tag(cls):
-	registerTag(cls.__name__, cls)
+	assert issubclass(cls, Widget)
+	registerTag(cls._parserTagName or cls.__name__, cls)
 	return cls
 
 

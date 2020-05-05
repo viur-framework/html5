@@ -1,27 +1,51 @@
 # -*- coding: utf-8 -*-
 from . import core as html5
 
+
+@html5.tag
 class Label(html5.Label):
-	def __init__(self, *args, **kwargs):
-		super(Label, self).__init__(*args, **kwargs)
-		self.addClass("label ignt-label")
+	_parserTagName = "ignite-label"
 
+	def __init__(self, *args, **kwargs):
+		super(Label, self).__init__(style="label ignt-label", *args, **kwargs)
+
+
+@html5.tag
 class Input(html5.Input):
+	_parserTagName = "ignite-input"
+
 	def __init__(self, *args, **kwargs):
-		super(Input, self).__init__(*args, **kwargs)
-		self.addClass("input ignt-input")
+		super(Input, self).__init__(style="input ignt-input", *args, **kwargs)
 
-class Switch(html5.Input):
+
+@html5.tag
+class Switch(html5.Div):
+	_parserTagName = "ignite-switch"
+
 	def __init__(self, *args, **kwargs):
-		super(Switch, self).__init__(*args, **kwargs)
+		super(Switch, self).__init__(style="switch ignt-switch", *args, **kwargs)
 
-		self.addClass("switch-input")
-		self["type"] = "checkbox"
+		self.input = html5.Input(style="switch-input")
+		self.appendChild(self.input)
+		self.input["type"] = "checkbox"
 
+		switchLabel = html5.Label(forElem=self.input)
+		switchLabel.addClass("switch-label")
+		self.appendChild(switchLabel)
+
+	def _setChecked(self, value):
+		self.input["checked"] = bool(value)
+
+	def _getChecked(self):
+		return self.input["checked"]
+
+
+@html5.tag
 class Check(html5.Input):
+	_parserTagName = "ignite-check"
+
 	def __init__(self, *args, **kwargs):
-		super(Check, self).__init__(*args, **kwargs)
-		self.addClass("check ignt-check")
+		super(Check, self).__init__(style="check ignt-check", *args, **kwargs)
 
 		checkInput = html5.Input()
 		checkInput.addClass("check-input")
@@ -32,10 +56,13 @@ class Check(html5.Input):
 		checkLabel.addClass("check-label")
 		self.appendChild(checkLabel)
 
+
+@html5.tag
 class Radio(html5.Div):
+	_parserTagName = "ignite-radio"
+
 	def __init__(self, *args, **kwargs):
-		super(Radio, self).__init__(*args, **kwargs)
-		self.addClass("radio ignt-radio")
+		super(Radio, self).__init__(style="radio ignt-radio", *args, **kwargs)
 
 		radioInput = html5.Input()
 		radioInput.addClass("radio-input")
@@ -46,10 +73,13 @@ class Radio(html5.Div):
 		radioLabel.addClass("radio-label")
 		self.appendChild(radioLabel)
 
+
+@html5.tag
 class Select(html5.Select):
+	_parserTagName = "ignite-select"
+
 	def __init__(self, *args, **kwargs):
-		super(Select, self).__init__(*args, **kwargs)
-		self.addClass("select ignt-select")
+		super(Select, self).__init__(style="select ignt-select", *args, **kwargs)
 
 		defaultOpt = html5.Option()
 		defaultOpt["selected"] = True
@@ -57,20 +87,27 @@ class Select(html5.Select):
 		defaultOpt.element.innerHTML = ""
 		self.appendChild(defaultOpt)
 
+
+@html5.tag
 class Textarea(html5.Textarea):
-	def __init__(self, *args, **kwargs):
-		super(Textarea, self).__init__(*args, **kwargs)
-		self.addClass("textarea ignt-textarea")
+	_parserTagName = "ignite-textarea"
 
+	def __init__(self, *args, **kwargs):
+		super(Textarea, self).__init__(style="textarea ignt-textarea", *args, **kwargs)
+
+@html5.tag
 class Progress(html5.Progress):
-	def __init__(self, *args, **kwargs):
-		super(Progress, self).__init__(*args, **kwargs)
-		self.addClass("progress ignt-progress")
+	_parserTagName = "ignite-progress"
 
+	def __init__(self, *args, **kwargs):
+		super(Progress, self).__init__(style="progress ignt-progress", *args, **kwargs)
+
+@html5.tag
 class Item(html5.Div):
+	_parserTagName = "ignite-item"
+
 	def __init__(self, title=None, descr=None, className=None, *args, **kwargs):
-		super(Item, self).__init__(*args, **kwargs)
-		self.addClass("item ignt-item")
+		super(Item, self).__init__(style="item ignt-item", *args, **kwargs)
 		if className:
 			self.addClass(className)
 
@@ -92,7 +129,10 @@ class Item(html5.Div):
 			self.itemSubline.appendChild(html5.TextNode(descr))
 			self.appendChild(self.itemSubline)
 
+@html5.tag
 class Table(html5.Table):
+	_parserTagName = "ignite-table"
+
 	def __init__(self, *args, **kwargs):
 		super(Table, self).__init__(*args, **kwargs)
 		self.head.addClass("ignt-table-head")
