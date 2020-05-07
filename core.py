@@ -240,6 +240,7 @@ class Widget(object):
 	_tagName = None
 	_namespace = None
 	_parserTagName = None
+	style = []
 
 	def __init__(self, *args, appendTo=None, style=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
@@ -250,6 +251,8 @@ class Widget(object):
 			self.element = domCreateElement(self._tagName, ns=self._namespace)
 
 		super().__init__()
+		self.addClass(self.style)
+
 		if style:
 			self.addClass(style)
 
@@ -352,6 +355,9 @@ class Widget(object):
 
 	def __str__(self):
 		return str(self.__class__.__name__)
+
+	def __iter__(self):
+		return self._children.__iter__()
 
 	def _getData(self):
 		"""
