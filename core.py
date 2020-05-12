@@ -666,7 +666,7 @@ class Widget(object):
 
 		widgets = []
 		for arg in args:
-			if isinstance(arg, str):
+			if isinstance(arg, (str, HtmlAst)):
 				widgets.extend(fromHTML(arg, **kwargs))
 
 			elif isinstance(arg, (list, tuple)):
@@ -2812,6 +2812,10 @@ def _buildTags(debug=False):
 			print("{}: {}".format(tag, ", ".join(sorted(__tags[tag][1]))))
 
 
+class HtmlAst(list):
+	pass
+
+
 def parseHTML(html, debug=False):
 	"""
 	Parses the provided HTML-code according to the objects defined in the html5-library.
@@ -2872,7 +2876,7 @@ def parseHTML(html, debug=False):
 		_buildTags(debug=debug)
 
 	# Prepare stack and input
-	stack.append((None, None, []))
+	stack.append((None, None, HtmlAst()))
 	html = [ch for ch in html]
 
 	# Parse
@@ -2941,7 +2945,7 @@ def parseHTML(html, debug=False):
 			tag = tag.lower()
 			# print("tag", tag)
 
-			elem = (tag, {}, [])
+			elem = (tag, {}, HtmlAst())
 
 			stack.append(elem)
 			parent.append(elem)
@@ -3032,6 +3036,8 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 
 	if isinstance(html, str):
 		html = parseHTML(html, debug=debug)
+
+	assert isinstance(html, HtmlAst)
 
 	def replaceVars(txt):
 		if vars:

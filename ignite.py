@@ -95,12 +95,14 @@ class Textarea(html5.Textarea):
 	def __init__(self, *args, **kwargs):
 		super(Textarea, self).__init__(style="textarea ignt-textarea", *args, **kwargs)
 
+
 @html5.tag
 class Progress(html5.Progress):
 	_parserTagName = "ignite-progress"
 
 	def __init__(self, *args, **kwargs):
 		super(Progress, self).__init__(style="progress ignt-progress", *args, **kwargs)
+
 
 @html5.tag
 class Item(html5.Div):
@@ -128,6 +130,7 @@ class Item(html5.Div):
 			self.addClass("item-subline ignt-item-subline")
 			self.itemSubline.appendChild(html5.TextNode(descr))
 			self.appendChild(self.itemSubline)
+
 
 @html5.tag
 class Table(html5.Table):
