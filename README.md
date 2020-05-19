@@ -1,12 +1,12 @@
 # ViUR html5
 
-**WARNING: THIS IS AN UNSTABLE PYTHON3 / PYODIDE PORT, WORK IN PROGRESS!**
+**html5** is a DOM-abstraction layer and API that is used to create client-side Web-Apps running in the browser and written in Python.
 
-**html5** is a framework and abstraction layer for writing HTML5 web-apps using Python.
+Look [here](https://www.viur.dev/blog/html5-library) for a short introduction.
 
 ## About
 
-This framework is used to implement HTML5 web-apps using the Python programming language. The framework is an abstraction layer for a DOM running in [Pyodide](https://github.com/iodide-project/pyodide), a Python 3 interpreter compiled to web-assembly.
+This API and framework is used to implement HTML5 web-apps using the Python programming language. The framework is an abstraction layer for a DOM running in [Pyodide](https://github.com/iodide-project/pyodide), a Python 3 interpreter compiled to web-assembly.
 
 It provides
 
@@ -14,7 +14,7 @@ It provides
 - a built-in HTML parser and executor to generate DOM objects from HTML-code
 - helpers for adding/removing classes, arrange children, handling events etc.
 
-The most prominent software completely established on this library is [ViUR vi](https://github.com/viur-framework/viur-vi/), the visual administration interface for ViUR-based applications.
+The most prominent software completely established on this library is [ViUR-vi](https://github.com/viur-framework/viur-vi/), the visual administration interface for ViUR-based applications.
 
 [ViUR](https://www.viur.dev) is a free software development framework for the [Google App Engine](https://appengine.google.com).
 
