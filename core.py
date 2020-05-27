@@ -1418,16 +1418,20 @@ class _attrSrc(object):
 # Svg ------------------------------------------------------------------------------------------------------------------
 
 class _attrSvgViewBox(object):
-	def _getViewBox(self):
-		return self.element.viewBox
+	def _getViewbox(self):
+		viewBox = self.element.viewBox
+		try:
+			return " ".join([str(x) for x in [viewBox.baseVal.x, viewBox.baseVal.y, viewBox.baseVal.width, viewBox.baseVal.height]])
+		except:
+			return ""
 
-	def _setViewBox(self, val):
+	def _setViewbox(self, val):
 		self.element.setAttribute("viewBox", val)
 
-	def _getPreserveAspectRatio(self):
+	def _getPreserveaspectratio(self):
 		return self.element.preserveAspectRatio
 
-	def _setPreserveAspectRatio(self, val):
+	def _setPreserveaspectratio(self, val):
 		self.element.setAttribute("preserveAspectRatio", val)
 
 
@@ -2758,12 +2762,15 @@ __tags = None
 __domParser = None
 
 
-def registerTag(tagName, widgetClass):
+def registerTag(tagName, widgetClass, override=True):
 	assert issubclass(widgetClass, Widget), "widgetClass must be a sub-class of Widget!"
 	global __tags
 
 	if __tags is None:
 		_buildTags()
+
+	if not override and tagName.lower() in __tags:
+		return
 
 	attr = []
 
@@ -2776,7 +2783,7 @@ def registerTag(tagName, widgetClass):
 
 def tag(cls):
 	assert issubclass(cls, Widget)
-	registerTag(cls._parserTagName or cls.__name__, cls)
+	registerTag(cls._parserTagName or cls._tagName or cls.__name__, cls)
 	return cls
 
 
@@ -2797,15 +2804,15 @@ def _buildTags(debug=False):
 		if cname.startswith("_"):
 			continue
 
-		cl = globals()[cname]
+		cls = globals()[cname]
 
 		try:
-			if not issubclass(cl, Widget):
+			if not issubclass(cls, Widget):
 				continue
 		except:
 			continue
 
-		registerTag(cname, cl)
+		registerTag(cls._parserTagName or cls._tagName or cls.__name__, cls, override=False)
 
 	if debug:
 		for tag in sorted(__tags.keys()):
