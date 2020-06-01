@@ -251,6 +251,7 @@ class Widget(object):
 			self.element = domCreateElement(self._tagName, ns=self._namespace)
 
 		super().__init__()
+		self._widgetClassWrapper = _WidgetClassWrapper(self)
 		self.addClass(self.style)
 
 		if style:
@@ -563,7 +564,7 @@ class Widget(object):
 		The class attribute specifies one or more classnames for an element.
 		:returns:
 		"""
-		return _WidgetClassWrapper(self)
+		return self._widgetClassWrapper
 
 	def _setClass(self, value):
 		"""
