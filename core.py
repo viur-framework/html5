@@ -129,11 +129,6 @@ class _WidgetClassWrapper(list):
 
 		self.targetWidget = targetWidget
 
-		clsStr = targetWidget.element.getAttribute("class")
-		if clsStr:
-			for c in clsStr.split(" "):
-				list.append(self, c)
-
 	def _updateElem(self):
 		if len(self) == 0:
 			self.targetWidget.element.removeAttribute("class")
