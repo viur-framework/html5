@@ -16,6 +16,7 @@ This is the current development version.
 - Feature: `html5.ext.InputDialog` refactored & disables OK-Button when no value is present 
 - Feature: `html5.utils.doesEventHitWidgetOrChildren()` and `html5.utils.doesEventHitWidgetOrParent()` now return the Widget or None instead of a boolean, to avoid creating loops and directly work with the recognized Widget. 
 - Feature: New function `html5.Widget.onBind()` enables widgets to react when bound to other widgets using the HTML parser.
+- Speed-improvement: Hold one static _WidgetClassWrapper per widget instead of creating one each time on the fly
 
 ## [2.5.0] Vesuv
 

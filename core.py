@@ -129,11 +129,6 @@ class _WidgetClassWrapper(list):
 
 		self.targetWidget = targetWidget
 
-		clsStr = targetWidget.element.getAttribute("class")
-		if clsStr:
-			for c in clsStr.split(" "):
-				list.append(self, c)
-
 	def _updateElem(self):
 		if len(self) == 0:
 			self.targetWidget.element.removeAttribute("class")
@@ -251,6 +246,7 @@ class Widget(object):
 			self.element = domCreateElement(self._tagName, ns=self._namespace)
 
 		super().__init__()
+		self._widgetClassWrapper = _WidgetClassWrapper(self)
 		self.addClass(self.style)
 
 		if style:
@@ -563,7 +559,7 @@ class Widget(object):
 		The class attribute specifies one or more classnames for an element.
 		:returns:
 		"""
-		return _WidgetClassWrapper(self)
+		return self._widgetClassWrapper
 
 	def _setClass(self, value):
 		"""
