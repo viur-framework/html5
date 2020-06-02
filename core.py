@@ -2779,7 +2779,7 @@ def registerTag(tagName, widgetClass, override=True):
 
 def tag(cls):
 	assert issubclass(cls, Widget)
-	registerTag(cls._parserTagName or cls._tagName or cls.__name__, cls)
+	registerTag(cls._parserTagName or cls.__name__, cls)   # do NOT check for cls._tagName here!!!
 	return cls
 
 
