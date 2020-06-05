@@ -1031,15 +1031,16 @@ class Widget(object):
 			self.element.removeChild(c.element)
 			self.element.insertBefore(c.element, self.element.children.item(0))
 
-	def fromHTML(self, html, appendTo=None, bindTo=None, vars=None, replace=False):
+	def fromHTML(self, html, appendTo=None, bindTo=None, replace=False, vars=None, **kwargs):
 		"""
 		Parses html and constructs its elements as part of self.
 
 		:param html: HTML code.
 		:param appendTo: The entity where the HTML code is constructed below. This defaults to self in usual case.
 		:param bindTo: The entity where the named objects are bound to. This defaults to self in usual case.
-		:param vars: Additional variables provided as a dict for {{placeholders}} inside the HTML
 		:param replace: Clear entire content of appendTo before appending.
+		:param vars: Deprecated; Same as kwargs.
+		:param **kwargs: Additional variables provided as a dict for {{placeholders}} inside the HTML
 
 		:return:
 		"""
@@ -1052,7 +1053,11 @@ class Widget(object):
 		if replace:
 			appendTo.removeAllChildren()
 
-		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
+		# use of vars is deprecated!
+		if isinstance(vars, dict):
+			kwargs.update(vars)
+
+		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, **kwargs)
 
 
 ########################################################################################################################
@@ -3006,7 +3011,7 @@ def parseHTML(html, debug=False):
 
 	return stack[0][2]
 
-def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
+def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None, **kwargs):
 	"""
 	Parses the provided HTML code according to the objects defined in the html5-library.
 	html can also be pre-compiled by `parseHTML()` so that it executes faster.
@@ -3042,10 +3047,12 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 
 	assert isinstance(html, HtmlAst)
 
+	if isinstance(vars, dict):
+		kwargs.update(vars)
+
 	def replaceVars(txt):
-		if vars:
-			for var, val in vars.items():
-				txt = txt.replace("{{%s}}" % var, str(val) if val is not None else "")
+		for var, val in kwargs.items():
+			txt = txt.replace("{{%s}}" % var, str(val) if val is not None else "")
 
 		return txt
 
