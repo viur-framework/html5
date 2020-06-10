@@ -232,10 +232,11 @@ class _WidgetStyleWrapper(dict):
 # Widget ---------------------------------------------------------------------------------------------------------------
 
 class Widget(object):
-	_tagName = None
-	_namespace = None
-	_parserTagName = None
-	style = []
+	_tagName = None # Defines the tag-name that is used for DOM-Element construction
+	_leafTag = False    # Defines whether ths Widget may contain other Widgets (default) or is a leaf
+	_namespace = None   # Namespace
+	_parserTagName = None   # Alternative tag name under which this Widget is registered in HTML parser
+	style = []  # CSS-classes to directly assign to this Widget at construction.
 
 	def __init__(self, *args, appendTo=None, style=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
@@ -655,8 +656,6 @@ class Widget(object):
 			c.onDetach()
 
 	def __collectChildren(self, *args, **kwargs):
-		assert not isinstance(self, _isVoid), "<%s> can't have children!" % self._tagName
-
 		if kwargs.get("bindTo") is None:
 			kwargs["bindTo"] = self
 
@@ -1416,11 +1415,6 @@ class _attrSrc(object):
 		self.element.src = val
 
 
-
-class _isVoid(object):
-	pass
-
-
 ########################################################################################################################
 # HTML Elements
 ########################################################################################################################
@@ -1447,8 +1441,9 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 
 # Area -----------------------------------------------------------------------------------------------------------------
 
-class Area(A, _attrAlt, _isVoid):
+class Area(A, _attrAlt):
 	_tagName = "area"
+	_leafTag = True
 
 	def _getCoords(self):
 		return self.element.coords
@@ -1575,8 +1570,9 @@ class Bdi(Widget):
 	_tagName = "bdi"
 
 
-class Br(Widget, _isVoid):
+class Br(Widget):
 	_tagName = "br"
+	_leafTag = True
 
 
 class Caption(Widget):
@@ -1607,8 +1603,9 @@ class Em(Widget):
 	_tagName = "em"
 
 
-class Embed(Widget, _attrSrc, _attrType, _attrDimensions, _isVoid):
+class Embed(Widget, _attrSrc, _attrType, _attrDimensions):
 	_tagName = "embed"
+	_leafTag = True
 
 
 class Figcaption(Widget):
@@ -1651,8 +1648,9 @@ class H6(Widget):
 	_tagName = "h6"
 
 
-class Hr(Widget, _isVoid):
+class Hr(Widget):
 	_tagName = "hr"
+	_leafTag = True
 
 
 class I(Widget):
@@ -1784,8 +1782,9 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 
 class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
 				_attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
-					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isVoid):
+					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
 	_tagName = "input"
+	_leafTag = True
 
 	def _getAccept(self):
 		return self.element.accept
@@ -1941,8 +1940,9 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 
 # Img ------------------------------------------------------------------------------------------------------------------
 
-class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
+class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt):
 	_tagName = "img"
+	_leafTag = True
 
 	def __init__(self, src=None, *args, **kwargs):
 		super().__init__()
@@ -1991,8 +1991,9 @@ class Keygen(Form, _attrAutofocus, _attrDisabled):
 
 # Link -----------------------------------------------------------------------------------------------------------------
 
-class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
+class Link(Widget, _attrHref, _attrMedia, _attrRel):
 	_tagName = "link"
+	_leafTag = True
 
 	def _getSizes(self):
 		return self.element.sizes
@@ -2041,8 +2042,9 @@ class Menu(Widget):
 
 # Meta -----------------------------------------------------------------------------------------------------------------
 
-class Meta(Widget, _attrName, _attrCharset, _isVoid):
+class Meta(Widget, _attrName, _attrCharset):
 	_tagName = "meta"
+	_leafTag = True
 
 	def _getContent(self):
 		return self.element.content
@@ -2101,8 +2103,9 @@ class Object(Form, _attrType, _attrName, _attrDimensions, _attrUsemap):
 
 # Param -----------------------------------------------------------------------------------------------------------------
 
-class Param(Widget, _attrName, _attrValue, _isVoid):
+class Param(Widget, _attrName, _attrValue):
 	_tagName = "param"
+	_leafTag = True
 
 
 # Progress -------------------------------------------------------------------------------------------------------------
@@ -2149,8 +2152,9 @@ class Script(Widget, _attrSrc, _attrCharset):
 
 # Source ---------------------------------------------------------------------------------------------------------------
 
-class Source(Widget, _attrMedia, _attrSrc, _isVoid):
+class Source(Widget, _attrMedia, _attrSrc):
 	_tagName = "source"
+	_leafTag = True
 
 
 # Span -----------------------------------------------------------------------------------------------------------------
@@ -2337,8 +2341,9 @@ class Time(Widget, _attrDatetime):
 
 # Track ----------------------------------------------------------------------------------------------------------------
 
-class Track(Label, _attrSrc, _isVoid):
+class Track(Label, _attrSrc):
 	_tagName = "track"
+	_leafTag = True
 
 	def _getKind(self):
 		return self.element.kind
@@ -2673,8 +2678,8 @@ def parseHTML(html, debug=False):
 		tag = None
 		text = ""
 
-		# Auto-close void elements (_isVoid), e.g. <hr>, <br>, etc.
-		while stack and stack[-1][0] and issubclass(__tags[stack[-1][0]][0], _isVoid):
+		# Auto-close leaf elements, e.g. like <hr>, <br>, etc.
+		while stack and stack[-1][0] and __tags[stack[-1][0]][0]._leafTag:
 			stack.pop()
 
 		if not stack:
