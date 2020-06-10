@@ -1416,143 +1416,6 @@ class _attrSrc(object):
 		self.element.src = val
 
 
-# Svg ------------------------------------------------------------------------------------------------------------------
-
-class _attrSvgViewBox(object):
-	def _getViewbox(self):
-		viewBox = self.element.viewBox
-		try:
-			return " ".join([str(x) for x in [viewBox.baseVal.x, viewBox.baseVal.y, viewBox.baseVal.width, viewBox.baseVal.height]])
-		except:
-			return ""
-
-	def _setViewbox(self, val):
-		self.element.setAttribute("viewBox", val)
-
-	def _getPreserveaspectratio(self):
-		return self.element.preserveAspectRatio
-
-	def _setPreserveaspectratio(self, val):
-		self.element.setAttribute("preserveAspectRatio", val)
-
-
-class _attrSvgDimensions(object):
-	def _getWidth(self):
-		return self.element.width
-
-	def _setWidth(self, val):
-		self.element.setAttribute("width", val)
-
-	def _getHeight(self):
-		return self.element.height
-
-	def _setHeight(self, val):
-		self.element.setAttribute("height", val)
-
-	def _getX(self):
-		return self.element.x
-
-	def _setX(self, val):
-		self.element.setAttribute("x", val)
-
-	def _getY(self):
-		return self.element.y
-
-	def _setY(self, val):
-		self.element.setAttribute("y", val)
-
-	def _getR(self):
-		return self.element.r
-
-	def _setR(self, val):
-		self.element.setAttribute("r", val)
-
-	def _getRx(self):
-		return self.element.rx
-
-	def _setRx(self, val):
-		self.element.setAttribute("rx", val)
-
-	def _getRy(self):
-		return self.element.ry
-
-	def _setRy(self, val):
-		self.element.setAttribute("ry", val)
-
-	def _getCx(self):
-		return self.element.cx
-
-	def _setCx(self, val):
-		self.element.setAttribute("cx", val)
-
-	def _getCy(self):
-		return self.element.cy
-
-	def _setCy(self, val):
-		self.element.setAttribute("cy", val)
-
-
-class _attrSvgPoints(object):
-	def _getPoints(self):
-		return self.element.points
-
-	def _setPoints(self, val):
-		self.element.setAttribute("points", val)
-
-	def _getX1(self):
-		return self.element.x1
-
-	def _setX1(self, val):
-		self.element.setAttribute("x1", val)
-
-	def _getY1(self):
-		return self.element.y1
-
-	def _setY1(self, val):
-		self.element.setAttribute("y1", val)
-
-	def _getX2(self):
-		return self.element.x2
-
-	def _setX2(self, val):
-		self.element.setAttribute("x2", val)
-
-	def _getY2(self):
-		return self.element.y2
-
-	def _setY2(self, val):
-		self.element.setAttribute("y2", val)
-
-
-class _attrSvgTransform(object):
-	def _getTransform(self):
-		return self.element.transform
-
-	def _setTransform(self, val):
-		self.element.setAttribute("transform", val)
-
-
-class _attrSvgXlink(object):
-	def _getXlinkhref(self):
-		return self.element.getAttribute("xlink:href")
-
-	def _setXlinkhref(self, val):
-		self.element.setAttribute("xlink:href", val)
-
-
-class _attrSvgStyles(object):
-	def _getFill(self):
-		return self.element.fill
-
-	def _setFill(self, val):
-		self.element.setAttribute("fill", val)
-
-	def _getStroke(self):
-		return self.element.stroke
-
-	def _setStroke(self, val):
-		self.element.setAttribute("stroke", val)
-
 
 class _isVoid(object):
 	pass
@@ -2311,93 +2174,6 @@ class Style(Widget, _attrMedia):
 			self.element.removeAttribute("scoped")
 
 
-# SVG ------------------------------------------------------------------------------------------------------------------
-
-class Svg(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform):
-	_tagName = "svg"
-	_namespace = "SVG"
-
-	def _getVersion(self):
-		return self.element.version
-
-	def _setVersion(self, val):
-		self.element.setAttribute("version", val)
-
-	def _getXmlns(self):
-		return self.element.xmlns
-
-	def _setXmlns(self, val):
-		self.element.setAttribute("xmlns", val)
-
-
-class SvgCircle(Widget, _attrSvgTransform, _attrSvgDimensions):
-	_tagName = "circle"
-	_namespace = "SVG"
-
-
-class SvgEllipse(Widget, _attrSvgTransform, _attrSvgDimensions):
-	_tagName = "ellipse"
-	_namespace = "SVG"
-
-
-class SvgG(Widget, _attrSvgTransform, _attrSvgStyles):
-	_tagName = "g"
-	_namespace = "SVG"
-
-	def _getSvgTransform(self):
-		return self.element.transform
-
-	def _setSvgTransform(self, val):
-		self.element.setAttribute("transform", val)
-
-
-class SvgImage(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform, _attrSvgXlink):
-	_tagName = "image"
-	_namespace = "SVG"
-
-
-class SvgLine(Widget, _attrSvgTransform, _attrSvgPoints):
-	_tagName = "line"
-	_namespace = "SVG"
-
-
-class SvgPath(Widget, _attrSvgTransform):
-	_tagName = "path"
-	_namespace = "SVG"
-
-	def _getD(self):
-		return self.element.d
-
-	def _setD(self, val):
-		self.element.setAttribute("d", val)
-
-	def _getPathLength(self):
-		return self.element.pathLength
-
-	def _setPathLength(self, val):
-		self.element.setAttribute("pathLength", val)
-
-
-class SvgPolygon(Widget, _attrSvgTransform, _attrSvgPoints):
-	_tagName = "polygon"
-	_namespace = "SVG"
-
-
-class SvgPolyline(Widget, _attrSvgTransform, _attrSvgPoints):
-	_tagName = "polyline"
-	_namespace = "SVG"
-
-
-class SvgRect(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
-	_tagName = "rect"
-	_namespace = "SVG"
-
-
-class SvgText(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
-	_tagName = "text"
-	_namespace = "SVG"
-
-
 # Table ----------------------------------------------------------------------------------------------------------------
 
 
@@ -2784,7 +2560,12 @@ def registerTag(tagName, widgetClass, override=True):
 
 def tag(cls):
 	assert issubclass(cls, Widget)
-	registerTag(cls._parserTagName or cls.__name__, cls)   # do NOT check for cls._tagName here!!!
+	# This is a little bit ugly but works for the svg...
+	if str(cls.__module__).split(".")[-2] == "html5":
+		registerTag(cls._parserTagName or cls._tagName or cls.__name__, cls)
+	else:
+		registerTag(cls._parserTagName or cls.__name__, cls)   # do NOT check for cls._tagName here!!!
+
 	return cls
 
 
