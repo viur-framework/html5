@@ -129,6 +129,24 @@ class _WidgetClassWrapper(list):
 
 		self.targetWidget = targetWidget
 
+		# Initially read content of element into current wrappper
+		value = targetWidget.element.getAttribute("class")
+		if value:
+			for c in value.split(" "):
+				list.append(self, c)
+
+	def set(self, value):
+		if value is None:
+			value = []
+		elif isinstance(value, str):
+			value = value.split(" ")
+		elif not isinstance(value, list):
+			raise ValueError("Value must be a str, a List or None")
+
+		list.clear(self)
+		list.extend(self, value)
+		self._updateElem()
+
 	def _updateElem(self):
 		if len(self) == 0:
 			self.targetWidget.element.removeAttribute("class")
@@ -246,8 +264,10 @@ class Widget(object):
 			assert self._tagName is not None
 			self.element = domCreateElement(self._tagName, ns=self._namespace)
 
+		self._widgetClassWrapper = None
+
 		super().__init__()
-		self._widgetClassWrapper = _WidgetClassWrapper(self)
+
 		self.addClass(self.style)
 
 		if style:
@@ -560,6 +580,9 @@ class Widget(object):
 		The class attribute specifies one or more classnames for an element.
 		:returns:
 		"""
+		if self._widgetClassWrapper is None:
+			self._widgetClassWrapper = _WidgetClassWrapper(self)
+
 		return self._widgetClassWrapper
 
 	def _setClass(self, value):
@@ -569,15 +592,7 @@ class Widget(object):
 		:param value:
 		@raise ValueError:
 		"""
-
-		if value is None:
-			self.element.setAttribute("class", " ")
-		elif isinstance(value, str):
-			self.element.setAttribute("class", value)
-		elif isinstance(value, list):
-			self.element.setAttribute("class", " ".join(value))
-		else:
-			raise ValueError("Class must be a str, a List or None")
+		self._getClass().set(value)
 
 	def _getStyle(self):
 		"""
