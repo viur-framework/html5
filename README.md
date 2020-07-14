@@ -66,4 +66,4 @@ Copyright (C) 2012-2020 by Mausbrand Informationssysteme GmbH.
 
 Mausbrand and ViUR are registered trademarks of Mausbrand Informationssysteme GmbH.
 
-You may use, modify and distribute this software under the terms and conditions of the GNU Lesser General Public License (LGPL). See the file LICENSE provided within this package for more information.
+You may use, modify and distribute this software under the terms and conditions of the MIT license. See the file LICENSE provided within this package for more information.
