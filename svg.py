@@ -439,20 +439,30 @@ class SvgText(SvgWidget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
 	def _getTextanchor(self):
 		return self.element.getAttribute("text-anchor")
 
-	def _setTextAnchor(self, val):
-		self.element.setAttribute("textAnchor", val)
+	def _setTextanchor(self, val):
+		self.element.setAttribute("text-anchor", val)
 
-	def _getFontName(self):
-		return self.element.fontName
+	def _getFontfamily(self):
+		return self.element.getAttribute("font-family")
 
-	def _setFontName(self, val):
-		self.element.setAttribute("fontName", val)
+	def _setFontfamily(self, val):
+		self.element.setAttribute("font-family", val)
 
-	def _getFontSize(self):
-		return self.element.fontSize
+	def _getFontsize(self):
+		return self.element.getAttribute("font-size")
 
-	def _setFontSize(self, val):
-		self.element.setAttribute("fontSize", val)
+	def _setFontsize(self, val):
+		self.element.setAttribute("font-size", val)
+
+	def _getText(self):
+		return self.element.data
+
+	def _setText(self, txt):
+		self.element.data = txt
+
+	def __str__(self):
+		return self.element.data
+
 
 
 
