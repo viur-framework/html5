@@ -6,6 +6,7 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 This is the current development version.
 
+- Feature: Changed LGPLv3 licensing terms into MIT
 - Feature: Ported framework to Python 3 using [Pyodide](https://github.com/iodide-project/pyodide), with a full source code and library cleanup
 - Feature: `html5.Widget.__init__()` now allows for parameters equal to `Widget.appendChild()` to directly stack widgets together.
   Additionally, the following parameters can be used:
