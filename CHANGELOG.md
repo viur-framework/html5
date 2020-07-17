@@ -7,7 +7,7 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 This is the current development version.
 
 - Feature: Changed LGPLv3 licensing terms into MIT
-- Feature: Ported framework to Python 3 using [Pyodide](https://github.com/iodide-project/pyodide), with a full source code and library cleanup
+- Feature: Ported framework to Python 3.7 using [Pyodide](https://github.com/iodide-project/pyodide), with a full source code and library cleanup
 - Feature: `html5.Widget.__init__()` now allows for parameters equal to `Widget.appendChild()` to directly stack widgets together.
   Additionally, the following parameters can be used:
   - `appendTo`: Directly append the newly created widget to another widget.
@@ -20,6 +20,9 @@ This is the current development version.
 - Feature: Replace HTML-parsing-related `vars`-parameter generally by `**kwargs`, with backward-compatibility.
 - Feature: Splitting SVG-Widgets into separate module.
 - Feature: Replaced `_isVoid`-class by class-attribute `Widget._leafTag` for easier leaf-widget-/tag configuration outside of html5.
+- Feature: HTML-parser improvements
+  - Direct attribute assignments: Store attributes which are not HTML-element attributes directly, e.g. `<div kind="internal">` becomes `self.kind = "internal"` on the created `html5.Div()` instance
+  - ':'-notation on attributes to transfer objects from binder to its children
 - Speed-improvement: Hold static `_WidgetClassWrapper` per `html5.Widget` instead of creating one each time on the fly.
 
 ## [2.5.0] Vesuv
