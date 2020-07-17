@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*
+import logging
 
 ########################################################################################################################
 # DOM-access functions and variables
@@ -2785,7 +2786,7 @@ def parseHTML(html, debug=False):
 					html.pop(0)
 					continue
 
-				if att in __tags[tag][1] or att in ["[name]", "style", "disabled", "hidden"] or att.startswith("data-"):
+				if att in __tags[tag][1] or att in ["[name]", "style", "disabled", "hidden"] or att.startswith("data-") or att.startswith(":"):
 					scanWhite(html)
 					if html[0] == "=":
 						html.pop(0)
@@ -2933,6 +2934,15 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None, **kwargs)
 
 				elif att.startswith("data-"):
 					wdg["data"][att[5:]] = val
+
+				elif att.startswith(":"):
+					if bindTo:
+						try:
+							setattr(wdg, att[1:], getattr(bindTo, val))
+						except Exception as e:
+							logging.exception(e)
+					else:
+						logging.error("html5: bindTo is unset, can't use %r here", att)
 
 				else:
 					wdg[att] = parseInt(val, val)
