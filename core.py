@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*
+import logging
 
 ########################################################################################################################
 # DOM-access functions and variables
@@ -2920,11 +2921,13 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None, **kwargs)
 					wdg["data"][att[5:]] = val
 
 				elif att.startswith(":"):
-					attrName = att[1:]
-					attrVal = val
-
-					refObj = getattr(bindTo, attrVal)
-					setattr(wdg, attrName, refObj)
+					if bindTo:
+						try:
+							setattr(wdg, att[1:], getattr(bindTo, val))
+						except Exception as e:
+							logging.exception(e)
+					else:
+						logging.error("html5: bindTo is unset, can't use %r here", att)
 
 				else:
 					wdg[att] = parseInt(val, val)
