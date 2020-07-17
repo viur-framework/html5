@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+
+################################################################
+# NOTE: This part of the html5 library is superseded by flare. #
+#       It is not improved anymore, and just remains here for  #
+#       existing projects.                                     #
+#                                                              #
+#       Visit https://github.com/mausbrand/flare for details.  #
+################################################################
+
 from . import core as html5
 from . import utils
 

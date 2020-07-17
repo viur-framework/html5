@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 from . import core as html5
 
+################################################################
+# NOTE: This part of the html5 library is superseded by flare. #
+#       It is not improved anymore, and just remains here for  #
+#       existing projects.                                     #
+#                                                              #
+#       Visit https://github.com/mausbrand/flare for details.  #
+################################################################
 
 @html5.tag
 class Label(html5.Label):
