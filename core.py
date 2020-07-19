@@ -4,6 +4,8 @@
 # DOM-access functions and variables
 ########################################################################################################################
 
+import logging
+
 try:
 	# PyJS
 	jseval = eval
@@ -12,7 +14,7 @@ try:
 	document = window.document
 
 except NameError:
-	print("Emulation mode")
+	logging.debug("Emulation mode")
 	from xml.dom.minidom import parseString
 	jseval = None
 
@@ -268,7 +270,7 @@ class Widget(object):
 
 			self.element.addEventListener(event, eventFn)
 
-			# print("sink", event, eventFn)
+			# logging.debug("sink: %r, %r", event, eventFn)
 
 	def unsinkEvent(self, *args):
 		for event_attrName in args:
@@ -285,7 +287,7 @@ class Widget(object):
 
 			self.element.removeEventListener(event, eventFn)
 
-			# print("unsink", ret, eventFn)
+			# logging.debug("unsink: %r, %r", ret, eventFn)
 
 	def disable(self):
 		if not self["disabled"]:
@@ -330,20 +332,20 @@ class Widget(object):
 
 	def __getitem__(self, key):
 		funcName = self._getTargetfuncName(key, "get")
-		# print("GET", funcName, key)
+		# logging.debug("GET: %r, %r", funcName, key)
 
 		if funcName in dir(self):
-			# print(self._baseClass or str(self), "get", key, getattr(self, funcName)())
+			# logging.debug("%r get, %r, %r", self._baseClass or str(self), key, getattr(self, funcName)())
 			return getattr(self, funcName)()
 
 		return None
 
 	def __setitem__(self, key, value):
 		funcName = self._getTargetfuncName(key, "set")
-		# print("SET", funcName, key, value)
+		# logging.debug("SET: %r, %r, %r", funcName, key, value)
 
 		if funcName in dir(self):
-			# print( self._baseClass or str( self ), "set", key, value )
+			# logging.debug("%r set: %r, %r", self._baseClass or str( self ), key, value )
 			return getattr(self, funcName)(value)
 
 		raise ValueError("{} is no valid attribute for {}".format(key, (self._baseClass or str(self))))
@@ -3103,7 +3105,7 @@ def _buildTags(debug=False):
 
 	if debug:
 		for tag in sorted(__tags.keys()):
-			print("{}: {}".format(tag, ", ".join(sorted(__tags[tag][1]))))
+			logging.debug("%r: %r", tag, ", ".join(sorted(__tags[tag][1])))
 
 
 def parseHTML(html, debug=False):
@@ -3184,8 +3186,7 @@ def parseHTML(html, debug=False):
 		parent = stack[-1][2]
 
 		while html:
-			# print("html", html)
-			# print(stack)
+			# logging.debug("html: %r, %r", html, stack)
 
 			ch = html.pop(0)
 
@@ -3213,7 +3214,7 @@ def parseHTML(html, debug=False):
 				tag = scanWord(html)
 				junk += tag
 
-				# print("/", tag.lower(), stack[-1][1].lower())
+				# logging.debug("/ %r, %r", tag.lower(), stack[-1][1].lower())
 				if stack[-1][0] == tag.lower():
 					junk += scanWhite(html)
 					if html and html[0] == ">":
@@ -3231,13 +3232,13 @@ def parseHTML(html, debug=False):
 		# Append plain text (if not only whitespace)
 		if (text and ((len(text) == 1 and text in ["\t "])
 					  or not all([ch in " \t\r\n" for ch in text]))):
-			# print("text", text)
+			# logging.debug("text: %r", text)
 			parent.append(convertEncodedText(text))
 
 		# Create tag
 		if tag:
 			tag = tag.lower()
-			# print("tag", tag)
+			# logging.debug("tag: %r", tag)
 
 			elem = (tag, {}, [])
 
@@ -3371,23 +3372,23 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 						continue
 
 					if val in dir(appendTo):
-						print("Cannot assign name '{}' because it already exists in {}".format(val, appendTo))
+						logging.debug("Cannot assign name %r because it already exists in %r", val, appendTo)
 
 					elif not (any([val.startswith(x) for x in
 								   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
 							  and all(
 								[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
 								 for x in val[1:]])):
-						print("Cannot assign name '{}' because it contains invalid characters".format(val))
+						logging.debug("Cannot assign name %r because it contains invalid characters", val)
 					
 					else:
 						setattr(bindTo, val, wdg)
 
 					if debug:
-						print("name '{}' assigned to {}".format(val, bindTo))
+						logging.debug("name '{}' assigned to {}", val, bindTo)
 
 				elif att == "class":
-					# print(tag, att, val.split())
+					# logging.debug("tag: %r, %r", att, val.split())
 					wdg.addClass(*val.split())
 
 				elif att == "disabled":
@@ -3427,4 +3428,4 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 
 
 if __name__ == '__main__':
-	print(globals())
+	logging.debug(globals()
