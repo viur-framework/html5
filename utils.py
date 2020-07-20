@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
-import html5
+from . import core as html5
+
+################################################################
+# NOTE: This part of the html5 library is superseded by flare. #
+#       It is not improved anymore, and just remains here for  #
+#       existing projects.                                     #
+#                                                              #
+#       Visit https://github.com/mausbrand/flare for details.  #
+################################################################
 
 def unescape(val, maxLength = 0):
 	"""
@@ -32,24 +40,24 @@ def doesEventHitWidgetOrParents(event, widget):
 	"""
 	while widget:
 		if event.target == widget.element:
-			return True
+			return widget
 
 		widget = widget.parent()
 
-	return False
+	return None
 
 def doesEventHitWidgetOrChildren(event, widget):
 	"""
 		Test if event 'event' hits widget 'widget' (or *any* of its children)
 	"""
 	if event.target == widget.element:
-		return True
+		return widget
 
 	for child in widget.children():
 		if doesEventHitWidgetOrChildren(event, child):
-			return True
+			return child
 
-	return False
+	return None
 
 def textToHtml(node, text):
 	"""

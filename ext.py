@@ -1,11 +1,25 @@
 # -*- coding: utf-8 -*-
-import core as html5
-import utils
+
+################################################################
+# NOTE: This part of the html5 library is superseded by flare. #
+#       It is not improved anymore, and just remains here for  #
+#       existing projects.                                     #
+#                                                              #
+#       Visit https://github.com/mausbrand/flare for details.  #
+################################################################
+
+from . import core as html5
+from . import utils
 
 class Button(html5.Button):
-	def __init__(self, txt=None, callback=None, *args, **kwargs):
-		super(Button, self).__init__(*args, **kwargs)
-		self["class"] = "button"
+
+	def __init__(self, txt=None, callback=None, className=None, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self["class"] = "btn"
+
+		if className:
+			self.addClass(className)
+
 		self["type"] = "button"
 
 		if txt is not None:
@@ -39,7 +53,7 @@ class Input(html5.Input):
 		:param id: Optional id of the input element. Will be passed to callback
 		:return:
 		"""
-		super(Input, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self["class"] = "input"
 		self["type"] = type
 		if placeholder is not None:
@@ -67,35 +81,65 @@ class Input(html5.Input):
 			self.focusCallback(self, self["id"], self["value"])
 
 	def onDetach(self):
-		super(Input, self).onDetach()
+		super().onDetach()
 		self.callback = None
 
 
 class Popup(html5.Div):
-	def __init__(self, title=None, id=None, className=None, enableShortcuts=True, *args, **kwargs):
-		super(Popup, self).__init__(*args, **kwargs)
+	def __init__(self, title=None, id=None, className=None, icon=None, enableShortcuts=True, closeable=True, *args, **kwargs):
+		super().__init__("""
+			<div class="box" [name]="popupBox">
+				<div class="box-head" [name]="popupHead">
+					<div class="item" [name]="popupHeadItem">
+						<div class="item-image">
+							<i class="i i--small" [name]="popupIcon"></i>
+						</div>
+						<div class="item-content">
+							<div class="item-headline" [name]="popupHeadline"></div>
+						</div>
+					</div>
+				</div>
+				<div class="box-body box--content" [name]="popupBody"></div>
+				<div class="box-foot box--content bar" [name]="popupFoot"></div>
+			</div>
+		""")
 
-		self["class"] = "alertbox"
-		if className is not None and len(className):
-			self["class"].append(className)
+		self.appendChild = self.popupBody.appendChild
+		self.fromHTML = lambda *args, **kwargs: self.popupBody.fromHTML(*args, **kwargs) if kwargs.get("bindTo") else self.popupBody.fromHTML(bindTo=self, *args, **kwargs)
+
+		self["class"] = "popup popup--center is-active"
+		if className:
+			self.addClass(className)
+
+		if closeable:
+			closeBtn = Button("&times;", self.close, className="item-action")
+			closeBtn.removeClass("btn")
+			self.popupHeadItem.appendChild(closeBtn)
 
 		if title:
-			lbl = html5.Span()
-			lbl["class"].append("title")
-			lbl.appendChild(html5.TextNode(title))
-			self.appendChild(lbl)
+			self.popupHeadline.appendChild(title)
+
+		if icon:
+			self.popupIcon.appendChild(icon[0])
+		elif title:
+			self.popupIcon.appendChild(title[0])
+		else:
+			self.popupIcon.appendChild("Vi") #fixme!!! this _LIBRARY_ is not only used in the Vi...
 
 		# id can be used to pass information to callbacks
 		self.id = id
 
+		#FIXME: Implement a global overlay! One popupOverlay next to a list of popups.
+		self.popupOverlay = html5.Div()
+		self.popupOverlay["class"] = "popup-overlay is-active"
+
 		self.enableShortcuts = enableShortcuts
 		self.onDocumentKeyDownMethod = None
 
-		self.frameDiv = html5.Div()
-		self.frameDiv["class"] = "popup"
+		self.popupOverlay.appendChild(self)
+		html5.Body().appendChild(self.popupOverlay)
 
-		self.frameDiv.appendChild(self)
-		html5.Body().appendChild(self.frameDiv)
+		#FIXME: Close/Cancel every popup with click on popupCloseBtn without removing the global overlay.
 
 	def onAttach(self):
 		super(Popup, self).onAttach()
@@ -115,40 +159,62 @@ class Popup(html5.Div):
 			self.close()
 
 	def close(self, *args, **kwargs):
-		html5.Body().removeChild(self.frameDiv)
-		self.frameDiv = None
+		html5.Body().removeChild(self.popupOverlay)
+		self.popupOverlay = None
+
 
 
 class InputDialog(Popup):
-	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
-	             placeholder="", *args, **kwargs):
-		super(InputDialog, self).__init__(*args, **kwargs)
-		self["class"].append("inputdialog")
+	def __init__(self, text, value="", successHandler=None, abortHandler=None,
+				 	successLbl="OK", abortLbl="Cancel", placeholder="", *args, **kwargs):
+
+		super().__init__(*args, **kwargs)
+		self.addClass("popup--inputdialog")
+
+		self.sinkEvent("onKeyDown", "onKeyUp")
+
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler
 
-		span = html5.Span()
-		span.element.innerHTML = text
-		self.appendChild(span)
-		self.inputElem = html5.Input()
-		self.inputElem["type"] = "text"
-		self.inputElem["value"] = value
-		self.inputElem["placeholder"] = placeholder
-		self.appendChild(self.inputElem)
-		okayBtn = Button(successLbl, self.onOkay)
-		okayBtn["class"].append("btn_okay")
-		self.appendChild(okayBtn)
-		cancelBtn = Button(abortLbl, self.onCancel)
-		cancelBtn["class"].append("btn_cancel")
-		self.appendChild(cancelBtn)
-		self.sinkEvent("onKeyDown")
+		self.fromHTML(
+			"""
+			<div class="input-group">
+				<label class="label">
+					{{text}}
+				</label>
+				<input class="input" [name]="inputElem" value="{{value}}" placeholder="{{placeholder}}" />
+			</div>
+			""",
+			vars={
+				"text": text,
+				"value": value,
+				"placeholder": placeholder
+			}
+		)
+
+		# Cancel
+		self.popupFoot.appendChild(Button(abortLbl, self.onCancel, className="btn--cancel btn--danger"))
+
+		# Okay
+		self.okayBtn = Button(successLbl, self.onOkay, className="btn--okay btn--primary")
+		if not value:
+			self.okayBtn.disable()
+
+		self.popupFoot.appendChild(self.okayBtn)
+
 		self.inputElem.focus()
 
 	def onKeyDown(self, event):
-		if html5.isReturn(event):
+		if html5.isReturn(event) and self.inputElem["value"]:
 			event.stopPropagation()
 			event.preventDefault()
 			self.onOkay()
+
+	def onKeyUp(self, event):
+		if self.inputElem["value"]:
+			self.okayBtn.enable()
+		else:
+			self.okayBtn.disable()
 
 	def onDocumentKeyDown(self, event):
 		if html5.isEscape(event):
@@ -172,27 +238,32 @@ class Alert(Popup):
 	Just displaying an alerting message box with OK-button.
 	"""
 
-	def __init__(self, msg, title=None, okCallback=None, okLabel="OK", *args, **kwargs):
-		super(Alert, self).__init__(title, *args, **kwargs)
-		self.addClass("alert")
+	def __init__(self, msg, title=None, className=None, okCallback=None, okLabel="OK", icon="!", closeable=True, *args, **kwargs):
+		super().__init__(title, className=None, icon=icon, closeable=closeable, *args, **kwargs)
+		self.addClass("popup--alert")
+
+		if className:
+			self.addClass(className)
 
 		self.okCallback = okCallback
 
 		message = html5.Span()
 		message.addClass("alert-msg")
-		self.appendChild(message)
+		self.popupBody.appendChild(message)
 
-		if isinstance(msg, html5.Widget):
-			message.appendChild(msg)
-		else:
-			utils.textToHtml(message, msg)
+		if isinstance(msg, str):
+			msg = msg.replace("\n", "<br>")
 
-		okBtn = Button(okLabel, callback=self.onOkBtnClick)
-		okBtn.addClass("alert-btn-ok")
-		self.appendChild(okBtn)
+		message.appendChild(msg, bindTo=False)
 
 		self.sinkEvent("onKeyDown")
-		okBtn.focus()
+
+		if closeable:
+			okBtn = Button(okLabel, callback=self.onOkBtnClick)
+			okBtn.addClass("btn--okay btn--primary")
+			self.popupFoot.appendChild(okBtn)
+
+			okBtn.focus()
 
 	def drop(self):
 		self.okCallback = None
@@ -212,31 +283,32 @@ class Alert(Popup):
 
 
 class YesNoDialog(Popup):
-	def __init__(self, question, title=None, yesCallback=None, noCallback=None, yesLabel="Yes", noLabel="No", *args,
-	             **kwargs):
-		super(YesNoDialog, self).__init__(title, *args, **kwargs)
-		self["class"].append("yesnodialog")
+	def __init__(self, question, title=None, yesCallback=None, noCallback=None,
+	                yesLabel="Yes", noLabel="No", icon="?",
+	                    closeable=False, *args, **kwargs):
+		super().__init__(title, closeable=closeable, icon=icon, *args, **kwargs)
+		self.addClass("popup--yesnodialog")
 
 		self.yesCallback = yesCallback
 		self.noCallback = noCallback
 
 		lbl = html5.Span()
 		lbl["class"].append("question")
-		self.appendChild(lbl)
+		self.popupBody.appendChild(lbl)
 
 		if isinstance(question, html5.Widget):
 			lbl.appendChild(question)
 		else:
 			utils.textToHtml(lbl, question)
 
-		btnYes = Button(yesLabel, callback=self.onYesClicked)
-		btnYes["class"].append("btn_yes")
-		self.appendChild(btnYes)
-
 		if len(noLabel):
-			btnNo = Button(noLabel, callback=self.onNoClicked)
-			btnNo["class"].append("btn_no")
-			self.appendChild(btnNo)
+			btnNo = Button(noLabel, className="btn--no", callback=self.onNoClicked)
+			#btnNo["class"].append("btn--no")
+			self.popupFoot.appendChild(btnNo)
+
+		btnYes = Button(yesLabel, callback=self.onYesClicked)
+		btnYes["class"].append("btn--yes")
+		self.popupFoot.appendChild(btnYes)
 
 		self.sinkEvent("onKeyDown")
 		btnYes.focus()
@@ -275,8 +347,8 @@ class SelectDialog(Popup):
 
 	def __init__(self, prompt, items=None, title=None, okBtn="OK", cancelBtn="Cancel", forceSelect=False,
 	             callback=None, *args, **kwargs):
-		super(SelectDialog, self).__init__(title, *args, **kwargs)
-		self["class"].append("selectdialog")
+		super().__init__(title, *args, **kwargs)
+		self["class"].append("popup--selectdialog")
 
 		self.callback = callback
 		self.items = items
@@ -292,7 +364,7 @@ class SelectDialog(Popup):
 			else:
 				utils.textToHtml(lbl, prompt)
 
-			self.appendChild(lbl)
+			self.popupBody.appendChild(lbl)
 
 		# Items
 		if not forceSelect and len(items) <= 3:
@@ -312,10 +384,10 @@ class SelectDialog(Popup):
 				if cssc:
 					btn.addClass(cssc)
 
-				self.appendChild(btn)
+				self.popupBody.appendChild(btn)
 		else:
 			self.select = html5.Select()
-			self.appendChild(self.select)
+			self.popupBody.appendChild(self.select)
 
 			for idx, item in enumerate(items):
 				if isinstance(item, dict):
@@ -331,10 +403,10 @@ class SelectDialog(Popup):
 				self.select.appendChild(opt)
 
 			if okBtn:
-				self.appendChild(Button(okBtn, callback=self.onOkClick))
+				self.popupFoot.appendChild(Button(okBtn, callback=self.onOkClick))
 
 			if cancelBtn:
-				self.appendChild(Button(cancelBtn, callback=self.onCancelClick))
+				self.popupFoot.appendChild(Button(cancelBtn, callback=self.onCancelClick))
 
 	def onAnyBtnClick(self, sender):
 		item = self.items[sender.idx]
@@ -369,24 +441,30 @@ class SelectDialog(Popup):
 class TextareaDialog(Popup):
 	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
 	             *args, **kwargs):
-		super(TextareaDialog, self).__init__(*args, **kwargs)
-		self["class"].append("textareadialog")
+		super().__init__(*args, **kwargs)
+		self["class"].append("popup--textareadialog")
+
 		self.successHandler = successHandler
 		self.abortHandler = abortHandler
 
 		span = html5.Span()
 		span.element.innerHTML = text
-		self.appendChild(span)
+		self.popupBody.appendChild(span)
+
 		self.inputElem = html5.Textarea()
 		self.inputElem["value"] = value
-		self.appendChild(self.inputElem)
+		self.popupBody.appendChild(self.inputElem)
+
 		okayBtn = Button(successLbl, self.onOkay)
-		okayBtn["class"].append("btn_okay")
-		self.appendChild(okayBtn)
+		okayBtn["class"].append("btn--okay")
+		self.popupFoot.appendChild(okayBtn)
+
 		cancelBtn = Button(abortLbl, self.onCancel)
-		cancelBtn["class"].append("btn_cancel")
-		self.appendChild(cancelBtn)
+		cancelBtn["class"].append("btn--cancel")
+		self.popupFoot.appendChild(cancelBtn)
+
 		self.sinkEvent("onKeyDown")
+
 		self.inputElem.focus()
 
 	def onDocumentKeyDown(self, event):

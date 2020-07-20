@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*
+import logging, string
 
 ########################################################################################################################
 # DOM-access functions and variables
@@ -7,26 +8,25 @@
 import logging
 
 try:
-	# PyJS
-	jseval = eval
-
-	window = jseval("window.top")
+	# Pyodide
+	from js import window, eval as jseval
 	document = window.document
 
-except NameError:
+except:
 	logging.debug("Emulation mode")
-	from xml.dom.minidom import parseString
-	jseval = None
 
+	from xml.dom.minidom import parseString
+
+	jseval = None
 	window = None
-	document = parseString('<html><head /><body /></html>')
+	document = parseString("<html><head /><body /></html>")
 
 
 def domCreateAttribute(tag, ns=None):
 	"""
 		Creates a new HTML/SVG/... attribute
 		 :param ns: the namespace. Default: HTML. Possible values: HTML, SVG, XBL, XUL
-   """
+	"""
 	uri = None
 
 	if ns == "SVG":
@@ -76,7 +76,7 @@ def domElementFromPoint(x, y):
 
 def domGetElementsByTagName(tag):
 	items = document.getElementsByTagName(tag)
-	return [items.item(i) for i in range(0, items.length)]
+	return [items.item(i) for i in range(0, int(items.length))] #pyodide interprets items.length as float, so convert to int
 
 
 ########################################################################################################################
@@ -93,7 +93,7 @@ class TextNode(object):
 	"""
 
 	def __init__(self, txt=None, *args, **kwargs):
-		super(TextNode, self).__init__()
+		super().__init__()
 		self._parent = None
 		self._children = []
 		self.element = domCreateTextNode(txt or "")
@@ -124,16 +124,32 @@ class TextNode(object):
 		return []
 
 
-# _WidgetClassWrapper --------------------------------------------------------------------------------------------------
+# _WidgetClassWrapper -------------------------------------------------------------------------------------------------
 
 class _WidgetClassWrapper(list):
+
 	def __init__(self, targetWidget):
-		super(_WidgetClassWrapper, self).__init__()
+		super().__init__()
+
 		self.targetWidget = targetWidget
-		clsStr = targetWidget.element.getAttribute("class")
-		if clsStr:
-			for c in clsStr.split(" "):
+
+		# Initially read content of element into current wrappper
+		value = targetWidget.element.getAttribute("class")
+		if value:
+			for c in value.split(" "):
 				list.append(self, c)
+
+	def set(self, value):
+		if value is None:
+			value = []
+		elif isinstance(value, str):
+			value = value.split(" ")
+		elif not isinstance(value, list):
+			raise ValueError("Value must be a str, a List or None")
+
+		list.clear(self)
+		list.extend(self, value)
+		self._updateElem()
 
 	def _updateElem(self):
 		if len(self) == 0:
@@ -172,10 +188,13 @@ class _WidgetClassWrapper(list):
 # _WidgetDataWrapper ---------------------------------------------------------------------------------------------------
 
 class _WidgetDataWrapper(dict):
+
 	def __init__(self, targetWidget):
-		super(_WidgetDataWrapper, self).__init__()
+		super().__init__()
+
 		self.targetWidget = targetWidget
 		alldata = targetWidget.element
+
 		for data in dir(alldata.dataset):
 			dict.__setitem__(self, data, getattr(alldata.dataset, data))
 
@@ -198,10 +217,13 @@ class _WidgetDataWrapper(dict):
 # _WidgetStyleWrapper --------------------------------------------------------------------------------------------------
 
 class _WidgetStyleWrapper(dict):
+
 	def __init__(self, targetWidget):
-		super(_WidgetStyleWrapper, self).__init__()
+		super().__init__()
+
 		self.targetWidget = targetWidget
 		style = targetWidget.element.style
+
 		for key in dir(style):
 			# Convert JS-Style-Syntax to CSS Syntax (ie borderTop -> border-top)
 			realKey = ""
@@ -232,26 +254,42 @@ class _WidgetStyleWrapper(dict):
 # Widget ---------------------------------------------------------------------------------------------------------------
 
 class Widget(object):
-	_baseClass = None
-	_namespace = None
+	_tagName = None # Defines the tag-name that is used for DOM-Element construction
+	_leafTag = False    # Defines whether ths Widget may contain other Widgets (default) or is a leaf
+	_namespace = None   # Namespace
+	_parserTagName = None   # Alternative tag name under which this Widget is registered in HTML parser
+	style = []  # CSS-classes to directly assign to this Widget at construction.
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, *args, appendTo=None, style=None, **kwargs):
 		if "_wrapElem" in kwargs.keys():
 			self.element = kwargs["_wrapElem"]
 			del kwargs["_wrapElem"]
 		else:
-			assert self._baseClass is not None
-			self.element = domCreateElement(self._baseClass, ns=self._namespace)
+			assert self._tagName is not None
+			self.element = domCreateElement(self._tagName, ns=self._namespace)
 
-		super(Widget, self).__init__()
+		self._widgetClassWrapper = None
+
+		super().__init__()
+
+		self.addClass(self.style)
+
+		if style:
+			self.addClass(style)
 
 		self._children = []
 		self._catchedEvents = {}
-		self._disabledState = None
+		self._disabledState = 0
 		self._isAttached = False
 		self._parent = None
 
 		self._lastDisplayState = None
+
+		if args:
+			self.appendChild(*args, **kwargs)
+
+		if appendTo:
+			appendTo.appendChild(self)
 
 	def sinkEvent(self, *args):
 		for event_attrName in args:
@@ -270,8 +308,6 @@ class Widget(object):
 
 			self.element.addEventListener(event, eventFn)
 
-			# logging.debug("sink: %r, %r", event, eventFn)
-
 	def unsinkEvent(self, *args):
 		for event_attrName in args:
 			event = event_attrName.lower()
@@ -287,8 +323,6 @@ class Widget(object):
 
 			self.element.removeEventListener(event, eventFn)
 
-			# logging.debug("unsink: %r, %r", ret, eventFn)
-
 	def disable(self):
 		if not self["disabled"]:
 			self["disabled"] = True
@@ -298,33 +332,27 @@ class Widget(object):
 			self["disabled"] = False
 
 	def _getDisabled(self):
-		return self._disabledState is not None
+		return bool(self._disabledState)
 
 	def _setDisabled(self, disable):
 		for child in self._children:
 			child._setDisabled(disable)
 
 		if disable:
-			if self._disabledState is not None:
-				self._disabledState["recursionCounter"] += 1
-			else:
-				self._disabledState = {"events": self._catchedEvents.keys(), "recursionCounter": 1}
-				self.unsinkEvent(*self._catchedEvents.keys())
-		else:
+			self._disabledState += 1
+			self.addClass("is-disabled")
 
-			if self._disabledState:
-				if self._disabledState["recursionCounter"] > 1:
-					self._disabledState["recursionCounter"] -= 1
-				else:
-					self.sinkEvent(*self._disabledState["events"])
-					self._disabledState = None
+			if isinstance(self, _attrDisabled):
+				self.element.disabled = True
 
-		if self._getDisabled():
-			if not "is_disabled" in self["class"]:
-				self["class"].append("is_disabled")
-		else:
-			if "is_disabled" in self["class"]:
-				self["class"].remove("is_disabled")
+		elif self._disabledState:
+			self._disabledState -= 1
+
+			if not self._disabledState:
+				self.removeClass("is-disabled")
+
+			if isinstance(self, _attrDisabled):
+				self.element.disabled = False
 
 	def _getTargetfuncName(self, key, type):
 		assert type in ["get", "set"]
@@ -332,26 +360,25 @@ class Widget(object):
 
 	def __getitem__(self, key):
 		funcName = self._getTargetfuncName(key, "get")
-		# logging.debug("GET: %r, %r", funcName, key)
 
 		if funcName in dir(self):
-			# logging.debug("%r get, %r, %r", self._baseClass or str(self), key, getattr(self, funcName)())
 			return getattr(self, funcName)()
 
 		return None
 
 	def __setitem__(self, key, value):
 		funcName = self._getTargetfuncName(key, "set")
-		# logging.debug("SET: %r, %r, %r", funcName, key, value)
 
 		if funcName in dir(self):
-			# logging.debug("%r set: %r, %r", self._baseClass or str( self ), key, value )
 			return getattr(self, funcName)(value)
 
-		raise ValueError("{} is no valid attribute for {}".format(key, (self._baseClass or str(self))))
+		raise ValueError("{} is no valid attribute for {}".format(key, (self._tagName or str(self))))
 
 	def __str__(self):
 		return str(self.__class__.__name__)
+
+	def __iter__(self):
+		return self._children.__iter__()
 
 	def _getData(self):
 		"""
@@ -408,7 +435,7 @@ class Widget(object):
 		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
 		:returns: True | False
 		"""
-		return (True if self.element.spellcheck == "true" else False)
+		return True if self.element.spellcheck == "true" else False
 
 	def _setSpellcheck(self, val):
 		"""
@@ -436,14 +463,14 @@ class Widget(object):
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
 		:returns: True | False
 		"""
-		return (True if self.element.hasAttribute("hidden") else False)
+		return True if self.element.hasAttribute("hidden") else False
 
 	def _setHidden(self, val):
 		"""
 		Specifies that the element represents an element that is not yet, or is no longer, relevant.
 		:param val: True | False
 		"""
-		if val == True:
+		if val:
 			self.element.setAttribute("hidden", "")
 		else:
 			self.element.removeAttribute("hidden")
@@ -511,7 +538,7 @@ class Widget(object):
 		:returns: True | False
 		"""
 		v = self.element.getAttribute("contenteditable")
-		return (str(v).lower() == "true")
+		return str(v).lower() == "true"
 
 	def _setContenteditable(self, val):
 		"""
@@ -526,7 +553,7 @@ class Widget(object):
 		:param self:
 		:returns:
 		"""
-		return (self.element.accesskey)
+		return self.element.accesskey
 
 	def _setAccesskey(self, val):
 		"""
@@ -557,7 +584,10 @@ class Widget(object):
 		The class attribute specifies one or more classnames for an element.
 		:returns:
 		"""
-		return _WidgetClassWrapper(self)
+		if self._widgetClassWrapper is None:
+			self._widgetClassWrapper = _WidgetClassWrapper(self)
+
+		return self._widgetClassWrapper
 
 	def _setClass(self, value):
 		"""
@@ -566,15 +596,7 @@ class Widget(object):
 		:param value:
 		@raise ValueError:
 		"""
-
-		if value is None:
-			self.element.setAttribute("class", " ")
-		elif isinstance(value, str):
-			self.element.setAttribute("class", value)
-		elif isinstance(value, list):
-			self.element.setAttribute("class", " ".join(value))
-		else:
-			raise ValueError("Class must be a str, a List or None")
+		self._getClass().set(value)
 
 	def _getStyle(self):
 		"""
@@ -583,6 +605,22 @@ class Widget(object):
 		:returns:
 		"""
 		return _WidgetStyleWrapper(self)
+
+	def _getRole(self):
+		"""
+		Specifies a role for an element
+		@param self:
+		@return:
+		"""
+		return self.element.getAttribute("role")
+
+	def _setRole(self, val):
+		"""
+		Specifies a role for an element
+		@param self:
+		@param val:
+		"""
+		self.element.setAttribute("role", val)
 
 	def hide(self):
 		"""
@@ -618,66 +656,104 @@ class Widget(object):
 		"""
 		return not self.isHidden()
 
+	def onBind(self, widget, name):
+		"""
+		Event function that is called on the widget when it is bound to another widget with a name.
+		This is only done by the HTML parser, a manual binding by the user is not triggered.
+		"""
+		return
+
 	def onAttach(self):
 		self._isAttached = True
-		for c in self._children[:]:
+
+		for c in self._children:
 			c.onAttach()
 
 	def onDetach(self):
 		self._isAttached = False
-		for c in self._children[:]:
+		for c in self._children:
 			c.onDetach()
 
-	def insertBefore(self, insert, child):
+	def __collectChildren(self, *args, **kwargs):
+		if kwargs.get("bindTo") is None:
+			kwargs["bindTo"] = self
+
+		widgets = []
+		for arg in args:
+			if isinstance(arg, (str, HtmlAst)):
+				widgets.extend(fromHTML(arg, **kwargs))
+
+			elif isinstance(arg, (list, tuple)):
+				for subarg in arg:
+					widgets.extend(self.__collectChildren(subarg, **kwargs))
+
+			elif not isinstance(arg, (Widget, TextNode)):
+				widgets.append(TextNode(str(arg)))
+
+			else:
+				widgets.append(arg)
+
+		return widgets
+
+	def insertBefore(self, insert, child, **kwargs):
+		if not child:
+			return self.appendChild(insert)
+
 		assert child in self._children, "{} is not a child of {}".format(child, self)
 
-		if insert._parent:
-			insert._parent.removeChild(insert)
+		toInsert = self.__collectChildren(insert, **kwargs)
 
-		self.element.insertBefore(insert.element, child.element)
-		self._children.insert(self._children.index(child), insert)
+		for insert in toInsert:
+			if insert._parent:
+				insert._parent.removeChild(insert)
 
-		insert._parent = self
-		if self._isAttached:
-			insert.onAttach()
+			self.element.insertBefore(insert.element, child.element)
+			self._children.insert(self._children.index(child), insert)
 
-	def prependChild(self, child):
-		if isinstance(child, list) or isinstance(child, tuple):
-			for item in child:
-				self.prependChild(item)
+			insert._parent = self
+			if self._isAttached:
+				insert.onAttach()
 
-			return
+		return toInsert
 
-		elif not isinstance(child, Widget):
-			child = TextNode(str(child))
+	def prependChild(self, *args, **kwargs):
+		if kwargs.get("replace", False):
+			self.removeAllChildren()
+			del kwargs["replace"]
 
-		if child._parent:
-			child._parent._children.remove(child)
-			child._parent = None
+		toPrepend = self.__collectChildren(*args, **kwargs)
 
-		if not self._children:
-			self.appendChild(child)
-		else:
-			self.insertBefore(child, self.children(0))
+		for child in toPrepend:
+			if child._parent:
+				child._parent._children.remove(child)
+				child._parent = None
 
-	def appendChild(self, child):
-		if isinstance(child, list) or isinstance(child, tuple):
-			for item in child:
-				self.appendChild(item)
+			if not self._children:
+				self.appendChild(child)
+			else:
+				self.insertBefore(child, self.children(0))
 
-			return
+		return toPrepend
 
-		elif not (isinstance(child, Widget) or isinstance(child, TextNode)):
-			child = TextNode(str(child))
+	def appendChild(self, *args, **kwargs):
+		if kwargs.get("replace", False):
+			self.removeAllChildren()
+			del kwargs["replace"]
 
-		if child._parent:
-			child._parent._children.remove(child)
+		toAppend = self.__collectChildren(*args, **kwargs)
 
-		self._children.append(child)
-		self.element.appendChild(child.element)
-		child._parent = self
-		if self._isAttached:
-			child.onAttach()
+		for child in toAppend:
+			if child._parent:
+				child._parent._children.remove(child)
+
+			self._children.append(child)
+			self.element.appendChild(child.element)
+			child._parent = self
+
+			if self._isAttached:
+				child.onAttach()
+
+		return toAppend
 
 	def removeChild(self, child):
 		assert child in self._children, "{} is not a child of {}".format(child, self)
@@ -740,6 +816,19 @@ class Widget(object):
 
 		return False
 
+	def hasClass(self, className):
+		"""
+		Determine whether the current widget is assigned the given class
+
+		:param className: The class name to search for.
+		:type className: str
+		"""
+
+		if isinstance(className, str) or isinstance(className, unicode):
+			return className in self["class"]
+		else:
+			raise TypeError()
+
 	def addClass(self, *args):
 		"""
 		Adds a class or a list of classes to the current widget.
@@ -751,11 +840,11 @@ class Widget(object):
 
 		for item in args:
 			if isinstance(item, list):
-				self.addClass(item)
+				self.addClass(*item)
 
-			elif isinstance(item, str) or isinstance(item, unicode):
+			elif isinstance(item, str):
 				for sitem in item.split(" "):
-					if sitem not in self["class"]:
+					if not self.hasClass(sitem):
 						self["class"].append(sitem)
 			else:
 				raise TypeError()
@@ -772,9 +861,9 @@ class Widget(object):
 			if isinstance(item, list):
 				self.removeClass(item)
 
-			elif isinstance(item, str) or isinstance(item, unicode):
+			elif isinstance(item, str):
 				for sitem in item.split(" "):
-					if sitem in self["class"]:
+					if self.hasClass(sitem):
 						self["class"].remove(sitem)
 			else:
 				raise TypeError()
@@ -795,18 +884,18 @@ class Widget(object):
 		:return: Returns True, if ``on`` was switched, else False.
 		:rtype: bool
 		"""
-		if on in self["class"]:
-			self["class"].remove(on)
+		if self.hasClass(on):
+			self.removeClass(on)
 
-			if off and off not in self["class"]:
-				self["class"].append(off)
+			if off and not self.hasClass(off):
+				self.addClass(off)
 
 			return False
 
-		if off and off in self["class"]:
-			self["class"].remove(off)
+		if off and self.hasClass(off):
+			self.removeClass(off)
 
-		self["class"].append(on)
+		self.addClass(on)
 		return True
 
 	def onBlur(self, event):
@@ -960,15 +1049,16 @@ class Widget(object):
 			self.element.removeChild(c.element)
 			self.element.insertBefore(c.element, self.element.children.item(0))
 
-	def fromHTML(self, html, appendTo=None, bindTo=None, vars=None):
+	def fromHTML(self, html, appendTo=None, bindTo=None, replace=False, vars=None, **kwargs):
 		"""
 		Parses html and constructs its elements as part of self.
 
 		:param html: HTML code.
-		:param appendTo: The entity where the HTML code is constructed below.
-						This defaults to self in usual case.
-		:param bindTo: The entity where the named objects are bound to.
-						This defaults to self in usual case.
+		:param appendTo: The entity where the HTML code is constructed below. This defaults to self in usual case.
+		:param bindTo: The entity where the named objects are bound to. This defaults to self in usual case.
+		:param replace: Clear entire content of appendTo before appending.
+		:param vars: Deprecated; Same as kwargs.
+		:param **kwargs: Additional variables provided as a dict for {{placeholders}} inside the HTML
 
 		:return:
 		"""
@@ -978,7 +1068,14 @@ class Widget(object):
 		if bindTo is None:
 			bindTo = self
 
-		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, vars=vars)
+		if replace:
+			appendTo.removeAllChildren()
+
+		# use of vars is deprecated!
+		if isinstance(vars, dict):
+			kwargs.update(vars)
+
+		return fromHTML(html, appendTo=appendTo, bindTo=bindTo, **kwargs)
 
 
 ########################################################################################################################
@@ -1043,22 +1140,17 @@ class _attrAlt(object):
 
 class _attrAutofocus(object):
 	def _getAutofocus(self):
-		return (True if self.element.hasAttribute("autofocus") else False)
+		return True if self.element.hasAttribute("autofocus") else False
 
 	def _setAutofocus(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("autofocus", "")
 		else:
 			self.element.removeAttribute("autofocus")
 
 
 class _attrDisabled(object):
-	def _setDisabled(self, val):
-		Widget._setDisabled(self, val)
-		if self._getDisabled():
-			self.element.disabled = True
-		else:
-			self.element.disabled = False
+	pass
 
 
 class _attrChecked(object):
@@ -1071,7 +1163,7 @@ class _attrChecked(object):
 
 class _attrIndeterminate(object):
 	def _getIndeterminate(self):
-		return (self.element.indeterminate)
+		return self.element.indeterminate
 
 	def _setIndeterminate(self, val):
 		self.element.indeterminate = val
@@ -1103,10 +1195,10 @@ class _attrAutocomplete(object):
 
 class _attrRequired(object):
 	def _getRequired(self):
-		return (True if self.element.hasAttribute("required") else False)
+		return True if self.element.hasAttribute("required") else False
 
 	def _setRequired(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("required", "")
 		else:
 			self.element.removeAttribute("required")
@@ -1114,10 +1206,10 @@ class _attrRequired(object):
 
 class _attrMultiple(object):
 	def _getMultiple(self):
-		return (True if self.element.hasAttribute("multiple") else False)
+		return True if self.element.hasAttribute("multiple") else False
 
 	def _setMultiple(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("multiple", "")
 		else:
 			self.element.removeAttribute("multiple")
@@ -1153,10 +1245,10 @@ class _attrInputs(_attrRequired):
 		self.element.placeholder = val
 
 	def _getReadonly(self):
-		return (True if self.element.hasAttribute("readonly") else False)
+		return True if self.element.hasAttribute("readonly") else False
 
 	def _setReadonly(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("readonly", "")
 		else:
 			self.element.removeAttribute("readonly")
@@ -1188,10 +1280,10 @@ class _attrFormhead(object):
 		self.element.formtarget = val
 
 	def _getFormnovalidate(self):
-		return (True if self.element.hasAttribute("formnovalidate") else False)
+		return True if self.element.hasAttribute("formnovalidate") else False
 
 	def _setFormnovalidate(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("formnovalidate", "")
 		else:
 			self.element.removeAttribute("formnovalidate")
@@ -1342,144 +1434,6 @@ class _attrSrc(object):
 		self.element.src = val
 
 
-# Svg ------------------------------------------------------------------------------------------------------------------
-
-class _attrSvgViewBox(object):
-	def _getViewBox(self):
-		return self.element.viewBox
-
-	def _setViewBox(self, val):
-		self.element.setAttribute("viewBox", val)
-
-	def _getPreserveAspectRatio(self):
-		return self.element.preserveAspectRatio
-
-	def _setPreserveAspectRatio(self, val):
-		self.element.setAttribute("preserveAspectRatio", val)
-
-
-class _attrSvgDimensions(object):
-	def _getWidth(self):
-		return self.element.width
-
-	def _setWidth(self, val):
-		self.element.setAttribute("width", val)
-
-	def _getHeight(self):
-		return self.element.height
-
-	def _setHeight(self, val):
-		self.element.setAttribute("height", val)
-
-	def _getX(self):
-		return self.element.x
-
-	def _setX(self, val):
-		self.element.setAttribute("x", val)
-
-	def _getY(self):
-		return self.element.y
-
-	def _setY(self, val):
-		self.element.setAttribute("y", val)
-
-	def _getR(self):
-		return self.element.r
-
-	def _setR(self, val):
-		self.element.setAttribute("r", val)
-
-	def _getRx(self):
-		return self.element.rx
-
-	def _setRx(self, val):
-		self.element.setAttribute("rx", val)
-
-	def _getRy(self):
-		return self.element.ry
-
-	def _setRy(self, val):
-		self.element.setAttribute("ry", val)
-
-	def _getCx(self):
-		return self.element.cx
-
-	def _setCx(self, val):
-		self.element.setAttribute("cx", val)
-
-	def _getCy(self):
-		return self.element.cy
-
-	def _setCy(self, val):
-		self.element.setAttribute("cy", val)
-
-
-class _attrSvgPoints(object):
-	def _getPoints(self):
-		return self.element.points
-
-	def _setPoints(self, val):
-		self.element.setAttribute("points", val)
-
-	def _getX1(self):
-		return self.element.x1
-
-	def _setX1(self, val):
-		self.element.setAttribute("x1", val)
-
-	def _getY1(self):
-		return self.element.y1
-
-	def _setY1(self, val):
-		self.element.setAttribute("y1", val)
-
-	def _getX2(self):
-		return self.element.x2
-
-	def _setX2(self, val):
-		self.element.setAttribute("x2", val)
-
-	def _getY2(self):
-		return self.element.y2
-
-	def _setY2(self, val):
-		self.element.setAttribute("y2", val)
-
-
-class _attrSvgTransform(object):
-	def _getTransform(self):
-		return self.element.transform
-
-	def _setTransform(self, val):
-		self.element.setAttribute("transform", val)
-
-
-class _attrSvgXlink(object):
-	def _getXlinkhref(self):
-		return self.element.getAttribute("xlink:href")
-
-	def _setXlinkhref(self, val):
-		self.element.setAttribute("xlink:href", val)
-
-
-class _attrSvgStyles(object):
-	def _getFill(self):
-		return self.element.fill
-
-	def _setFill(self, val):
-		self.element.setAttribute("fill", val)
-
-	def _getStroke(self):
-		return self.element.stroke
-
-	def _setStroke(self, val):
-		self.element.setAttribute("stroke", val)
-
-
-class _isVoid(object):
-	pass
-
-
 ########################################################################################################################
 # HTML Elements
 ########################################################################################################################
@@ -1487,10 +1441,7 @@ class _isVoid(object):
 # A --------------------------------------------------------------------------------------------------------------------
 
 class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
-	_baseClass = "a"
-
-	def __init__(self, *args, **kwargs):
-		super(A, self).__init__(*args, **kwargs)
+	_tagName = "a"
 
 	def _getDownload(self):
 		"""
@@ -1509,11 +1460,9 @@ class A(Widget, _attrHref, _attrTarget, _attrMedia, _attrRel, _attrName):
 
 # Area -----------------------------------------------------------------------------------------------------------------
 
-class Area(A, _attrAlt, _isVoid):
-	_baseClass = "area"
-
-	def __init__(self, *args, **kwargs):
-		super(Area, self).__init__(*args, **kwargs)
+class Area(A, _attrAlt):
+	_tagName = "area"
+	_leafTag = True
 
 	def _getCoords(self):
 		return self.element.coords
@@ -1531,28 +1480,16 @@ class Area(A, _attrAlt, _isVoid):
 # Audio ----------------------------------------------------------------------------------------------------------------
 
 class Audio(Widget, _attrSrc, _attrMultimedia):
-	_baseClass = "audio"
-
-	def __init__(self, *args, **kwargs):
-		super(Audio, self).__init__(*args, **kwargs)
-
-
-# Bdo ------------------------------------------------------------------------------------------------------------------
+	_tagName = "audio"
 
 class Bdo(Widget):
-	_baseClass = "bdo"
-
-	def __init__(self, *args, **kwargs):
-		super(Bdo, self).__init__(*args, **kwargs)
+	_tagName = "bdo"
 
 
 # Blockquote -----------------------------------------------------------------------------------------------------------
 
 class Blockquote(Widget):
-	_baseClass = "blockquote"
-
-	def __init__(self, *args, **kwargs):
-		super(Blockquote, self).__init__(*args, **kwargs)
+	_tagName = "blockquote"
 
 	def _getBlockquote(self):
 		return self.element.blockquote
@@ -1566,7 +1503,7 @@ class Blockquote(Widget):
 class BodyCls(Widget):
 
 	def __init__(self, *args, **kwargs):
-		super(BodyCls, self).__init__(_wrapElem=domGetElementsByTagName("body")[0])
+		super().__init__(_wrapElem=domGetElementsByTagName("body")[0], *args, **kwargs)
 		self._isAttached = True
 
 
@@ -1585,19 +1522,13 @@ def Body():
 # Canvas ---------------------------------------------------------------------------------------------------------------
 
 class Canvas(Widget, _attrDimensions):
-	_baseClass = "canvas"
-
-	def __init__(self, *args, **kwargs):
-		super(Canvas, self).__init__(*args, **kwargs)
+	_tagName = "canvas"
 
 
 # Command --------------------------------------------------------------------------------------------------------------
 
 class Command(Widget, _attrLabel, _attrType, _attrDisabled, _attrChecked):
-	_baseClass = "command"
-
-	def __init__(self, *args, **kwargs):
-		super(Command, self).__init__(*args, **kwargs)
+	_tagName = "command"
 
 	def _getIcon(self):
 		return self.element.icon
@@ -1615,401 +1546,230 @@ class Command(Widget, _attrLabel, _attrType, _attrDisabled, _attrChecked):
 # _Del -----------------------------------------------------------------------------------------------------------------
 
 class _Del(Widget, _attrCite, _attrDatetime):
-	_baseClass = "_del"
-
-	def __init__(self, *args, **kwargs):
-		super(_Del, self).__init__(*args, **kwargs)
+	_tagName = "_del"
 
 
 # Dialog --------------------------------------------------------------------------------------------------------------
 
 class Dialog(Widget):
-	_baseClass = "dialog"
-
-	def __init__(self, *args, **kwargs):
-		super(Dialog, self).__init__(*args, **kwargs)
+	_tagName = "dialog"
 
 	def _getOpen(self):
-		return (True if self.element.hasAttribute("open") else False)
+		return True if self.element.hasAttribute("open") else False
 
 	def _setOpen(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("open", "")
 		else:
 			self.element.removeAttribute("open")
 
-
-# Div ------------------------------------------------------------------------------------------------------------------
-
-class Div(Widget):
-	_baseClass = "div"
-
-	def __init__(self, *args, **kwargs):
-		super(Div, self).__init__(**kwargs)
-		self.appendChild(args)
-
-
 # Elements -------------------------------------------------------------------------------------------------------------
 
-
 class Abbr(Widget):
-	_baseClass = "abbr"
-
-	def __init__(self, *args, **kwargs):
-		super(Abbr, self).__init__(*args, **kwargs)
+	_tagName = "abbr"
 
 
 class Address(Widget):
-	_baseClass = "address"
-
-	def __init__(self, *args, **kwargs):
-		super(Address, self).__init__(*args, **kwargs)
+	_tagName = "address"
 
 
 class Article(Widget):
-	_baseClass = "article"
-
-	def __init__(self, *args, **kwargs):
-		super(Article, self).__init__(*args, **kwargs)
+	_tagName = "article"
 
 
 class Aside(Widget):
-	_baseClass = "aside"
-
-	def __init__(self, *args, **kwargs):
-		super(Aside, self).__init__(*args, **kwargs)
+	_tagName = "aside"
 
 
 class B(Widget):
-	_baseClass = "b"
-
-	def __init__(self, *args, **kwargs):
-		super(B, self).__init__(*args, **kwargs)
+	_tagName = "b"
 
 
 class Bdi(Widget):
-	_baseClass = "bdi"
-
-	def __init__(self, *args, **kwargs):
-		super(Bdi, self).__init__(*args, **kwargs)
+	_tagName = "bdi"
 
 
-class Br(Widget, _isVoid):
-	_baseClass = "br"
-
-	def __init__(self, *args, **kwargs):
-		super(Br, self).__init__(*args, **kwargs)
+class Br(Widget):
+	_tagName = "br"
+	_leafTag = True
 
 
 class Caption(Widget):
-	_baseClass = "caption"
-
-	def __init__(self, *args, **kwargs):
-		super(Caption, self).__init__(*args, **kwargs)
+	_tagName = "caption"
 
 
 class Cite(Widget):
-	_baseClass = "Cite"
-
-	def __init__(self, *args, **kwargs):
-		super(Cite, self).__init__(*args, **kwargs)
+	_tagName = "cite"
 
 
 class Code(Widget):
-	_baseClass = "code"
-
-	def __init__(self, *args, **kwargs):
-		super(Code, self).__init__(*args, **kwargs)
+	_tagName = "code"
 
 
 class Datalist(Widget):
-	_baseClass = "datalist"
-
-	def __init__(self, *args, **kwargs):
-		super(Datalist, self).__init__(*args, **kwargs)
+	_tagName = "datalist"
 
 
 class Dfn(Widget):
-	_baseClass = "dfn"
+	_tagName = "dfn"
 
-	def __init__(self, *args, **kwargs):
-		super(Dfn, self).__init__(*args, **kwargs)
+
+class Div(Widget):
+	_tagName = "div"
 
 
 class Em(Widget):
-	_baseClass = "em"
+	_tagName = "em"
 
-	def __init__(self, *args, **kwargs):
-		super(Em, self).__init__(*args, **kwargs)
+
+class Embed(Widget, _attrSrc, _attrType, _attrDimensions):
+	_tagName = "embed"
+	_leafTag = True
 
 
 class Figcaption(Widget):
-	_baseClass = "figcaption"
-
-	def __init__(self, *args, **kwargs):
-		super(Figcaption, self).__init__(*args, **kwargs)
+	_tagName = "figcaption"
 
 
 class Figure(Widget):
-	_baseClass = "figure"
-
-	def __init__(self, *args, **kwargs):
-		super(Figure, self).__init__(*args, **kwargs)
+	_tagName = "figure"
 
 
 class Footer(Widget):
-	_baseClass = "footer"
-
-	def __init__(self, *args, **kwargs):
-		super(Footer, self).__init__(*args, **kwargs)
+	_tagName = "footer"
 
 
 class Header(Widget):
-	_baseClass = "header"
-
-	def __init__(self, *args, **kwargs):
-		super(Header, self).__init__(*args, **kwargs)
+	_tagName = "header"
 
 
 class H1(Widget):
-	_baseClass = "h1"
-
-	def __init__(self, *args, **kwargs):
-		super(H1, self).__init__(*args, **kwargs)
+	_tagName = "h1"
 
 
 class H2(Widget):
-	_baseClass = "h2"
-
-	def __init__(self, *args, **kwargs):
-		super(H2, self).__init__(*args, **kwargs)
+	_tagName = "h2"
 
 
 class H3(Widget):
-	_baseClass = "h3"
-
-	def __init__(self, *args, **kwargs):
-		super(H3, self).__init__(*args, **kwargs)
+	_tagName = "h3"
 
 
 class H4(Widget):
-	_baseClass = "h4"
-
-	def __init__(self, *args, **kwargs):
-		super(H4, self).__init__(*args, **kwargs)
+	_tagName = "h4"
 
 
 class H5(Widget):
-	_baseClass = "h5"
-
-	def __init__(self, *args, **kwargs):
-		super(H5, self).__init__(*args, **kwargs)
+	_tagName = "h5"
 
 
 class H6(Widget):
-	_baseClass = "h6"
-
-	def __init__(self, *args, **kwargs):
-		super(H6, self).__init__(*args, **kwargs)
+	_tagName = "h6"
 
 
-class Hr(Widget, _isVoid):
-	_baseClass = "hr"
-
-	def __init__(self, *args, **kwargs):
-		super(Hr, self).__init__(*args, **kwargs)
+class Hr(Widget):
+	_tagName = "hr"
+	_leafTag = True
 
 
 class I(Widget):
-	_baseClass = "i"
-
-	def __init__(self, *args, **kwargs):
-		super(I, self).__init__(*args, **kwargs)
+	_tagName = "i"
 
 
 class Kdb(Widget):
-	_baseClass = "kdb"
-
-	def __init__(self, *args, **kwargs):
-		super(Kdb, self).__init__(*args, **kwargs)
+	_tagName = "kdb"
 
 
 class Legend(Widget):
-	_baseClass = "legend"
-
-	def __init__(self, *args, **kwargs):
-		super(Legend, self).__init__(*args, **kwargs)
+	_tagName = "legend"
 
 
 class Mark(Widget):
-	_baseClass = "mark"
-
-	def __init__(self, *args, **kwargs):
-		super(Mark, self).__init__(*args, **kwargs)
+	_tagName = "mark"
 
 
 class Noscript(Widget):
-	_baseClass = "noscript"
-
-	def __init__(self, *args, **kwargs):
-		super(Noscript, self).__init__(*args, **kwargs)
+	_tagName = "noscript"
 
 
 class P(Widget):
-	_baseClass = "p"
-
-	def __init__(self, *args, **kwargs):
-		super(P, self).__init__(*args, **kwargs)
+	_tagName = "p"
 
 
 class Rq(Widget):
-	_baseClass = "rq"
-
-	def __init__(self, *args, **kwargs):
-		super(Rq, self).__init__(*args, **kwargs)
+	_tagName = "rq"
 
 
 class Rt(Widget):
-	_baseClass = "rt"
-
-	def __init__(self, *args, **kwargs):
-		super(Rt, self).__init__(*args, **kwargs)
+	_tagName = "rt"
 
 
 class Ruby(Widget):
-	_baseClass = "ruby"
-
-	def __init__(self, *args, **kwargs):
-		super(Ruby, self).__init__(*args, **kwargs)
+	_tagName = "ruby"
 
 
 class S(Widget):
-	_baseClass = "s"
-
-	def __init__(self, *args, **kwargs):
-		super(S, self).__init__(*args, **kwargs)
+	_tagName = "s"
 
 
 class Samp(Widget):
-	_baseClass = "samp"
-
-	def __init__(self, *args, **kwargs):
-		super(Samp, self).__init__(*args, **kwargs)
+	_tagName = "samp"
 
 
 class Section(Widget):
-	_baseClass = "section"
-
-	def __init__(self, *args, **kwargs):
-		super(Section, self).__init__(*args, **kwargs)
+	_tagName = "section"
 
 
 class Small(Widget):
-	_baseClass = "small"
-
-	def __init__(self, *args, **kwargs):
-		super(Small, self).__init__(*args, **kwargs)
+	_tagName = "small"
 
 
 class Strong(Widget):
-	_baseClass = "strong"
-
-	def __init__(self, *args, **kwargs):
-		super(Strong, self).__init__(*args, **kwargs)
+	_tagName = "strong"
 
 
 class Sub(Widget):
-	_baseClass = "sub"
-
-	def __init__(self, *args, **kwargs):
-		super(Sub, self).__init__(*args, **kwargs)
+	_tagName = "sub"
 
 
 class Summery(Widget):
-	_baseClass = "summery"
-
-	def __init__(self, *args, **kwargs):
-		super(Summery, self).__init__(*args, **kwargs)
+	_tagName = "summery"
 
 
 class Sup(Widget):
-	_baseClass = "sup"
-
-	def __init__(self, *args, **kwargs):
-		super(Sup, self).__init__(*args, **kwargs)
+	_tagName = "sup"
 
 
 class U(Widget):
-	_baseClass = "u"
-
-	def __init__(self, *args, **kwargs):
-		super(U, self).__init__(*args, **kwargs)
+	_tagName = "u"
 
 
 class Var(Widget):
-	_baseClass = "var"
-
-	def __init__(self, *args, **kwargs):
-		super(Var, self).__init__(*args, **kwargs)
+	_tagName = "var"
 
 
 class Wbr(Widget):
-	_baseClass = "wbr"
-
-	def __init__(self, *args, **kwargs):
-		super(Wbr, self).__init__(*args, **kwargs)
-
-
-# Embed ----------------------------------------------------------------------------------------------------------------
-
-class Embed(Widget, _attrSrc, _attrType, _attrDimensions, _isVoid):
-	_baseClass = "embed"
-
-	def __init__(self, *args, **kwargs):
-		super(Embed, self).__init__(*args, **kwargs)
+	_tagName = "wbr"
 
 
 # Form -----------------------------------------------------------------------------------------------------------------
 
-class Button(_attrDisabled, Widget, _attrType, _attrForm, _attrAutofocus, _attrName, _attrValue, _attrFormhead):
-	_baseClass = "button"
-
-	def __init__(self, *args, **kwargs):
-		_attrDisabled.__init__(self, *args, **kwargs)
-		Widget.__init__(self, *args, **kwargs)
-		_attrType.__init__(self, *args, **kwargs)
-		_attrForm.__init__(self, *args, **kwargs)
-		_attrAutofocus.__init__(self, *args, **kwargs)
-		_attrName.__init__(self, *args, **kwargs)
-		_attrValue.__init__(self, *args, **kwargs)
-		_attrFormhead.__init__(self, *args, **kwargs)
+class Button(Widget, _attrDisabled, _attrType, _attrForm, _attrAutofocus, _attrName, _attrValue, _attrFormhead):
+	_tagName = "button"
 
 
-class Fieldset(_attrDisabled, Widget, _attrForm, _attrName):
-	_baseClass = "fieldset"
-
-	def __init__(self, *args, **kwargs):
-		_attrDisabled.__init__(self, *args, **kwargs)
-		Widget.__init__(self, *args, **kwargs)
-		_attrForm.__init__(self, *args, **kwargs)
-		_attrName.__init__(self, *args, **kwargs)
+class Fieldset(Widget, _attrDisabled, _attrForm, _attrName):
+	_tagName = "fieldset"
 
 
 class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
-	_baseClass = "form"
-
-	def __init__(self, *args, **kwargs):
-		_attrDisabled.__init__(self, *args, **kwargs)
-		Widget.__init__(self, *args, **kwargs)
-		_attrName.__init__(self, *args, **kwargs)
-		_attrTarget.__init__(self, *args, **kwargs)
-		_attrAutocomplete.__init__(self, *args, **kwargs)
+	_tagName = "form"
 
 	def _getNovalidate(self):
-		return (True if self.element.hasAttribute("novalidate") else False)
+		return True if self.element.hasAttribute("novalidate") else False
 
 	def _setNovalidate(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("novalidate", "")
 		else:
 			self.element.removeAttribute("novalidate")
@@ -2033,35 +1793,17 @@ class Form(Widget, _attrDisabled, _attrName, _attrTarget, _attrAutocomplete):
 		self.element.enctype = val
 
 	def _getAccept_attrCharset(self):
-		return getattr(self.element, "accept-_attrCharset")
+		return getattr(self.element, "accept-charset")
 
 	def _setAccept_attrCharset(self, val):
-		self.element.setAttribute("accept-_attrCharset", val)
+		self.element.setAttribute("accept-charset", val)
 
 
-class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
+class Input(Widget, _attrDisabled, _attrType, _attrForm, _attrAlt, _attrAutofocus, _attrChecked,
 				_attrIndeterminate, _attrName, _attrDimensions, _attrValue, _attrFormhead,
-					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc, _isVoid):
-	_baseClass = "input"
-
-	def __init__(self, *args, **kwargs):
-		_attrDisabled.__init__(self, *args, **kwargs)
-		Widget.__init__(self, *args, **kwargs)
-		_attrType.__init__(self, *args, **kwargs)
-		_attrForm.__init__(self, *args, **kwargs)
-		_attrAlt.__init__(self, *args, **kwargs)
-		_attrAutofocus.__init__(self, *args, **kwargs)
-		_attrChecked.__init__(self, *args, **kwargs)
-		_attrIndeterminate.__init__(self, *args, **kwargs)
-		_attrName.__init__(self, *args, **kwargs)
-		_attrDimensions.__init__(self, *args, **kwargs)
-		_attrValue.__init__(self, *args, **kwargs)
-		_attrFormhead.__init__(self, *args, **kwargs)
-		_attrAutocomplete.__init__(self, *args, **kwargs)
-		_attrInputs.__init__(self, *args, **kwargs)
-		_attrMultiple.__init__(self, *args, **kwargs)
-		_attrSize.__init__(self, *args, **kwargs)
-		_attrSrc.__init__(self, *args, **kwargs)
+					_attrAutocomplete, _attrInputs, _attrMultiple, _attrSize, _attrSrc):
+	_tagName = "input"
+	_leafTag = True
 
 	def _getAccept(self):
 		return self.element.accept
@@ -2101,85 +1843,54 @@ class Input(_attrDisabled, Widget, _attrType, _attrForm, _attrAlt, _attrAutofocu
 
 
 class Label(Widget, _attrForm, _attrFor):
-	_baseClass = "label"
+	_tagName = "label"
 	autoIdCounter = 0
 
-	def __init__(self, txt="", forElem=None, *args, **kwargs):
-		super(Label, self).__init__(*args, **kwargs)
-		if txt:
-			self.appendChild(TextNode(txt))
+	def __init__(self, *args, forElem=None, **kwargs):
+		super().__init__(*args, **kwargs)
+
 		if forElem:
 			if not forElem["id"]:
 				idx = Label.autoIdCounter
 				Label.autoIdCounter += 1
 				forElem["id"] = "label-autoid-for-{}".format(idx)
+
 			self["for"] = forElem["id"]
 
 
-class Optgroup(_attrDisabled, Widget, _attrLabel):
-	_baseClass = "optgroup"
-
-	def __init__(self, *args, **kwargs):
-		_attrDisabled.__init__(self, *args, **kwargs)
-		Widget.__init__(self, *args, **kwargs)
-		_attrLabel.__init__(self, *args, **kwargs)
+class Optgroup(Widget, _attrDisabled, _attrLabel):
+	_tagName = "optgroup"
 
 
-class Option(_attrDisabled, Widget, _attrLabel, _attrValue):
-	_baseClass = "option"
-
-	def __init__(self, txt="", *args, **kwargs):
-		_attrDisabled.__init__(self, *args, **kwargs)
-		Widget.__init__(self, *args, **kwargs)
-		_attrLabel.__init__(self, *args, **kwargs)
-		_attrValue.__init__(self, *args, **kwargs)
-
-		if txt:
-			self.appendChild(txt)
+class Option(Widget, _attrDisabled, _attrLabel, _attrValue):
+	_tagName = "option"
 
 	def _getSelected(self):
-		return (True if self.element.selected else False)
+		return True if self.element.selected else False
 
-	# return( True if self.element.hasAttribute("selected") else False )
 	def _setSelected(self, val):
-		if val == True:
+		if val:
 			self.element.selected = True
 		else:
 			self.element.selected = False
 
 
 class Output(Widget, _attrForm, _attrName, _attrFor):
-	_baseClass = "output"
-
-	def __init__(self, *args, **kwargs):
-		super(Output, self).__init__(*args, **kwargs)
+	_tagName = "output"
 
 
-class Select(_attrDisabled, Widget, _attrForm, _attrAutofocus, _attrName, _attrRequired, _attrMultiple, _attrSize):
-	_baseClass = "select"
-
-	def __init__(self, *args, **kwargs):
-		_attrDisabled.__init__(self, *args, **kwargs)
-		Widget.__init__(self, *args, **kwargs)
-		_attrForm.__init__(self, *args, **kwargs)
-		_attrAutofocus.__init__(self, *args, **kwargs)
-		_attrName.__init__(self, *args, **kwargs)
-		_attrRequired.__init__(self, *args, **kwargs)
-		_attrMultiple.__init__(self, *args, **kwargs)
-		_attrSize.__init__(self, *args, **kwargs)
+class Select(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrRequired, _attrMultiple, _attrSize):
+	_tagName = "select"
 
 	def _getSelectedIndex(self):
-		return (self.element.selectedIndex)
+		return self.element.selectedIndex
 
 	def _getOptions(self):
-		return (self.element.options)
+		return self.element.options
 
 
 class Textarea(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _attrInputs, _attrValue):
-	_baseClass = "textarea"
-
-	def __init__(self, *args, **kwargs):
-		super(Textarea, self).__init__(*args, **kwargs)
+	_tagName = "textarea"
 
 	def _getCols(self):
 		return self.element.cols
@@ -2205,7 +1916,7 @@ class Textarea(Widget, _attrDisabled, _attrForm, _attrAutofocus, _attrName, _att
 class HeadCls(Widget):
 
 	def __init__(self, *args, **kwargs):
-		super(HeadCls, self).__init__(_wrapElem=domGetElementsByTagName("head")[0])
+		super().__init__(_wrapElem=domGetElementsByTagName("head")[0], *args, **kwargs)
 		self._isAttached = True
 
 
@@ -2222,10 +1933,7 @@ def Head():
 # Iframe ---------------------------------------------------------------------------------------------------------------
 
 class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
-	_baseClass = "iframe"
-
-	def __init__(self, *args, **kwargs):
-		super(Iframe, self).__init__(*args, **kwargs)
+	_tagName = "iframe"
 
 	def _getSandbox(self):
 		return self.element.sandbox
@@ -2240,10 +1948,10 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 		self.element.src = val
 
 	def _getSeamless(self):
-		return (True if self.element.hasAttribute("seamless") else False)
+		return True if self.element.hasAttribute("seamless") else False
 
 	def _setSeamless(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("seamless", "")
 		else:
 			self.element.removeAttribute("seamless")
@@ -2251,12 +1959,13 @@ class Iframe(Widget, _attrSrc, _attrName, _attrDimensions):
 
 # Img ------------------------------------------------------------------------------------------------------------------
 
-class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
-	_baseClass = "img"
+class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt):
+	_tagName = "img"
+	_leafTag = True
 
 	def __init__(self, src=None, *args, **kwargs):
-		super(Img, self).__init__(*args, **kwargs)
-		if src is not None:
+		super().__init__()
+		if src:
 			self["src"] = src
 
 	def _getCrossorigin(self):
@@ -2275,25 +1984,19 @@ class Img(Widget, _attrSrc, _attrDimensions, _attrUsemap, _attrAlt, _isVoid):
 # Ins ------------------------------------------------------------------------------------------------------------------
 
 class Ins(Widget, _attrCite, _attrDatetime):
-	_baseClass = "ins"
-
-	def __init__(self, *args, **kwargs):
-		super(Ins, self).__init__(*args, **kwargs)
+	_tagName = "ins"
 
 
 # Keygen ---------------------------------------------------------------------------------------------------------------
 
 class Keygen(Form, _attrAutofocus, _attrDisabled):
-	_baseClass = "keygen"
-
-	def __init__(self, *args, **kwargs):
-		super(Keygen, self).__init__(*args, **kwargs)
+	_tagName = "keygen"
 
 	def _getChallenge(self):
-		return (True if self.element.hasAttribute("challenge") else False)
+		return True if self.element.hasAttribute("challenge") else False
 
 	def _setChallenge(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("challenge", "")
 		else:
 			self.element.removeAttribute("challenge")
@@ -2307,11 +2010,9 @@ class Keygen(Form, _attrAutofocus, _attrDisabled):
 
 # Link -----------------------------------------------------------------------------------------------------------------
 
-class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
-	_baseClass = "link"
-
-	def __init__(self, *args, **kwargs):
-		super(Link, self).__init__(*args, **kwargs)
+class Link(Widget, _attrHref, _attrMedia, _attrRel):
+	_tagName = "link"
+	_leafTag = True
 
 	def _getSizes(self):
 		return self.element.sizes
@@ -2323,75 +2024,46 @@ class Link(Widget, _attrHref, _attrMedia, _attrRel, _isVoid):
 # List -----------------------------------------------------------------------------------------------------------------
 
 class Ul(Widget):
-	_baseClass = "ul"
-
-	def __init__(self, *args, **kwargs):
-		super(Ul, self).__init__(*args, **kwargs)
+	_tagName = "ul"
 
 
 class Ol(Widget):
-	_baseClass = "ol"
-
-	def __init__(self, *args, **kwargs):
-		super(Ol, self).__init__(*args, **kwargs)
+	_tagName = "ol"
 
 
 class Li(Widget):
-	_baseClass = "li"
-
-	def __init__(self, child=None, *args, **kwargs):
-		super(Li, self).__init__(*args, **kwargs)
-
-		if child:
-			self.appendChild(child)
+	_tagName = "li"
 
 
 class Dl(Widget):
-	_baseClass = "dl"
-
-	def __init__(self, *args, **kwargs):
-		super(Dl, self).__init__(*args, **kwargs)
+	_tagName = "dl"
 
 
 class Dt(Widget):
-	_baseClass = "dt"
-
-	def __init__(self, *args, **kwargs):
-		super(Dt, self).__init__(*args, **kwargs)
+	_tagName = "dt"
 
 
 class Dd(Widget):
-	_baseClass = "dd"
-
-	def __init__(self, *args, **kwargs):
-		super(Dd, self).__init__(*args, **kwargs)
+	_tagName = "dd"
 
 
 # Map ------------------------------------------------------------------------------------------------------------------
 
 class Map(Label, _attrType):
-	_baseClass = "map"
-
-	def __init__(self, *args, **kwargs):
-		super(Map, self).__init__(*args, **kwargs)
+	_tagName = "map"
 
 
 # Menu -----------------------------------------------------------------------------------------------------------------
 
 class Menu(Widget):
-	_baseClass = "menu"
-
-	def __init__(self, *args, **kwargs):
-		super(Menu, self).__init__(*args, **kwargs)
+	_tagName = "menu"
 
 
 # Meta -----------------------------------------------------------------------------------------------------------------
 
-class Meta(Widget, _attrName, _attrCharset, _isVoid):
-	_baseClass = "meta"
-
-	def __init__(self, *args, **kwargs):
-		super(Meta, self).__init__(*args, **kwargs)
+class Meta(Widget, _attrName, _attrCharset):
+	_tagName = "meta"
+	_leafTag = True
 
 	def _getContent(self):
 		return self.element.content
@@ -2399,21 +2071,11 @@ class Meta(Widget, _attrName, _attrCharset, _isVoid):
 	def _setContent(self, val):
 		self.element.content = val
 
-	'''
-	def _getHttpequiv(self):
-		return self.element.http-equiv
-	def _setHttpequiv(self,val):
-		self.element.http-equiv=val
-	'''
-
 
 # Meter ----------------------------------------------------------------------------------------------------------------
 
 class Meter(Form, _attrValue):
-	_baseClass = "meter"
-
-	def __init__(self, *args, **kwargs):
-		super(Meter, self).__init__(*args, **kwargs)
+	_tagName = "meter"
 
 	def _getHigh(self):
 		return self.element.high
@@ -2449,37 +2111,26 @@ class Meter(Form, _attrValue):
 # Nav ------------------------------------------------------------------------------------------------------------------
 
 class Nav(Widget):
-	_baseClass = "nav"
-
-	def __init__(self, *args, **kwargs):
-		super(Nav, self).__init__(*args, **kwargs)
+	_tagName = "nav"
 
 
 # Object -----------------------------------------------------------------------------------------------------------------
 
 class Object(Form, _attrType, _attrName, _attrDimensions, _attrUsemap):
-	_baseClass = "object"
-
-	def __init__(self, *args, **kwargs):
-		super(Object, self).__init__(*args, **kwargs)
+	_tagName = "object"
 
 
 # Param -----------------------------------------------------------------------------------------------------------------
 
-class Param(Widget, _attrName, _attrValue, _isVoid):
-	_baseClass = "param"
-
-	def __init__(self, *args, **kwargs):
-		super(Param, self).__init__(*args, **kwargs)
+class Param(Widget, _attrName, _attrValue):
+	_tagName = "param"
+	_leafTag = True
 
 
 # Progress -------------------------------------------------------------------------------------------------------------
 
 class Progress(Widget, _attrValue):
-	_baseClass = "progress"
-
-	def __init__(self, *args, **kwargs):
-		super(Progress, self).__init__(*args, **kwargs)
+	_tagName = "progress"
 
 	def _getMax(self):
 		return self.element.max
@@ -2491,34 +2142,28 @@ class Progress(Widget, _attrValue):
 # Q --------------------------------------------------------------------------------------------------------------------
 
 class Q(Widget, _attrCite):
-	_baseClass = "q"
-
-	def __init__(self, *args, **kwargs):
-		super(Q, self).__init__(*args, **kwargs)
+	_tagName = "q"
 
 
 # Script ----------------------------------------------------------------------------------------------------------------
 
 class Script(Widget, _attrSrc, _attrCharset):
-	_baseClass = "script"
-
-	def __init__(self, *args, **kwargs):
-		super(Script, self).__init__(*args, **kwargs)
+	_tagName = "script"
 
 	def _getAsync(self):
-		return (True if self.element.hasAttribute("async") else False)
+		return True if self.element.hasAttribute("async") else False
 
 	def _setAsync(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("async", "")
 		else:
 			self.element.removeAttribute("async")
 
 	def _getDefer(self):
-		return (True if self.element.hasAttribute("defer") else False)
+		return True if self.element.hasAttribute("defer") else False
 
 	def _setDefer(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("defer", "")
 		else:
 			self.element.removeAttribute("defer")
@@ -2526,167 +2171,37 @@ class Script(Widget, _attrSrc, _attrCharset):
 
 # Source ---------------------------------------------------------------------------------------------------------------
 
-class Source(Widget, _attrMedia, _attrSrc, _isVoid):
-	_baseClass = "source"
-
-	def __init__(self, *args, **kwargs):
-		super(Source, self).__init__(*args, **kwargs)
+class Source(Widget, _attrMedia, _attrSrc):
+	_tagName = "source"
+	_leafTag = True
 
 
 # Span -----------------------------------------------------------------------------------------------------------------
 
 class Span(Widget):
-	_baseClass = "span"
-
-	def __init__(self, *args, **kwargs):
-		super(Span, self).__init__(**kwargs)
-		self.appendChild(args)
+	_tagName = "span"
 
 
 # Style ----------------------------------------------------------------------------------------------------------------
 
 class Style(Widget, _attrMedia):
-	_baseClass = "style"
-
-	def __init__(self, *args, **kwargs):
-		super(Style, self).__init__(*args, **kwargs)
+	_tagName = "style"
 
 	def _getScoped(self):
-		return (True if self.element.hasAttribute("scoped") else False)
+		return True if self.element.hasAttribute("scoped") else False
 
 	def _setScoped(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("scoped", "")
 		else:
 			self.element.removeAttribute("scoped")
-
-
-# SVG ------------------------------------------------------------------------------------------------------------------
-
-class Svg(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform):
-	_baseClass = "svg"
-	_namespace = "SVG"
-
-	def __init__(self, version=None, viewBox=None, heigth=None, width=None, *args, **kwargs):
-		super(Svg, self).__init__(*args, **kwargs)
-
-	def _getVersion(self):
-		return self.element.version
-
-	def _setVersion(self, val):
-		self.element.setAttribute("version", val)
-
-	def _getXmlns(self):
-		return self.element.xmlns
-
-	def _setXmlns(self, val):
-		self.element.setAttribute("xmlns", val)
-
-
-class SvgCircle(Widget, _attrSvgTransform, _attrSvgDimensions):
-	_baseClass = "circle"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgCircle, self).__init__(*args, **kwargs)
-
-
-class SvgEllipse(Widget, _attrSvgTransform, _attrSvgDimensions):
-	_baseClass = "ellipse"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgEllipse, self).__init__(*args, **kwargs)
-
-
-class SvgG(Widget, _attrSvgTransform, _attrSvgStyles):
-	_baseClass = "g"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgG, self).__init__(*args, **kwargs)
-
-	def _getSvgTransform(self):
-		return self.element.transform
-
-	def _setSvgTransform(self, val):
-		self.element.setAttribute("transform", val)
-
-
-class SvgImage(Widget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform, _attrSvgXlink):
-	_baseClass = "image"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgImage, self).__init__(*args, **kwargs)
-
-
-class SvgLine(Widget, _attrSvgTransform, _attrSvgPoints):
-	_baseClass = "line"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgLine, self).__init__(*args, **kwargs)
-
-
-class SvgPath(Widget, _attrSvgTransform):
-	_baseClass = "path"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgPath, self).__init__(*args, **kwargs)
-
-	def _getD(self):
-		return self.element.d
-
-	def _setD(self, val):
-		self.element.setAttribute("d", val)
-
-	def _getPathLength(self):
-		return self.element.pathLength
-
-	def _setPathLength(self, val):
-		self.element.setAttribute("pathLength", val)
-
-
-class SvgPolygon(Widget, _attrSvgTransform, _attrSvgPoints):
-	_baseClass = "polygon"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgPolygon, self).__init__(*args, **kwargs)
-
-
-class SvgPolyline(Widget, _attrSvgTransform, _attrSvgPoints):
-	_baseClass = "polyline"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgPolyline, self).__init__(*args, **kwargs)
-
-
-class SvgRect(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
-	_baseClass = "rect"
-	_namespace = "SVG"
-
-	def __init__(self, *args, **kwargs):
-		super(SvgRect, self).__init__(*args, **kwargs)
-
-
-class SvgText(Widget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
-	_baseClass = "text"
-	_namespace = "SVG"
-
-	def __init__(self, text="", *args, **kwargs):
-		super(SvgText, self).__init__(*args, **kwargs)
-		self.element.appendChild(domCreateTextNode(text))
 
 
 # Table ----------------------------------------------------------------------------------------------------------------
 
 
 class Tr(Widget):
-	_baseClass = "tr"
+	_tagName = "tr"
 
 	def _getRowspan(self):
 		span = self.element.getAttribute("rowspan")
@@ -2699,11 +2214,7 @@ class Tr(Widget):
 
 
 class Td(Widget):
-	_baseClass = "td"
-
-	def __init__(self, *args, **kwargs):
-		super(Td, self).__init__(**kwargs)
-		self.appendChild(args)
+	_tagName = "td"
 
 	def _getColspan(self):
 		span = self.element.getAttribute("colspan")
@@ -2725,20 +2236,20 @@ class Td(Widget):
 
 
 class Th(Td):
-	_baseClass = "th"
+	_tagName = "th"
 
 
 class Thead(Widget):
-	_baseClass = "thead"
+	_tagName = "thead"
 
 
 class Tbody(Widget):
-	_baseClass = "tbody"
+	_tagName = "tbody"
 
 
 class ColWrapper(object):
 	def __init__(self, parentElem, *args, **kwargs):
-		super(ColWrapper, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.parentElem = parentElem
 
 	def __getitem__(self, item):
@@ -2765,7 +2276,7 @@ class ColWrapper(object):
 
 class RowWrapper(object):
 	def __init__(self, parentElem, *args, **kwargs):
-		super(RowWrapper, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.parentElem = parentElem
 
 	def __getitem__(self, item):
@@ -2777,10 +2288,10 @@ class RowWrapper(object):
 
 
 class Table(Widget):
-	_baseClass = "table"
+	_tagName = "table"
 
 	def __init__(self, *args, **kwargs):
-		super(Table, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.head = Thead()
 		self.body = Tbody()
 		self.appendChild(self.head)
@@ -2844,19 +2355,14 @@ class Table(Widget):
 # Time -----------------------------------------------------------------------------------------------------------------
 
 class Time(Widget, _attrDatetime):
-	_baseClass = "time"
-
-	def __init__(self, *args, **kwargs):
-		super(Time, self).__init__(*args, **kwargs)
+	_tagName = "time"
 
 
 # Track ----------------------------------------------------------------------------------------------------------------
 
-class Track(Label, _attrSrc, _isVoid):
-	_baseClass = "track"
-
-	def __init__(self, *args, **kwargs):
-		super(Track, self).__init__(*args, **kwargs)
+class Track(Label, _attrSrc):
+	_tagName = "track"
+	_leafTag = True
 
 	def _getKind(self):
 		return self.element.kind
@@ -2871,10 +2377,10 @@ class Track(Label, _attrSrc, _isVoid):
 		self.element.srclang = val
 
 	def _getDefault(self):
-		return (True if self.element.hasAttribute("default") else False)
+		return True if self.element.hasAttribute("default") else False
 
 	def _setDefault(self, val):
-		if val == True:
+		if val:
 			self.element.setAttribute("default", "")
 		else:
 			self.element.removeAttribute("default")
@@ -2883,10 +2389,7 @@ class Track(Label, _attrSrc, _isVoid):
 # Video ----------------------------------------------------------------------------------------------------------------
 
 class Video(Widget, _attrSrc, _attrDimensions, _attrMultimedia):
-	_baseClass = "video"
-
-	def __init__(self, *args, **kwargs):
-		super(Video, self).__init__(*args, **kwargs)
+	_tagName = "video"
 
 	def _getPoster(self):
 		return self.element.poster
@@ -3060,12 +2563,15 @@ __tags = None
 __domParser = None
 
 
-def registerTag(tagName, widgetClass):
+def registerTag(tagName, widgetClass, override=True):
 	assert issubclass(widgetClass, Widget), "widgetClass must be a sub-class of Widget!"
 	global __tags
 
 	if __tags is None:
 		_buildTags()
+
+	if not override and tagName.lower() in __tags:
+		return
 
 	attr = []
 
@@ -3074,6 +2580,17 @@ def registerTag(tagName, widgetClass):
 			attr.append(fname[4:].lower())
 
 	__tags[tagName.lower()] = (widgetClass, attr)
+
+
+def tag(cls):
+	assert issubclass(cls, Widget)
+	# This is a little bit ugly but works for the svg...
+	if str(cls.__module__).split(".")[-2] == "html5":
+		registerTag(cls._parserTagName or cls._tagName or cls.__name__, cls)
+	else:
+		registerTag(cls._parserTagName or cls.__name__, cls)   # do NOT check for cls._tagName here!!!
+
+	return cls
 
 
 def _buildTags(debug=False):
@@ -3093,19 +2610,23 @@ def _buildTags(debug=False):
 		if cname.startswith("_"):
 			continue
 
-		cl = globals()[cname]
+		cls = globals()[cname]
 
 		try:
-			if not issubclass(cl, Widget):
+			if not issubclass(cls, Widget):
 				continue
 		except:
 			continue
 
-		registerTag(cname, cl)
+		registerTag(cls._parserTagName or cls._tagName or cls.__name__, cls, override=False)
 
 	if debug:
 		for tag in sorted(__tags.keys()):
 			logging.debug("%r: %r", tag, ", ".join(sorted(__tags[tag][1])))
+
+
+class HtmlAst(list):
+	pass
 
 
 def parseHTML(html, debug=False):
@@ -3168,7 +2689,7 @@ def parseHTML(html, debug=False):
 		_buildTags(debug=debug)
 
 	# Prepare stack and input
-	stack.append((None, None, []))
+	stack.append((None, None, HtmlAst()))
 	html = [ch for ch in html]
 
 	# Parse
@@ -3176,8 +2697,8 @@ def parseHTML(html, debug=False):
 		tag = None
 		text = ""
 
-		# Auto-close void elements (_isVoid), e.g. <hr>, <br>, etc.
-		while stack and stack[-1][0] and issubclass(__tags[stack[-1][0]][0], _isVoid):
+		# Auto-close leaf elements, e.g. like <hr>, <br>, etc.
+		while stack and stack[-1][0] and __tags[stack[-1][0]][0]._leafTag:
 			stack.pop()
 
 		if not stack:
@@ -3186,8 +2707,6 @@ def parseHTML(html, debug=False):
 		parent = stack[-1][2]
 
 		while html:
-			# logging.debug("html: %r, %r", html, stack)
-
 			ch = html.pop(0)
 
 			# Comment
@@ -3214,7 +2733,6 @@ def parseHTML(html, debug=False):
 				tag = scanWord(html)
 				junk += tag
 
-				# logging.debug("/ %r, %r", tag.lower(), stack[-1][1].lower())
 				if stack[-1][0] == tag.lower():
 					junk += scanWhite(html)
 					if html and html[0] == ">":
@@ -3240,7 +2758,7 @@ def parseHTML(html, debug=False):
 			tag = tag.lower()
 			# logging.debug("tag: %r", tag)
 
-			elem = (tag, {}, [])
+			elem = (tag, {}, HtmlAst())
 
 			stack.append(elem)
 			parent.append(elem)
@@ -3265,33 +2783,30 @@ def parseHTML(html, debug=False):
 						html.pop(0)
 						break
 
-				att = scanWord(html)
-				att = att.lower()  # fixme: Transcrypt bug when combined with line above?
-				val = att
+				val = att = scanWord(html).lower()
 
 				if not att:
 					html.pop(0)
 					continue
 
-				if att in __tags[tag][1] or att in ["[name]", "style", "disabled", "hidden"] or att.startswith("data-"):
+				scanWhite(html)
+				if html[0] == "=":
+					html.pop(0)
 					scanWhite(html)
-					if html[0] == "=":
+
+					if html[0] in "\"'":
+						ch = html.pop(0)
+
+						val = ""
+						while html and html[0] != ch:
+							val += html.pop(0)
+
 						html.pop(0)
-						scanWhite(html)
 
-						if html[0] in "\"'":
-							ch = html.pop(0)
-
-							val = ""
-							while html and html[0] != ch:
-								val += html.pop(0)
-
-							html.pop(0)
-
-					if att not in elem[1]:
-						elem[1][att] = val
-					else:
-						elem[1][att] += " " + val
+				if att not in elem[1]:
+					elem[1][att] = val
+				else:
+					elem[1][att] += " " + val
 
 				continue
 
@@ -3300,8 +2815,7 @@ def parseHTML(html, debug=False):
 
 	return stack[0][2]
 
-
-def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
+def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None, **kwargs):
 	"""
 	Parses the provided HTML code according to the objects defined in the html5-library.
 	html can also be pre-compiled by `parseHTML()` so that it executes faster.
@@ -3312,7 +2826,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 	If bindTo is provided, objects are bound to this widget.
 
 	```python
-	import html5
+	from vi import html5
 
 	div = html5.Div()
 	html5.parse.fromHTML('''
@@ -3329,26 +2843,34 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 	"""
 
 	# Handle defaults
-	if appendTo is None:
-		appendTo = Body()
-
 	if bindTo is None:
 		bindTo = appendTo
 
 	if isinstance(html, str):
 		html = parseHTML(html, debug=debug)
 
+	assert isinstance(html, HtmlAst)
+
+	if isinstance(vars, dict):
+		kwargs.update(vars)
+
 	def replaceVars(txt):
-		if vars:
-			for var, val in vars.items():
-				txt = txt.replace("{{%s}}" % var, val)
+		for var, val in kwargs.items():
+			txt = txt.replace("{{%s}}" % var, str(val) if val is not None else "")
 
 		return txt
 
 	def interpret(parent, items):
+		ret = []
+
 		for item in items:
 			if isinstance(item, str):
-				parent.appendChild(TextNode(replaceVars(item)))
+				txt = TextNode(replaceVars(item))
+
+				if parent:
+					parent.appendChild(txt)
+
+				ret.append(txt)
 				continue
 
 			tag = item[0]
@@ -3366,27 +2888,27 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 			for att, val in atts.items():
 				val = replaceVars(val)
 
+				# The [name] attribute binds the current widget to bindTo under the provided name!
 				if att == "[name]":
 					# Allow disable binding!
 					if not bindTo:
+						logging.warning("html5: Unable to evaluate %r due unset bindTo", att)
 						continue
 
-					if val in dir(appendTo):
-						logging.debug("Cannot assign name %r because it already exists in %r", val, appendTo)
+					if getattr(bindTo, val, None):
+						logging.warning("html5: Cannot assign name %r because it already exists in %r", val, bindTo)
 
-					elif not (any([val.startswith(x) for x in
-								   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "_"])
-							  and all(
-								[x in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789" + "_"
-								 for x in val[1:]])):
-						logging.debug("Cannot assign name %r because it contains invalid characters", val)
-					
+					elif not (any([val.startswith(x) for x in string.ascii_letters + "_"])
+							  and all([x in string.ascii_letters + string.digits + "_" for x in val[1:]])):
+						logging.warning("html5: Cannot assign name %r because it contains invalid characters", val)
 					else:
 						setattr(bindTo, val, wdg)
+						wdg.onBind(bindTo, val)
 
-					if debug:
-						logging.debug("name '{}' assigned to {}", val, bindTo)
+					if debug: #fixme: remove debug flag!
+						logging.debug("html5: %r assigned to %r", val, bindTo)
 
+				# Class is handled via Widget.addClass()
 				elif att == "class":
 					# logging.debug("tag: %r, %r", att, val.split())
 					wdg.addClass(*val.split())
@@ -3401,6 +2923,7 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 					if val == "hidden":
 						wdg.hide()
 
+				# style-attributes must be split into its separate parts to be mapped into the dict.
 				elif att == "style":
 					for dfn in val.split(";"):
 						if ":" not in dfn:
@@ -3411,20 +2934,44 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None):
 						# print(tag, "style", att.strip(), val.strip())
 						wdg["style"][att.strip()] = val.strip()
 
+				# data attributes are mapped into a related dict.
 				elif att.startswith("data-"):
-					wdg[att[5:]] = val
+					wdg["data"][att[5:]] = val
 
+				# transfer attributes from the binder into current widget
+				elif att.startswith(":"):
+					if bindTo:
+						try:
+							setattr(wdg, att[1:], getattr(bindTo, val))
+						except Exception as e:
+							logging.exception(e)
+					else:
+						logging.error("html5: bindTo is unset, can't use %r here", att)
+
+				# Otherwise, either store widget attribute or save value on widget.
 				else:
-					wdg[att] = val
+					try:
+						wdg[att] = parseInt(val, val)
+
+					except ValueError:
+						if att in dir(wdg):
+							logging.error("html5: Attribute %r already defined for %r", att, wdg)
+						else:
+							setattr(wdg, att, val)
+
+					except Exception as e:
+						logging.exception(e)
 
 			interpret(wdg, children)
 
-			if not wdg.parent():
+			if parent and not wdg.parent():
 				parent.appendChild(wdg)
 
-	interpret(appendTo, html)
+			ret.append(wdg)
 
-	return html #return compiled HTML (for optional reuse)
+		return ret
+
+	return interpret(appendTo, html)
 
 
 if __name__ == '__main__':
