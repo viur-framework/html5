@@ -137,7 +137,6 @@ class _attrSvgXlink(object):
 class _attrSvgStyles(object):
 
 	def __init__(self, *args, **kwargs):
-		print("_attrSvgStyles:__init__: kwargs = {}".format(kwargs))
 		if 'fill' in kwargs:
 			self._setFill(kwargs.pop('fill'))
 		if 'fillopacity' in kwargs:
@@ -147,7 +146,6 @@ class _attrSvgStyles(object):
 		if 'strokeopacity' in kwargs:
 			self._setStrokeopacity(kwargs.pop('strokeopacity'))
 		if 'strokewidth' in kwargs:
-			print("_attrSvgStyles:__init__: strokewidth")
 			self._setStrokewidth(kwargs.pop('strokewidth'))
 		if 'strokelinejoin' in kwargs:
 			self._setStrokelinejoin(kwargs.pop('strokelinejoin'))
@@ -334,8 +332,10 @@ class SvgText(SvgWidget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
 	_tagName = "text"
 
 	def __init__(self, *args, **kwargs):
+		txt = kwargs.pop('text', "")
 		SvgWidget.__init__(self, *args, **kwargs)
 		_attrSvgStyles.__init__(self, *args, **kwargs)
+		self._setText(txt)
 
 	def _getTextanchor(self):
 		return self.element.getAttribute("text-anchor")
@@ -356,13 +356,13 @@ class SvgText(SvgWidget, _attrSvgDimensions, _attrSvgTransform, _attrSvgStyles):
 		self.element.setAttribute("font-size", val)
 
 	def _getText(self):
-		return self.element.data
+		return self.element.textContent
 
 	def _setText(self, txt):
-		self.element.data = txt
+		self.element.textContent = txt
 
 	def __str__(self):
-		return self.element.data
+		return self.element.textContent
 
 
 
