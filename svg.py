@@ -288,7 +288,7 @@ class SvgPath(SvgWidget, _attrSvgTransform, _attrSvgStyles):
 		_attrSvgStyles.__init__(self, *args, **kwargs)
 
 	def _getD(self):
-		return self.element.d
+		return self.element.getAttribute("d")
 
 	def _setD(self, val):
 		self.element.setAttribute("d", val)
@@ -302,6 +302,9 @@ class SvgPath(SvgWidget, _attrSvgTransform, _attrSvgStyles):
 
 @html5.tag
 class SvgPolygon(SvgWidget, _attrSvgTransform, _attrSvgPoints, _attrSvgStyles):
+	"""
+	SvgWidget representing a "polygon" element in an SVG.
+	"""
 	_tagName = "polygon"
 
 	def __init__(self, *args, **kwargs):
