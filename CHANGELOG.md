@@ -23,6 +23,7 @@ This is the current development version.
 - Feature: HTML-parser improvements
   - Direct attribute assignments: Store attributes which are not HTML-element attributes directly, e.g. `<div kind="internal">` becomes `self.kind = "internal"` on the created `html5.Div()` instance
   - ':'-notation on attributes to transfer objects from binder to its children
+- Feature: Unified usage of "hidden" and "disabled" attributes on Widgets
 - Speed-improvement: Hold static `_WidgetClassWrapper` per `html5.Widget` instead of creating one each time on the fly.
 
 ## [2.5.0] Vesuv
