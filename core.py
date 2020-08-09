@@ -414,28 +414,34 @@ class Widget(object):
 
 	def _getTabindex(self):
 		"""
-		Specifies whether the element represents an element that is is focusable (that is, an element which is part of the sequence of focusable elements in the document), and the relative order of the element in the sequence of focusable elements in the document.
+		Specifies whether the element represents an element that is is focusable
+		(that is, an element which is part of the sequence of focusable elements in the document),
+		and the relative order of the element in the sequence of focusable elements in the document.
 		:returns: number
 		"""
 		return self.element.getAttribute("tabindex")
 
 	def _setTabindex(self, val):
 		"""
-		Specifies whether the element represents an element that is is focusable (that is, an element which is part of the sequence of focusable elements in the document), and the relative order of the element in the sequence of focusable elements in the document.
+		Specifies whether the element represents an element that is is focusable
+		(that is, an element which is part of the sequence of focusable elements in the document),
+		and the relative order of the element in the sequence of focusable elements in the document.
 		:param val:  number
 		"""
 		self.element.setAttribute("tabindex", val)
 
 	def _getSpellcheck(self):
 		"""
-		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
+		Specifies whether the element represents an element whose contents
+		are subject to spell checking and grammar checking.
 		:returns: True | False
 		"""
 		return True if self.element.spellcheck == "true" else False
 
 	def _setSpellcheck(self, val):
 		"""
-		Specifies whether the element represents an element whose contents are subject to spell checking and grammar checking.
+		Specifies whether the element represents an element whose contents
+		are subject to spell checking and grammar checking.
 		:param val: True | False
 		"""
 		self.element.spellcheck = str(val).lower()

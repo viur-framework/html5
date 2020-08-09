@@ -84,12 +84,36 @@ class _attrSvgDimensions(object):
 
 
 class _attrSvgPoints(object):
+	"""
+	The SVGAnimatedPoints interface is used to reflect a ‘points’ attribute on a ‘polygon’ or ‘polyline’ element.
+	It is mixed in to the SVGPolygonElement and SVGPolylineElement interfaces
+	"""
 
 	def _getPoints(self):
+		"""
+		returns SVGPointList object, see www.w3.org/TR/SVG2/shapes.html
+
+		interface SVGPointList {
+
+		  readonly attribute unsigned long length;
+		  readonly attribute unsigned long numberOfItems;
+
+		  void clear();
+		  DOMPoint initialize(DOMPoint newItem);
+		  getter DOMPoint getItem(unsigned long index);
+		  DOMPoint insertItemBefore(DOMPoint newItem, unsigned long index);
+		  DOMPoint replaceItem(DOMPoint newItem, unsigned long index);
+		  DOMPoint removeItem(unsigned long index);
+		  DOMPoint appendItem(DOMPoint newItem);
+		  setter void (unsigned long index, DOMPoint newItem);
+		};
+		"""
 		return self.element.points
 
 	def _setPoints(self, val):
 		self.element.setAttribute("points", val)
+
+class _attrSvgTwoPoints(object):
 
 	def _getX1(self):
 		return self.element.x1
@@ -153,7 +177,7 @@ class _attrSvgStyles(object):
 			self._setStrokelinecap(kwargs.pop('strokelinecap'))
 		if 'strokedasharray' in kwargs:
 			self._setStrokedasharray(kwargs.pop('strokedasharray'))
-		super().__init__(*args, **kwargs)
+		super().__init__()
 
 	def _getFill(self):
 		return self.element.fill
@@ -218,6 +242,17 @@ class SvgWidget(html5.Widget):
 
 @html5.tag
 class Svg(SvgWidget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform):
+	"""
+	From DOM's SvgSvgElement, following methods are inherited:
+	- createSVGNumber
+	- createSVGPoint
+	- createSVGLength
+	- createSVGAngle
+	- createSVGMatrix
+	- createSVGRect
+	- createSVGTransform
+
+	"""
 	_tagName = "svg"
 
 	def _getVersion(self):
@@ -231,6 +266,27 @@ class Svg(SvgWidget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform):
 
 	def _setXmlns(self, val):
 		self.element.setAttribute("xmlns", val)
+
+	def createSVGNumber(self):
+		return self.element.createSVGNumber()
+
+	def createSVGPoint(self):
+		return self.element.createSVGPoint()
+
+	def createSVGLength(self):
+		return self.element.createSVGLength()
+
+	def createSVGAngle(self):
+		return self.element.createSVGAngle()
+
+	def createSVGMatrix(self):
+		return self.element.createSVGMatrix()
+
+	def createSVGRect(self):
+		return self.element.createSVGRect()
+
+	def createSVGTransform(self):
+		return self.element.createSVGTransform()
 
 
 @html5.tag
@@ -272,7 +328,7 @@ class SvgImage(SvgWidget, _attrSvgViewBox, _attrSvgDimensions, _attrSvgTransform
 
 
 @html5.tag
-class SvgLine(SvgWidget, _attrSvgTransform, _attrSvgPoints, _attrSvgStyles):
+class SvgLine(SvgWidget, _attrSvgTransform, _attrSvgTwoPoints, _attrSvgStyles):
 	_tagName = "line"
 
 	def __init__(self, *args, **kwargs):
