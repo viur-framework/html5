@@ -114,11 +114,11 @@ class Popup(html5.Div):
 			self.popupIcon.appendChild(icon[0])
 		elif title:
 			self.popupIcon.appendChild(title[0])
-		else:
-			self.popupIcon.appendChild("Vi") #fixme!!! this _LIBRARY_ is not only used in the Vi...
+		# else:
+		# 	self.popupIcon.appendChild("Vi") #fixme!!! this _LIBRARY_ is not only used in the Vi...
 
 		# id can be used to pass information to callbacks
-		self.id = id
+		self.id = id    # FIXME: rename 'id'! Shadows built-in name!
 
 		#FIXME: Implement a global overlay! One popupOverlay next to a list of popups.
 		self.popupOverlay = html5.Div()
