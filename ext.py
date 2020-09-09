@@ -112,8 +112,8 @@ class Popup(html5.Div):
 
 		if icon:
 			self.popupIcon.appendChild(icon[0])
-		elif title:
-			self.popupIcon.appendChild(title[0])
+		# elif title:
+		# 	self.popupIcon.appendChild(title)
 		# else:
 		# 	self.popupIcon.appendChild("Vi") #fixme!!! this _LIBRARY_ is not only used in the Vi...
 
@@ -430,7 +430,7 @@ class SelectDialog(Popup):
 
 
 class TextareaDialog(Popup):
-	def __init__(self, text, value="", successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
+	def __init__(self, text, value=None, successHandler=None, abortHandler=None, successLbl="OK", abortLbl="Cancel",
 	             *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self["class"].append("popup--textareadialog")
@@ -443,7 +443,9 @@ class TextareaDialog(Popup):
 		self.popupBody.appendChild(span)
 
 		self.inputElem = html5.Textarea()
-		self.inputElem["value"] = value
+		if value is not None:
+			# Setting an empty string as default value produces "undefined" text
+			self.inputElem["value"] = value
 		self.popupBody.appendChild(self.inputElem)
 
 		okayBtn = Button(successLbl, self.onOkay)
