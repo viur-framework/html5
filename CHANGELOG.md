@@ -4,8 +4,6 @@ This file documents any relevant changes done to ViUR html5 since version 2.
 
 ## 3.0.0 [develop]
 
-This is the current development version.
-
 - Feature: Changed LGPLv3 licensing terms into MIT
 - Feature: Ported framework to Python 3.7 using [Pyodide](https://github.com/iodide-project/pyodide), with a full source code and library cleanup
 - Feature: `html5.Widget.__init__()` now allows for parameters equal to `Widget.appendChild()` to directly stack widgets together.
@@ -25,6 +23,11 @@ This is the current development version.
   - ':'-notation on attributes to transfer objects from binder to its children
 - Feature: Unified usage of "hidden" and "disabled" attributes on Widgets
 - Speed-improvement: Hold static `_WidgetClassWrapper` per `html5.Widget` instead of creating one each time on the fly.
+
+## [2.5.1] Vesuv
+
+- Feature: Allow to bind multiple [name] attributes to one widget in HTML parser
+- Feature: `html5.utils.textToHtml()` extended to `clear`-parameter
 
 ## [2.5.0] Vesuv
 
@@ -91,7 +94,8 @@ Release date: Dec 22, 2016
 - Insert text blocks easier with `utils.textToHtml()`
 - Several bugfixes
 
-[develop]: https://github.com/viur-framework/html5/compare/v2.5.0...develop
+[develop]: https://github.com/viur-framework/html5/compare/v2.5.1...develop
+[2.5.1]: https://github.com/viur-framework/html5/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/viur-framework/html5/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/viur-framework/html5/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/viur-framework/html5/compare/v2.2.0...v2.3.0
