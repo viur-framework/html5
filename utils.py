@@ -51,14 +51,17 @@ def doesEventHitWidgetOrChildren(event, widget):
 
 	return False
 
-def textToHtml(node, text):
+def textToHtml(node, text, clear=False):
 	"""
 	Generates html nodes from text by splitting text into content and into
 	line breaks html5.Br.
 
 	:param node: The node where the nodes are appended to.
 	:param text: The text to be inserted.
+	:param clear: Clear node before inserting text
 	"""
+	if clear:
+		node.removeAllChildren()
 
 	for (i, part) in enumerate(text.split("\n")):
 		if i > 0:
@@ -99,3 +102,28 @@ def parseFloat(s, ret = 0.0):
 			return float(s)
 
 	return ret
+
+def importJS(*args, **kwargs):
+	"""
+	Dynamically imports the provided JavaScript files sequentially.
+
+	This has to be done when multiple scripts are bootstrapped, and cause errors in case they're all loaded
+	simultaneously.
+
+	:param callback: Allows to specify a callback function to be called when all scripts have been loaded.
+	:type callback: callable
+	"""
+	if not args:
+		callback = kwargs.get("callback")
+		if callable(callback):
+			callback()
+
+		return
+
+	script = html5.Script()
+	script["src"] = args[0]
+	#print(script["src"])
+	script.onLoad = lambda *xargs, **xkwargs: importJS(*args[1:], **kwargs)
+	script.sinkEvent("onLoad")
+
+	html5.Head().appendChild(script)
