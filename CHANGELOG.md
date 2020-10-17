@@ -2,9 +2,7 @@
 
 This file documents any relevant changes done to ViUR html5 since version 2.
 
-## [develop]
-
-This is the current development version.
+## [2.5.1] Vesuv
 
 - Feature: Allow to bind multiple [name] attributes to one widget in HTML parser
 - Feature: `html5.utils.textToHtml()` extended to `clear`-parameter
@@ -74,7 +72,8 @@ Release date: Dec 22, 2016
 - Insert text blocks easier with `utils.textToHtml()`
 - Several bugfixes
 
-[develop]: https://github.com/viur-framework/html5/compare/v2.5.0...develop
+[develop]: https://github.com/viur-framework/html5/compare/v2.5.1...develop
+[2.5.1]: https://github.com/viur-framework/html5/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/viur-framework/html5/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/viur-framework/html5/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/viur-framework/html5/compare/v2.2.0...v2.3.0
