@@ -14,7 +14,7 @@ class Label(html5.Label):
 	_parserTagName = "ignite-label"
 
 	def __init__(self, *args, **kwargs):
-		super(Label, self).__init__(style="label flr-label", *args, **kwargs)
+		super(Label, self).__init__(style="label ignt-label", *args, **kwargs)
 
 
 @html5.tag
@@ -22,7 +22,7 @@ class Input(html5.Input):
 	_parserTagName = "ignite-input"
 
 	def __init__(self, *args, **kwargs):
-		super(Input, self).__init__(style="input flr-input", *args, **kwargs)
+		super(Input, self).__init__(style="input ignt-input", *args, **kwargs)
 
 
 @html5.tag
@@ -30,7 +30,7 @@ class Switch(html5.Div):
 	_parserTagName = "ignite-switch"
 
 	def __init__(self, *args, **kwargs):
-		super(Switch, self).__init__(style="switch flr-switch", *args, **kwargs)
+		super(Switch, self).__init__(style="switch ignt-switch", *args, **kwargs)
 
 		self.input = html5.Input(style="switch-input")
 		self.appendChild(self.input)
@@ -52,7 +52,7 @@ class Check(html5.Input):
 	_parserTagName = "ignite-check"
 
 	def __init__(self, *args, **kwargs):
-		super(Check, self).__init__(style="check flr-check", *args, **kwargs)
+		super(Check, self).__init__(style="check ignt-check", *args, **kwargs)
 
 		checkInput = html5.Input()
 		checkInput.addClass("check-input")
@@ -69,7 +69,7 @@ class Radio(html5.Div):
 	_parserTagName = "ignite-radio"
 
 	def __init__(self, *args, **kwargs):
-		super(Radio, self).__init__(style="radio flr-radio", *args, **kwargs)
+		super(Radio, self).__init__(style="radio ignt-radio", *args, **kwargs)
 
 		radioInput = html5.Input()
 		radioInput.addClass("radio-input")
@@ -86,7 +86,7 @@ class Select(html5.Select):
 	_parserTagName = "ignite-select"
 
 	def __init__(self, *args, **kwargs):
-		super(Select, self).__init__(style="select flr-select", *args, **kwargs)
+		super(Select, self).__init__(style="select ignt-select", *args, **kwargs)
 
 		defaultOpt = html5.Option()
 		defaultOpt["selected"] = True
@@ -100,7 +100,7 @@ class Textarea(html5.Textarea):
 	_parserTagName = "ignite-textarea"
 
 	def __init__(self, *args, **kwargs):
-		super(Textarea, self).__init__(style="textarea flr-textarea", *args, **kwargs)
+		super(Textarea, self).__init__(style="textarea ignt-textarea", *args, **kwargs)
 
 
 @html5.tag
@@ -108,7 +108,7 @@ class Progress(html5.Progress):
 	_parserTagName = "ignite-progress"
 
 	def __init__(self, *args, **kwargs):
-		super(Progress, self).__init__(style="progress flr-progress", *args, **kwargs)
+		super(Progress, self).__init__(style="progress ignt-progress", *args, **kwargs)
 
 
 @html5.tag
@@ -116,15 +116,15 @@ class Item(html5.Div):
 	_parserTagName = "ignite-item"
 
 	def __init__(self, title=None, descr=None, className=None, *args, **kwargs):
-		super(Item, self).__init__(style="item flr-item", *args, **kwargs)
+		super(Item, self).__init__(style="item ignt-item", *args, **kwargs)
 		if className:
 			self.addClass(className)
 
 		self.fromHTML("""
-			<div class="item-image flr-item-image" [name]="itemImage">
+			<div class="item-image ignt-item-image" [name]="itemImage">
 			</div>
-			<div class="item-content flr-item-content" [name]="itemContent">
-				<div class="item-headline flr-item-headline" [name]="itemHeadline">
+			<div class="item-content ignt-item-content" [name]="itemContent">
+				<div class="item-headline ignt-item-headline" [name]="itemHeadline">
 				</div>
 			</div>
 		""")
@@ -134,7 +134,7 @@ class Item(html5.Div):
 
 		if descr:
 			self.itemSubline = html5.Div()
-			self.addClass("item-subline flr-item-subline")
+			self.addClass("item-subline ignt-item-subline")
 			self.itemSubline.appendChild(html5.TextNode(descr))
 			self.appendChild(self.itemSubline)
 
@@ -145,8 +145,8 @@ class Table(html5.Table):
 
 	def __init__(self, *args, **kwargs):
 		super(Table, self).__init__(*args, **kwargs)
-		self.head.addClass("flr-table-head")
-		self.body.addClass("flr-table-body")
+		self.head.addClass("ignt-table-head")
+		self.body.addClass("ignt-table-body")
 
 	def prepareRow(self, row):
 		assert row >= 0, "Cannot create rows with negative index"
@@ -158,7 +158,7 @@ class Table(html5.Table):
 
 		while row >= 0:
 			tableRow = html5.Tr()
-			tableRow.addClass("flr-table-body-row")
+			tableRow.addClass("ignt-table-body-row")
 			self.body.appendChild(tableRow)
 			row -= 1
 
@@ -177,17 +177,17 @@ class Table(html5.Table):
 
 				while col >= 0:
 					tableCell = html5.Td()
-					tableCell.addClass("flr-table-body-cell")
+					tableCell.addClass("ignt-table-body-cell")
 					rowChild.appendChild(tableCell)
 					col -= 1
 
 				return
 	def fastGrid( self, rows, cols, createHidden=False ):
-		colsstr = "".join(['<td class="flr-table-body-cell"></td>' for i in range(0, cols)])
-		tblstr = '<tbody [name]="body" class="flr-table-body" >'
+		colsstr = "".join(['<td class="ignt-table-body-cell"></td>' for i in range(0, cols)])
+		tblstr = '<tbody [name]="body" class="ignt-table-body" >'
 
 		for r in range(0, rows):
-			tblstr += '<tr class="flr-table-body-row %s">%s</tr>' %("is-hidden" if createHidden else "",colsstr)
+			tblstr += '<tr class="ignt-table-body-row %s">%s</tr>' %("is-hidden" if createHidden else "",colsstr)
 		tblstr +="</tbody>"
 
 		self.fromHTML(tblstr)
