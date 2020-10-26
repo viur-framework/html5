@@ -451,8 +451,10 @@ class Widget(object):
 		"""
 		if val:
 			self.element.setAttribute("hidden", "")
+			self.addClass("is-hidden")
 		else:
 			self.element.removeAttribute("hidden")
+			self.removeClass("is-hidden")
 
 	def _getDisabled(self):
 		return bool(self._disabledState)
