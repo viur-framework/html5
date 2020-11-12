@@ -739,6 +739,9 @@ class Widget(object):
 		toAppend = self.__collectChildren(*args, **kwargs)
 
 		for child in toAppend:
+			if isinstance(child, Template):
+				return self.appendChild(child._children)
+			
 			if child._parent:
 				child._parent._children.remove(child)
 
@@ -2401,6 +2404,12 @@ class Video(Widget, _attrSrc, _attrDimensions, _attrMultimedia):
 
 	def _setPoster(self, val):
 		self.element.poster = val
+
+
+# Template -------------------------------------------------------------------------------------------------------------
+
+class Template(Widget):
+	_tagName = "template"
 
 
 ########################################################################################################################
