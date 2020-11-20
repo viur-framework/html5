@@ -741,7 +741,6 @@ class Widget(object):
 		for child in toAppend:
 			if isinstance(child, Template):
 				return self.appendChild(child._children)
-			
 			if child._parent:
 				child._parent._children.remove(child)
 
