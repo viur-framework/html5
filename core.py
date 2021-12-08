@@ -741,7 +741,7 @@ class Widget(object):
 		for child in toAppend:
 			if isinstance(child, Template):
 				return self.appendChild(child._children)
-			
+
 			if child._parent:
 				child._parent._children.remove(child)
 
@@ -2962,6 +2962,22 @@ def fromHTML(html, appendTo=None, bindTo=None, debug=False, vars=None, **kwargs)
 							logging.exception(e)
 					else:
 						logging.error("html5: bindTo is unset, can't use %r here", att)
+
+				# add event listener on current widget to callbacks on the binder
+				elif att.startswith("@"):
+					if bindTo:
+						try:
+							callback = getattr(bindTo, val)
+							assert callable(callback), f"{callback} is not callable"
+
+						except Exception as e:
+							print(e)
+							continue
+
+						wdg.element.addEventListener(att[1:], callback)
+
+					else:
+						print("html5: bindTo is unset, can't use %r here", att)
 
 				# Otherwise, either store widget attribute or save value on widget.
 				else:
